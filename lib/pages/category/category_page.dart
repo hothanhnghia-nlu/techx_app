@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:techx_app/widgets/categories_widget.dart';
+import 'package:techx_app/pages/category/categories_widget.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});

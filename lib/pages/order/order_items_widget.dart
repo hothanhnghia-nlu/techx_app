@@ -149,7 +149,7 @@ class _OrderItemsWidgetState extends State<OrderItemsWidget> {
                                   ),
                                 ),
                                 Text(
-                                  '01-01-2000 00:00',
+                                  'DD-MM-YYYY hh:mm',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Color(hexColor('#9DA2A7'))

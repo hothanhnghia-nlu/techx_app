@@ -1,4 +1,4 @@
-import 'package:techx_app/pages/product/category_page.dart';
+import 'package:techx_app/pages/category/category_page.dart';
 import 'package:techx_app/pages/profile/account_page.dart';
 import 'package:techx_app/pages/home/home_page.dart';
 import 'package:flutter/material.dart';

@@ -69,72 +69,99 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
   }
 
   Widget buildShimmerPlaceholder() {
+    return Container(
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        border: Border.all(
+          color: Color(hexColor('#F6F6F6')),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: buildShimmerTitle(),
+          ),
+          Center(
+            child: buildShimmerImage(),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildShimmerTextLine(100, 20),
+                  const SizedBox(height: 8),
+                  buildShimmerTextLine(150, 15),
+                  const SizedBox(height: 8),
+                  buildShimmerTextLine(70, 25),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildShimmerTitle() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Container(
-        padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        height: 20,
+        width: 50,
         decoration: BoxDecoration(
+          color: Colors.grey[300],
           borderRadius: BorderRadius.circular(5),
-          color: Colors.white,
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Container(
-                height: 20,
-                width: 50,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-            ),
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  height: 150,
-                  width: 150,
-                  color: Colors.grey[300],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: 20,
-                      width: 100,
-                      color: Colors.grey[300],
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      height: 15,
-                      width: 150,
-                      color: Colors.grey[300],
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      height: 25,
-                      width: 70,
-                      color: Colors.grey[300],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
   }
+
+  Widget buildShimmerImage() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          height: 150,
+          width: 150,
+          color: Colors.grey[300],
+        ),
+      ),
+    );
+  }
+
+  Widget buildShimmerTextLine(double width, double height) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        height: height,
+        width: width,
+        color: Colors.grey[300],
+      ),
+    );
+  }
+
 
   // Container Sau khi dữ liệu đã được tải
   Widget buildProductContainer() {

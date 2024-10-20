@@ -13,6 +13,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool _obscureText = true;
 
   // Nút Đăng nhập
   void _loginButton() async {
@@ -150,14 +151,29 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                
                   const SizedBox(height: 20),
+                  
                   TextFormField(
                     controller: passwordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       labelText: 'Mật khẩu',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        color: Color(hexColor('#9DA2A7')),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureText,
                   ),
                         
                   const SizedBox(height: 15),

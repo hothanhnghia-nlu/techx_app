@@ -149,6 +149,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),

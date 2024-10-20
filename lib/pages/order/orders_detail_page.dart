@@ -98,7 +98,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         ),
                       ),
                       Text(
-                        '01-01-2000 00:00',
+                        'DD-MM-YYYY hh:mm',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),
@@ -120,7 +120,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         ),
                       ),
                       Text(
-                        '01-01-2000 00:00',
+                        'DD-MM-YYYY hh:mm',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),

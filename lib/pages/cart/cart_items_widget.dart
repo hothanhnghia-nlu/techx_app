@@ -4,7 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
 
 class CartItemsWidget extends StatelessWidget {
-  const CartItemsWidget({super.key});
+  final int size;
+
+  const CartItemsWidget({
+    super.key,
+    required this.size
+  });
 
  @override
   Widget build(BuildContext context) {
@@ -107,10 +112,11 @@ class CartItemsWidget extends StatelessWidget {
       );
     }
 
-    int size = 5;
     return SizedBox(
       height: 380,
-      child: ListView(
+      child: size == 0
+        ? Center(child: Text('Giỏ hàng trống', style: TextStyle(color: Color(hexColor('#9DA2A7')), fontSize: 18)))
+        : ListView(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         children: [

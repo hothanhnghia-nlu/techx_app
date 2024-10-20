@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:techx_app/pages/cart/cart_page.dart';
 import 'package:techx_app/search/search_page.dart';
-import 'package:techx_app/widgets/banners_widget.dart';
+import 'package:techx_app/pages/home/banners_widget.dart';
 import 'package:techx_app/pages/product/products_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -113,12 +113,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          // Navigator.of(context).push(
-                          //   MaterialPageRoute(
-                          //       builder: (_) => const RecentlyBookedPage()),
-                          // );
-                        },
+                        onTap: () {},
                         child: const Text(
                           'Xem tất cả',
                           style: TextStyle(
@@ -154,12 +149,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          // Navigator.of(context).push(
-                          //   MaterialPageRoute(
-                          //       builder: (_) => const RecentlyBookedPage()),
-                          // );
-                        },
+                        onTap: () {},
                         child: const Text(
                           'Xem tất cả',
                           style: TextStyle(
@@ -195,12 +185,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          // Navigator.of(context).push(
-                          //   MaterialPageRoute(
-                          //       builder: (_) => const RecentlyBookedPage()),
-                          // );
-                        },
+                        onTap: () {},
                         child: const Text(
                           'Xem tất cả',
                           style: TextStyle(

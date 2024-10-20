@@ -5,10 +5,8 @@ class Product {
   final int? vendorId;
   final double? originalPrice, newPrice;
   final int? quantity, status;
-  // final List<Image> images;
-  // final List<Comment> comments;
 
-  Product(
+  Product({
     this.id,
     this.name,
     this.vendorId,
@@ -27,6 +25,6 @@ class Product {
     this.battery,
     this.description,
     this.status
-  );
+  });
 
 }

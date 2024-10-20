@@ -12,6 +12,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  bool _obscureText = true;
 
   void _saveButton() {
     String newPassword = newPasswordController.text;
@@ -65,10 +66,24 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     controller: newPasswordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       labelText: 'Mật khẩu mới',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        color: Color(hexColor('#9DA2A7')),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureText,
                   ),
                   
                   const SizedBox(height: 5),
@@ -92,10 +107,24 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     controller: confirmPasswordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       labelText: 'Nhập lại mật khẩu mới',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        color: Color(hexColor('#9DA2A7')),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureText,
                   ),
 
                   const SizedBox(height: 25),

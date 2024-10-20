@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:techx_app/models/paymentMethod.dart';
 import 'package:techx_app/pages/cart/checkout_items_widget.dart';
 import 'package:techx_app/pages/home/navigation_page.dart';
 import 'package:techx_app/pages/order/orders_page.dart';
@@ -7,13 +8,27 @@ import 'package:techx_app/pages/profile/my_addresses_page.dart';
 final noteController = TextEditingController();
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
+  final int size;
+
+  const CheckoutPage({
+    super.key,
+    required this.size
+  });
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
+  String _selectedPaymentMethod = paymentMethods[0].name;
+  late int currentSize;
+
+  @override
+  void initState() {
+    super.initState();
+    currentSize = widget.size;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,7 +130,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               decoration: const BoxDecoration(
                 color: Colors.white,
               ),
-              child: const CheckoutItemsWidget()
+              child: CheckoutItemsWidget(size: currentSize)
             ),
 
             const SizedBox(height: 8),
@@ -149,16 +164,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Hình thức thanh toán',
-                        style: TextStyle(
+                      Text(
+                        _selectedPaymentMethod,
+                        style: const TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),
                         ),
                       ),
                       InkWell(
-                        onTap: () {
-                          showPaymentMethodDialog(context);
+                        onTap: () async {
+                          String? selectedMethod = await showPaymentMethodDialog(context, _selectedPaymentMethod);
+                          if (selectedMethod != null) {
+                            setState(() {
+                              _selectedPaymentMethod = selectedMethod;
+                            });
+                          }
                         },
                         child: const Icon(Icons.arrow_forward_ios, color: Colors.black54, size: 18),
                       ),
@@ -317,43 +337,139 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   // Dialog Chọn Phương thức thanh toán
-  Future<dynamic> showPaymentMethodDialog(BuildContext context) {
+Future<dynamic> showPaymentMethodDialog(BuildContext context, String currentPaymentMethod) {
+    int selectedMethodIndex = paymentMethods.indexWhere((method) => method.name == currentPaymentMethod);
+
     return showModalBottomSheet(
       backgroundColor: Colors.white,
       context: context,
       isScrollControlled: true,
       isDismissible: false,
-      enableDrag: false,  
+      enableDrag: false,
       builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.75,
-          widthFactor: 1,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.end,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return FractionallySizedBox(
+              heightFactor: 0.8,
+              widthFactor: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context); 
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(Icons.close, size: 18),
+                        ),
+                      ],
+                    ),
+                  
+                    const Text(
+                      'Chọn Phương thức thanh toán',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: paymentMethods.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedMethodIndex = index;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding: const EdgeInsets.all(12.0),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8.0),
+                                border: Border.all(
+                                  color: selectedMethodIndex == index
+                                      ? Colors.orange
+                                      : Colors.grey.shade300,
+                                  width: 2.0,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Image(
+                                    image: AssetImage(paymentMethods[index].iconUrl),
+                                    width: 40,
+                                    height: 40,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        paymentMethods[index].name,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        paymentMethods[index].description,
+                                        style: const TextStyle(color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  if (selectedMethodIndex == index)
+                                    const Icon(Icons.check_circle, color: Colors.orange)
+                                  else
+                                    const Icon(Icons.radio_button_unchecked),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                      ),
+                      onPressed: () {
+                        String selectedPayment = paymentMethods[selectedMethodIndex].name;
+                        Navigator.pop(context, selectedPayment);
                       },
-                      child: const Icon(Icons.close, size: 18),
+                      child: const Text(
+                        'Xác nhận',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                const Text(
-                  'Chọn Phương thức thanh toán',
-                  style: TextStyle(
-                    fontSize: 17,
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );

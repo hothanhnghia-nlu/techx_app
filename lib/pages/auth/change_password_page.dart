@@ -11,6 +11,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  bool _obscureText = true;
 
   void _saveButton() {
     String currentPassword = currentPasswordController.text;
@@ -42,6 +43,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 5,
+        shadowColor: Color(hexColor('#F0F1F0')),
         surfaceTintColor: Colors.white,
         centerTitle: true,
         title: Text(
@@ -64,14 +67,28 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 children: [
                   TextFormField(
                     controller: currentPasswordController,
-                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       labelText: 'Mật khẩu hiện tại',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        color: Color(hexColor('#9DA2A7')),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureText,
                   ),
+              
 
                   const SizedBox(height: 5),
 
@@ -89,11 +106,26 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     controller: newPasswordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       labelText: 'Mật khẩu mới',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        color: Color(hexColor('#9DA2A7')),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureText,
                   ),
+              
                   
                   const SizedBox(height: 5),
 
@@ -116,18 +148,32 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     controller: confirmPasswordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       labelText: 'Nhập lại mật khẩu mới',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        color: Color(hexColor('#9DA2A7')),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureText,
                   ),
-
+              
                   const SizedBox(height: 25),
                   
                   GestureDetector(
                     onTap: _saveButton,
                     child: Container(
-                      padding: const EdgeInsets.all(15.0),
+                      height: 40,
                       decoration: BoxDecoration(
                           color: Colors.black,
                           borderRadius: BorderRadius.circular(50)),

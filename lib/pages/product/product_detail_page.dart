@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:techx_app/pages/product/product_reviews_widget.dart';
 
 class ProductDetailPage extends StatefulWidget {
   const ProductDetailPage({super.key});
@@ -469,7 +470,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       backgroundColor: Colors.black,
                     ),
                     child: const Text(
-                      'Gửi đánh giá',
+                      'Viết đánh giá',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
@@ -478,6 +479,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                 ],
               ),
+
+              const SizedBox(height: 8),
+
+              const ProductReviewWidget(),
             ],
           ),
         ),
@@ -486,79 +491,122 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
   
-  // Dialog Đánh giá sản phẩm
-  Future<dynamic> showEvaluationDialog(BuildContext context) {
-    final contentController = TextEditingController();
-    String message = "";
-    double rateCount = 0;
-
-    // Nút Gửi đánh giá
-    void sendButton() {
-      setState(() {
-        String content = contentController.text;
-
-        if (rateCount == 0) {
-          message = "Vui lòng chọn đánh giá!";
-        } else if (content.isEmpty) {
-          message = "Vui lòng nhập nội dung đánh giá!";
-        } else {
-          message = "Đánh giá thành công!";
-        }
-      });
-    }
-
-    return showModalBottomSheet(
+  void showEvaluationDialog(BuildContext context) {
+    showModalBottomSheet(
       backgroundColor: Colors.white,
       context: context,
       isScrollControlled: true,
       isDismissible: false,
-      enableDrag: false,  
+      enableDrag: false,
       builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.6,
-          widthFactor: 1,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+        return const EvaluationDialog();
+      },
+    );
+  }
+}
+
+// Dialog Đánh giá sản phẩm
+class EvaluationDialog extends StatefulWidget {
+  const EvaluationDialog({super.key});
+
+  @override
+  State<EvaluationDialog> createState() => _EvaluationDialogState();
+}
+
+class _EvaluationDialogState extends State<EvaluationDialog> {
+  final contentController = TextEditingController();
+  String message = "";
+  double rateCount = 0;
+
+  // Hàm chuyển đổi rating thành text
+  String getRatingText(double rating) {
+    switch (rating) {
+    case 1:
+      return "Rất tệ";
+    case 2:
+      return "Tệ";
+    case 3:
+      return "Tạm ổn";
+    case 4:
+      return "Tốt";
+    case 5:
+      return "Rất tốt";
+    default:
+      return "";
+    }
+  }
+
+  void sendButton() {
+    setState(() {
+      String content = contentController.text;
+
+      if (rateCount == 0) {
+        message = "Vui lòng chọn đánh giá!";
+      } else if (content.isEmpty) {
+        message = "Vui lòng nhập nội dung đánh giá!";
+      } else {
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cảm ơn bạn đã đánh giá sản phẩm!'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      heightFactor: 0.65,
+      widthFactor: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context); 
-                      },
-                      child: const Icon(Icons.close, size: 18),
-                    ),
-                  ],
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context); 
+                  },
+                  child: const Icon(Icons.close, size: 18),
                 ),
-                
-                const Text(
-                  'Đánh giá sản phẩm',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ],
+            ),
+            
+            const Text(
+              'Đánh giá sản phẩm',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            
+            const SizedBox(height: 20),
+
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Hãy cho chúng tôi biết đánh giá của bạn về sản phẩm này!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.blue,
                 ),
-                
-                const SizedBox(height: 20),
+              ),
+            ),
 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Hãy cho chúng tôi biết đánh giá của bạn về sản phẩm này!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ),
+            const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
-
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 RatingBar.builder(
                   initialRating: 0,
                   minRating: 1,
@@ -568,68 +616,70 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   itemPadding: const EdgeInsets.symmetric(horizontal: 4),
                   itemBuilder: (context, _) => const Icon(Icons.star, color: Colors.amber), 
                   onRatingUpdate: (rating) {
-                    rateCount = rating;
+                    setState(() {
+                      rateCount = rating;
+                    });
                   }
                 ),
-                
-                const SizedBox(height: 20),
-
-                TextFormField(
-                  controller: contentController,
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    hintText: 'Nhập nội dung đánh giá',
-                    hintStyle: TextStyle(
-                      color: Color(hexColor('#9DA2A7')),
-                      fontSize: 13,
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  obscureText: false,
-                ),
-
-                const SizedBox(height: 20),
-
-                GestureDetector(
-                  onTap: sendButton,
-                  child:  Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(50)),
-                    child: const Center(
-                      child: Text(
-                        'Gửi đánh giá',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
                 const SizedBox(height: 10),
-                
                 Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.red,
-                  ),
+                  getRatingText(rateCount),
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
                 ),
               ],
             ),
-          ),
-        );
-      },
+            
+            const SizedBox(height: 20),
+
+            TextFormField(
+              controller: contentController,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                hintText: 'Nhập nội dung đánh giá',
+                hintStyle: const TextStyle(
+                  color: Color(0xFF9DA2A7),
+                  fontSize: 13,
+                ),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              obscureText: false,
+            ),
+
+            const SizedBox(height: 10),
+
+            ElevatedButton(
+              onPressed: sendButton,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+              ),
+              child: const Text(
+                'Gửi đánh giá',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+            
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.red,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
+// Nút AddToCart và BuyNow
 class ButtonBottomNav extends StatelessWidget {
   const ButtonBottomNav({super.key});
 

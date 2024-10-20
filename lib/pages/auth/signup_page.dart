@@ -13,6 +13,7 @@ class _SignupPageState extends State<SignupPage> {
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
   final confPasswordController = TextEditingController();
+  bool _obscureText = true;
 
   void _signUpButton() async {
     String name = nameController.text;
@@ -115,26 +116,55 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                  
                   const SizedBox(height: 20),
+
                   TextFormField(
                     controller: passwordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       labelText: 'Mật khẩu',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        color: Color(hexColor('#9DA2A7')),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureText,
                   ),
               
                   const SizedBox(height: 20),
               
                   TextFormField(
-                    controller: confPasswordController,
+                    controller: passwordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       labelText: 'Nhập lại mật khẩu',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        color: Color(hexColor('#9DA2A7')),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureText,
                   ),
               
                   const SizedBox(height: 20),

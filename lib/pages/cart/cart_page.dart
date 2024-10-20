@@ -80,8 +80,17 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     );
   }
 
+  // Nút Thanh toán
+  void paymentButton(int size) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => CheckoutPage(size: size)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    int cartItemSize = 2;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -115,18 +124,18 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 5),
-              child: Row(
+            Padding(
+              padding: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 5),
+              child: cartItemSize == 0 ? null : Row(
                 children: [
-                  Text(
-                    'Tất cả (',
+                  const Text(
+                    'Tất cả ',
                   ),
                    Text(
-                    '0',
+                    '$cartItemSize',
                   ),
-                   Text(
-                    ') sản phẩm',
+                   const Text(
+                    ' sản phẩm',
                   ),
                 ],
               ),
@@ -134,7 +143,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         
             const SizedBox(height: 4),
         
-            const CartItemsWidget(),
+            CartItemsWidget(size: cartItemSize),
 
             Padding(
               padding: const EdgeInsets.all(20),
@@ -167,16 +176,11 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                   const SizedBox(height: 20),
                         
                   GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const CheckoutPage()),
-                      );
-                    },
+                    onTap: cartItemSize == 0 ? null : () => paymentButton(cartItemSize),
                     child: Container(
                       height: 40,
                       decoration: BoxDecoration(
-                          color: Colors.black,
+                          color: cartItemSize == 0 ? Colors.grey : Colors.black,
                           borderRadius: BorderRadius.circular(50)),
                       child: const Center(
                         child: Text(
