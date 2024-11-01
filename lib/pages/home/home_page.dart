@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:techx_app/pages/cart/cart_page.dart';
-import 'package:techx_app/search/search_page.dart';
+import 'package:techx_app/pages/search/search_page.dart';
 import 'package:techx_app/pages/home/banners_widget.dart';
 import 'package:techx_app/pages/product/products_widget.dart';
 

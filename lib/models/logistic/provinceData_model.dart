@@ -11,4 +11,12 @@ class ProvinceData {
     this.message,
     this.data
   });
+
+  factory ProvinceData.fromJson(Map<String, dynamic> json) {
+    return ProvinceData(
+      code: json['code'],
+      message: json['message'],
+      data: (json['data'] as List?)?.map((e) => Province.fromJson(e)).toList(),
+    );
+  }
 }

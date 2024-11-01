@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:techx_app/models/logistic/district_model.dart';
+import 'package:techx_app/models/logistic/province_model.dart';
+import 'package:techx_app/models/logistic/ward_model.dart';
+import 'package:techx_app/services/logistic_service.dart';
 
 class MyAddressesPage extends StatefulWidget {
   const MyAddressesPage({super.key});
@@ -14,6 +18,69 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
   final districtController = TextEditingController();
   final wardController = TextEditingController();
   final addressDetailController = TextEditingController();
+
+  LogisticService service = LogisticService();
+
+  Province? _provinceSelected;
+  District? _districtSelected;
+  Ward? _wardSelected;
+
+  List<Province> _provinceList = [];
+  List<District> _districtList = [];
+  List<Ward> _wardList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProvinces();
+  }
+
+  // Get Provinces
+  Future<void> _fetchProvinces() async {
+    try {
+      List<Province> provinces = await service.getProvinces();
+      setState(() {
+        _provinceList = provinces;
+        if (_provinceList.isNotEmpty) {
+          _provinceSelected = _provinceList[0];
+          _fetchDistricts(_provinceSelected!.provinceID);
+        }
+      });
+    } catch (e) {
+      throw Exception('Error fetching provinces: $e');
+    }
+  }
+
+  // Get Districts by province id
+  Future<void> _fetchDistricts(int provinceId) async {
+    try {
+      List<District> districts = await service.getDistricts(provinceId);
+      setState(() {
+        _districtList = districts;
+        _districtSelected = _districtList.isNotEmpty ? _districtList[0] : null;
+        if (_districtSelected != null) {
+          _fetchWards(_districtSelected!.districtID);
+        } else {
+          _wardList.clear();
+        }
+      });
+    } catch (e) {
+      throw Exception('Error fetching provinces: $e');
+    }
+  }
+  
+  // Get Wards by district id
+  Future<void> _fetchWards(int districtId) async {
+    try {
+      List<Ward> wards = await service.getWards(districtId);
+      setState(() {
+        _wardList = wards;
+        _wardSelected = _wardList.isNotEmpty ? _wardList[0] : null;
+      });
+    } catch (e) {
+      throw Exception('Error fetching provinces: $e');
+    }
+  }
 
   void _saveButton() async {
     String name = nameController.text;
@@ -72,9 +139,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     ),
                     obscureText: false,
                   ),
-              
                   const SizedBox(height: 20),
-              
                   TextFormField(
                     controller: phoneController,
                     keyboardType: TextInputType.phone,
@@ -85,44 +150,105 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     ),
                     obscureText: false,
                   ),
-                 
+
                   const SizedBox(height: 20),
-                  TextFormField(
-                    controller: provinceController,
+
+                  DropdownButtonFormField(
+                    value: _provinceSelected,
+                    items: _provinceList.map((province) {
+                      return DropdownMenuItem(
+                        value: province,
+                        child: Text(province.provinceName ?? ''),
+                      );
+                    }).toList(),
+                    onChanged: (Province? newProvince) {
+                      setState(() {
+                        _provinceSelected = newProvince;
+                        _districtSelected = null;
+                        _wardSelected = null;
+                        _districtList.clear();
+                        _wardList.clear();
+                      });
+                      if (newProvince != null) {
+                        _fetchDistricts(newProvince.provinceID);
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.arrow_drop_down_circle,
+                      color: Colors.deepPurple,
+                    ),
+                    dropdownColor: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10)),
-                      labelText: 'Tỉnh/ Thành phố',
+                      labelText: 'Tỉnh/ Thành phổ',
                     ),
-                    obscureText: false,
                   ),
-              
+
                   const SizedBox(height: 20),
-              
-                  TextFormField(
-                    controller: districtController,
+
+                  DropdownButtonFormField(
+                    value: _districtSelected,
+                    items: _districtList.map((district) {
+                      return DropdownMenuItem(
+                        value: district,
+                        child: Text(district.districtName ?? ''),
+                      );
+                    }).toList(),
+                    onChanged: (District? newDistrict) {
+                      setState(() {
+                        _districtSelected = newDistrict;
+                        _wardSelected = null;
+                        _wardList.clear();
+                      });
+                      if (newDistrict != null) {
+                        _fetchWards(newDistrict.districtID);
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.arrow_drop_down_circle,
+                      color: Colors.deepPurple,
+                    ),
+                    dropdownColor: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10)),
                       labelText: 'Quận/ Huyện',
                     ),
-                    obscureText: false,
                   ),
-              
+
                   const SizedBox(height: 20),
-              
-                  TextFormField(
-                    controller: wardController,
+
+                  DropdownButtonFormField(
+                    value: _wardSelected,
+                    items: _wardList.map((ward) {
+                      return DropdownMenuItem(
+                        value: ward,
+                        child: Text(ward.wardName ?? ''),
+                      );
+                    }).toList(),
+                     onChanged: (Ward? newWard) {
+                      setState(() {
+                        _wardSelected = newWard;
+                      });
+                    },
+                    icon: const Icon(
+                      Icons.arrow_drop_down_circle,
+                      color: Colors.deepPurple,
+                    ),
+                    dropdownColor: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10)),
                       labelText: 'Phường/ Xã',
                     ),
-                    obscureText: false,
                   ),
-              
+                  
                   const SizedBox(height: 20),
-              
+
                   TextFormField(
                     controller: addressDetailController,
                     keyboardType: TextInputType.text,
@@ -133,9 +259,9 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     ),
                     obscureText: false,
                   ),
-              
+
                   const SizedBox(height: 20),
-              
+
                   GestureDetector(
                     onTap: _saveButton,
                     child: Container(
@@ -155,7 +281,6 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                       ),
                     ),
                   ),
-              
                   const SizedBox(height: 20),
                 ],
               ),

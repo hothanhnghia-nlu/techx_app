@@ -19,7 +19,7 @@ class CheckoutItemsWidget extends StatelessWidget {
  @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 250,
+      height: 350,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 5),
         child: ListView(
