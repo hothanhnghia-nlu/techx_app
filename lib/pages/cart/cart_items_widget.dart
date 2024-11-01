@@ -113,7 +113,7 @@ class CartItemsWidget extends StatelessWidget {
     }
 
     return SizedBox(
-      height: 380,
+      height: MediaQuery.of(context).size.height * 0.7,
       child: size == 0
         ? Center(child: Text('Giỏ hàng trống', style: TextStyle(color: Color(hexColor('#9DA2A7')), fontSize: 18)))
         : ListView(

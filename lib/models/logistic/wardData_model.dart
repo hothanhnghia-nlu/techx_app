@@ -10,4 +10,12 @@ class WardData {
     this.message,
     this.data,
   });
+  
+  factory WardData.fromJson(Map<String, dynamic> json) {
+    return WardData(
+      code: json['code'],
+      message: json['message'],
+      data: (json['data'] as List?)?.map((e) => Ward.fromJson(e)).toList(),
+    );
+  }
 }
