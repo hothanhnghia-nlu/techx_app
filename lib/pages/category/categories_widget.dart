@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 import 'package:techx_app/pages/product/product_cat_page.dart';
+import 'package:logger/logger.dart';
 
 class CategoriesWidget extends StatefulWidget {
   const CategoriesWidget({super.key});
@@ -10,40 +13,67 @@ class CategoriesWidget extends StatefulWidget {
 }
 
 class _CategoriesWidgetState extends State<CategoriesWidget> {
+  final Logger logger = Logger(); // Thêm Logger
   bool _isLoading = true;
+  List<dynamic> _providers = [];
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    fetchProviders();
+  }
+
+  Future<void> fetchProviders() async {
+    const String apiUrl = "http://10.0.2.2:8080/api/providers";
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        setState(() {
+          _providers = json.decode(response.body);
+          _isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load providers");
+      }
+    } catch (e) {
+      logger.e("Error fetching providers", e); // Sử dụng Logger
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    int size = 5;
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.7,
-      child: ListView(
-        scrollDirection: Axis.vertical,
-        children: [
-          for (int i = 1; i <= size; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const ProductCatPage()));
-                },
-                child: _isLoading
-                    ? buildShimmerPlaceholder()
-                    : buildProductContainer(),
-              ),
+      child: _isLoading
+          ? ListView.builder(
+        itemCount: 5,
+        itemBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+          child: buildShimmerPlaceholder(),
+        ),
+      )
+          : ListView.builder(
+        itemCount: _providers.length,
+        itemBuilder: (context, index) {
+          final provider = _providers[index];
+          return Padding(
+            padding:
+            const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ProductCatPage(
+                      providerId: provider['id'], // Truyền id của hãng
+                      providerName: provider['name'], // Truyền tên của hãng
+                    ),
+                  ),
+                );
+              },
+              child: buildProductContainer(provider),
             ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -70,7 +100,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
             height: 100,
             width: 150,
             decoration: BoxDecoration(
-              color: Colors.grey[300], // or Colors.white for a blank shimmer
+              color: Colors.grey[300],
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -79,9 +109,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
     );
   }
 
-
-  // Container Sau khi dữ liệu đã được tải
-  Widget buildProductContainer() {
+  Widget buildProductContainer(dynamic provider) {
     return Card(
       surfaceTintColor: Colors.white,
       elevation: 3,
@@ -99,9 +127,21 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
         child: SizedBox(
           height: 100,
           width: 150,
-          child: Image.network(
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTV58grb2DWbTqDMRCtPxJ_dT_PkPSA0rJFIQ&s',
-            fit: BoxFit.fill,
+          child: Column(
+            children: [
+              Expanded(
+                child: Image.network(
+                  provider['image']['url'],
+                  fit: BoxFit.fill,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                provider['name'],
+                style: const TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       ),
