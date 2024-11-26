@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:logger/logger.dart'; // Thêm thư viện logger
+import 'package:logger/logger.dart';
+import 'package:techx_app/utils/constant.dart'; // Import constant.dart
 
-// Khởi tạo logger
 final logger = Logger();
 
 List<String> list = <String>['Giá Cao - Thấp', 'Giá Thấp - Cao'];
@@ -34,7 +34,7 @@ class _ProductCatPageState extends State<ProductCatPage> {
   }
 
   Future<void> fetchProductsByProvider() async {
-    const String apiUrl = "http://10.0.2.2:8080/api/products";
+    final String apiUrl = "${Constant.api}/products"; // Sử dụng API từ constant.dart
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
