@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 import 'package:techx_app/pages/product/product_cat_page.dart';
 import 'package:logger/logger.dart';
+import 'package:techx_app/utils/constant.dart'; // Import constant.dart
 
 class CategoriesWidget extends StatefulWidget {
   const CategoriesWidget({super.key});
@@ -24,7 +25,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
   }
 
   Future<void> fetchProviders() async {
-    const String apiUrl = "http://10.0.2.2:8080/api/providers";
+    const String apiUrl = "${Constant.api}/providers"; // Sử dụng từ Constant
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
@@ -36,7 +37,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
         throw Exception("Failed to load providers");
       }
     } catch (e) {
-      logger.e("Error fetching providers", e); // Sử dụng Logger
+      logger.e("Error fetching providers", e); // Sử dụng Logger để log lỗi
     }
   }
 
