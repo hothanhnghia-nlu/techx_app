@@ -65,8 +65,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => ProductCatPage(
-                      providerId: provider['id'], // Truyền id của hãng
-                      providerName: provider['name'], // Truyền tên của hãng
+
                     ),
                   ),
                 );
