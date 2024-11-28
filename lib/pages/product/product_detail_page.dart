@@ -73,7 +73,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   fit: BoxFit.fill,
                 ),
               ),
-          
+
               const SizedBox(height: 10),
 
               const Text(
@@ -84,7 +84,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   color: Colors.black,
                 ),
               ),
-          
+
               const SizedBox(height: 5),
 
               const Row(
@@ -109,7 +109,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
 
                   SizedBox(width: 30),
-                  
+
                   Row(
                     children: [
                       Text(
@@ -132,7 +132,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ),
 
               const SizedBox(height: 8),
-                  
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -214,7 +214,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const SizedBox(height: 12),
                   const Divider(color: Color(0xffF6F6F6)),
                   const SizedBox(height: 12),
-        
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -238,7 +238,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const SizedBox(height: 12),
                   const Divider(color: Color(0xffF6F6F6)),
                   const SizedBox(height: 12),
-        
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -262,7 +262,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const SizedBox(height: 12),
                   const Divider(color: Color(0xffF6F6F6)),
                   const SizedBox(height: 12),
-        
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -286,7 +286,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const SizedBox(height: 12),
                   const Divider(color: Color(0xffF6F6F6)),
                   const SizedBox(height: 12),
-        
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -310,7 +310,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const SizedBox(height: 12),
                   const Divider(color: Color(0xffF6F6F6)),
                   const SizedBox(height: 12),
-        
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -334,7 +334,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const SizedBox(height: 12),
                   const Divider(color: Color(0xffF6F6F6)),
                   const SizedBox(height: 12),
-        
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -358,7 +358,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const SizedBox(height: 12),
                   const Divider(color: Color(0xffF6F6F6)),
                   const SizedBox(height: 12),
-        
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -490,7 +490,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       bottomNavigationBar: const ButtonBottomNav(),
     );
   }
-  
+
   void showEvaluationDialog(BuildContext context) {
     showModalBottomSheet(
       backgroundColor: Colors.white,
@@ -521,18 +521,18 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   // Hàm chuyển đổi rating thành text
   String getRatingText(double rating) {
     switch (rating) {
-    case 1:
-      return "Rất tệ";
-    case 2:
-      return "Tệ";
-    case 3:
-      return "Tạm ổn";
-    case 4:
-      return "Tốt";
-    case 5:
-      return "Rất tốt";
-    default:
-      return "";
+      case 1:
+        return "Rất tệ";
+      case 2:
+        return "Tệ";
+      case 3:
+        return "Tạm ổn";
+      case 4:
+        return "Tốt";
+      case 5:
+        return "Rất tốt";
+      default:
+        return "";
     }
   }
 
@@ -573,13 +573,13 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context); 
+                    Navigator.pop(context);
                   },
                   child: const Icon(Icons.close, size: 18),
                 ),
               ],
             ),
-            
+
             const Text(
               'Đánh giá sản phẩm',
               style: TextStyle(
@@ -587,7 +587,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            
+
             const SizedBox(height: 20),
 
             const Padding(
@@ -608,18 +608,18 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RatingBar.builder(
-                  initialRating: 0,
-                  minRating: 1,
-                  direction: Axis.horizontal,
-                  allowHalfRating: true,
-                  itemCount: 5,
-                  itemPadding: const EdgeInsets.symmetric(horizontal: 4),
-                  itemBuilder: (context, _) => const Icon(Icons.star, color: Colors.amber), 
-                  onRatingUpdate: (rating) {
-                    setState(() {
-                      rateCount = rating;
-                    });
-                  }
+                    initialRating: 0,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    allowHalfRating: true,
+                    itemCount: 5,
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    itemBuilder: (context, _) => const Icon(Icons.star, color: Colors.amber),
+                    onRatingUpdate: (rating) {
+                      setState(() {
+                        rateCount = rating;
+                      });
+                    }
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -628,7 +628,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
 
             TextFormField(
@@ -663,7 +663,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
             ),
 
             const SizedBox(height: 10),
-            
+
             Text(
               message,
               textAlign: TextAlign.center,
@@ -685,7 +685,7 @@ class ButtonBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  
+
     // Nút Thêm vào Giỏ hàng
     void addToCartButton() {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
 
@@ -12,32 +14,37 @@ class ProductCatWidget extends StatefulWidget {
 
 class _ProductCatWidgetState extends State<ProductCatWidget> {
   bool _isLoading = true;
+  List<dynamic> _products = [];
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    fetchProducts();
   }
 
-  // Định dạng đơn vị tiền tệ
-  String formatCurrency(double orginalCurrency) {
+  // Fetch data from API
+  Future<void> fetchProducts() async {
+    try {
+      final response = await http.get(Uri.parse('http://10.0.2.2:8080/api/v1/products'));
+      if (response.statusCode == 200) {
+        setState(() {
+          _products = json.decode(response.body);
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      print('Error fetching products: $e');
+    }
+  }
+
+  // Format currency
+  String formatCurrency(double originalCurrency) {
     var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
-    return formatter.format(orginalCurrency);
+    return formatter.format(originalCurrency);
   }
 
-  // Nút Thêm vào Yêu thích
-  void _addToFavoriteButton() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã nhấn nút Thêm vào yêu thích'),
-      ),
-    );
-  }
-  
   @override
   Widget build(BuildContext context) {
     int size = 7;
@@ -47,20 +54,23 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
       crossAxisCount: 2,
       shrinkWrap: true,
       children: [
-        for (int i = 1; i <= size; i++)
-        GestureDetector(
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ProductDetailPage()));
-          },
-          child: _isLoading
-              ? buildShimmerPlaceholder()
-              : buildProductContainer(),
-        )
+        for (int i = 0; i < size; i++)
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ProductDetailPage()));
+            },
+            child: _isLoading
+                ? buildShimmerPlaceholder()
+                : buildProductContainer(_products[i]),  // Truyền sản phẩm từ danh sách _products
+          ),
       ],
     );
   }
 
+
+
+  // Shimmer Placeholder for Loading State
   Widget buildShimmerPlaceholder() {
     return Container(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
@@ -85,27 +95,36 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: buildShimmerTitle(),
-          ),
-          Center(
-            child: buildShimmerImage(),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildShimmerTextLine(100, 20),
-                  const SizedBox(height: 8),
-                  buildShimmerTextLine(150, 15),
-                  const SizedBox(height: 8),
-                  buildShimmerTextLine(70, 25),
-                ],
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 20,
+              width: 50,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(5),
               ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 150,
+              width: 150,
+              color: Colors.grey[300],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 20,
+              width: 100,
+              color: Colors.grey[300],
             ),
           ),
         ],
@@ -113,51 +132,8 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
     );
   }
 
-  Widget buildShimmerTitle() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        height: 20,
-        width: 50,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(5),
-        ),
-      ),
-    );
-  }
-
-  Widget buildShimmerImage() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          height: 150,
-          width: 150,
-          color: Colors.grey[300],
-        ),
-      ),
-    );
-  }
-
-  Widget buildShimmerTextLine(double width, double height) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        height: height,
-        width: width,
-        color: Colors.grey[300],
-      ),
-    );
-  }
-
-
-  // Container Sau khi dữ liệu đã được tải
-  Widget buildProductContainer() {
+  // Build Product Container with Data
+  Widget buildProductContainer(dynamic product) {
     return Container(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -189,7 +165,7 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
-                  '-0%',
+                  '-0%', // Placeholder for discount
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white,
@@ -198,7 +174,13 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
                 ),
               ),
               GestureDetector(
-                onTap: _addToFavoriteButton,
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Đã nhấn nút Thêm vào yêu thích'),
+                    ),
+                  );
+                },
                 child: const Icon(Icons.favorite_border, color: Colors.red),
               ),
             ],
@@ -206,17 +188,18 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
           Container(
             margin: const EdgeInsets.all(10),
             child: Image.network(
-              'https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-200x200.jpg',
+              product['images'][0]['url'],
               height: 120,
               width: 120,
+              fit: BoxFit.cover,
             ),
           ),
           Container(
             padding: const EdgeInsets.only(bottom: 8),
             alignment: Alignment.centerLeft,
-            child: const Text(
-              'Tên sản phẩm',
-              style: TextStyle(
+            child: Text(
+              product['name'],
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -224,21 +207,10 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.only(bottom: 8),
             alignment: Alignment.centerLeft,
-            child: const Text(
-              'Thông số kỹ thuật',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff727880),
-              ),
-            ),
-          ),
-          Container(
-            alignment: Alignment.centerLeft,
-            child: const Text(
-              '0đ',
-              style: TextStyle(
+            child: Text(
+              formatCurrency(product['newPrice'].toDouble()),
+              style: const TextStyle(
                 fontSize: 18,
                 color: Colors.red,
                 fontWeight: FontWeight.bold,
@@ -251,6 +223,7 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
   }
 }
 
+// Helper function to convert hex color string to integer
 int hexColor(String color) {
   String newColor = "0xff$color";
   newColor = newColor.replaceAll('#', '');
