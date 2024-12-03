@@ -35,24 +35,3 @@ class ProductCart {
     return 'ProductCart(id: $id, name: $name, price: $price, quantity: $quantity, imageUrl: $imageUrl, status: $status, productId: $productId)';
   }
 }
-
-class CartProvider with ChangeNotifier {
-  List<ProductCart> _cartItems = [];
-
-  List<ProductCart> get cartItems => _cartItems;
-
-  // Thêm sản phẩm vào giỏ hàng
-  void addProduct(ProductCart product) {
-    _cartItems.add(product);
-    notifyListeners();
-  }
-
-  // Xóa sản phẩm khỏi giỏ hàng
-  void removeProduct(int productId) {
-    _cartItems.removeWhere((item) => item.id == productId);
-    notifyListeners();
-  }
-
-  // Lấy số lượng sản phẩm trong giỏ hàng
-  int get itemCount => _cartItems.length;
-}
