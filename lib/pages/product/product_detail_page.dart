@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:techx_app/pages/product/product_reviews_widget.dart';
+import 'package:techx_app/services/cart_service.dart';
 
 class ProductDetailPage extends StatefulWidget {
   const ProductDetailPage({super.key});
@@ -482,7 +483,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
               const SizedBox(height: 8),
 
-              const ProductReviewWidget(),
+              const ProductReviewWidget(reviews: [],),
             ],
           ),
         ),
@@ -683,18 +684,30 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
 class ButtonBottomNav extends StatelessWidget {
   const ButtonBottomNav({super.key});
 
+
   @override
   Widget build(BuildContext context) {
+    CartService cartService = CartService();
 
     // Nút Thêm vào Giỏ hàng
-    void addToCartButton() {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã nhấn nút Thêm vào giỏ hàng'),
-          duration: Duration(seconds: 1),
-        ),
-      );
-    }
+void addToCartButton(int productId) async {
+  try {
+    await cartService.addProductCart(productId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Sản phẩm đã được thêm vào giỏ hàng!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Không thể thêm sản phẩm vào giỏ hàng. Lỗi: $e'),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+}
 
     // Nút Mua ngay
     void buyNowButton() {
@@ -713,7 +726,8 @@ class ButtonBottomNav extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: addToCartButton,
+            // parameter product id  addToCartButton(parameter)
+            onTap: () => addToCartButton(4),
             child: Container(
               height: 50,
               width: 150,

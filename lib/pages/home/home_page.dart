@@ -4,6 +4,7 @@ import 'package:techx_app/pages/cart/cart_page.dart';
 import 'package:techx_app/pages/search/search_page.dart';
 import 'package:techx_app/pages/home/banners_widget.dart';
 import 'package:techx_app/pages/product/products_widget.dart';
+import 'package:techx_app/services/cart_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,7 +14,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  
+  CartService cartService = CartService();
+
   // Nút Trang Giỏ hàng
   void _cartButton() {
     Navigator.of(context).push(
@@ -21,6 +23,14 @@ class _HomePageState extends State<HomePage> {
           builder: (_) => const ShoppingCartPage()),
     );
   }
+
+@override
+void initState() {
+  super.initState();
+  cartService.getQuantityProduct().then((quantity) {
+    cartService.cartItemSize.value = quantity;
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -65,22 +75,26 @@ class _HomePageState extends State<HomePage> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),
-            child: badges.Badge(
-              badgeContent: const Text(
-                '3',
-                style: TextStyle(
-                  color: Colors.white,
+            child: ValueListenableBuilder<int>(
+            valueListenable: cartService.cartItemSize, // Lắng nghe thay đổi
+            builder: (context, value, child) {
+               print('Số lượng giỏ hàng hiển thị: $value');
+              return badges.Badge(
+                badgeContent: Text(
+                  '$value', // Hiển thị số lượng sản phẩm
+                  style: const TextStyle(color: Colors.white),
                 ),
-              ),
-              child: GestureDetector(
-                onTap: _cartButton,
-                child: Icon(
-                  Icons.shopping_cart_outlined,
-                  color: Color(hexColor('#5D4037')),
-                  size: 30,
+                child: GestureDetector(
+                  onTap: _cartButton,
+                  child: Icon(
+                    Icons.shopping_cart_outlined,
+                    color: Color(hexColor('#5D4037')),
+                    size: 30,
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
+          ),
           ),
         ],
       ),
