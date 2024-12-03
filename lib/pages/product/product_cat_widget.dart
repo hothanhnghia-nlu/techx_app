@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
+import 'package:techx_app/utils/constant.dart';
 
 class ProductCatWidget extends StatefulWidget {
   const ProductCatWidget({super.key});
@@ -25,7 +26,7 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
   // Fetch data from API
   Future<void> fetchProducts() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:8080/api/v1/products'));
+      final response = await http.get(Uri.parse(Constant.products));
       if (response.statusCode == 200) {
         setState(() {
           _products = json.decode(response.body);
@@ -47,7 +48,7 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
 
   @override
   Widget build(BuildContext context) {
-    int size = 7;
+    int size = 100;
     return GridView.count(
       childAspectRatio: 0.54,
       physics: const NeverScrollableScrollPhysics(),
