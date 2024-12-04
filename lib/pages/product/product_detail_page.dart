@@ -3,6 +3,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:techx_app/pages/product/product_reviews_widget.dart';
 import 'package:techx_app/services/cart_service.dart';
+import 'package:techx_app/services/reviews_service.dart';
 
 class ProductDetailPage extends StatefulWidget {
   const ProductDetailPage({super.key});
@@ -13,6 +14,38 @@ class ProductDetailPage extends StatefulWidget {
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
   bool isPressed = false;
+  final ReviewService reviewService = ReviewService();
+  List<Map<String, dynamic>> reviews = [];
+
+void fetchReviews(int productId) async {
+  try {
+    final data = await reviewService.getAllReviewsByProduct(productId);
+   setState(() {
+        reviews = data;
+      });
+    print('Reviews: $reviews');
+  } catch (e) {
+    print('Error: $e');
+  }
+}
+ 
+  @override
+  void initState() {
+    super.initState();
+    fetchReviews(7);
+  }
+// Tính trung bình sao đánh giá
+double calculateAverageRating(List<Map<String, dynamic>> reviews) {
+  if (reviews.isEmpty) {
+    return 0.0; // Trả về 0 nếu không có đánh giá
+  }
+  
+  double totalRating = reviews.fold(0, (sum, review) => sum + (review['rating'] ?? 0));
+  double average = totalRating / reviews.length;
+
+  return double.parse(average.toStringAsFixed(1));
+}
+
 
   // Định dạng đơn vị tiền tệ
   String formatCurrency(double orginalCurrency) {
@@ -45,6 +78,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -424,7 +458,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    '(0 đánh giá)',
+                    '(${reviews.length} đánh giá)',
                     style: TextStyle(
                       color: Color(hexColor('#727880')),
                     ),
@@ -437,9 +471,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
+                  Column(
                     children: [
-                      Text(
+                    const  Text(
                         'Trung bình',
                         style: TextStyle(
                           fontSize: 16,
@@ -450,7 +484,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       Row(
                         children: [
                           Text(
-                            '0',
+                            '${calculateAverageRating(reviews)}',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -465,7 +499,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      showEvaluationDialog(context);
+                      showEvaluationDialog(context,7);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
@@ -483,7 +517,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
               const SizedBox(height: 8),
 
-              const ProductReviewWidget(reviews: [],),
+               ProductReviewWidget(reviews: reviews ,),
             ],
           ),
         ),
@@ -492,7 +526,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  void showEvaluationDialog(BuildContext context) {
+  void showEvaluationDialog(BuildContext context,int _productId) {
     showModalBottomSheet(
       backgroundColor: Colors.white,
       context: context,
@@ -500,7 +534,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       isDismissible: false,
       enableDrag: false,
       builder: (context) {
-        return const EvaluationDialog();
+        return EvaluationDialog(productId: _productId);
       },
     );
   }
@@ -508,16 +542,32 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
 // Dialog Đánh giá sản phẩm
 class EvaluationDialog extends StatefulWidget {
-  const EvaluationDialog({super.key});
-
+   final int productId;
+  const EvaluationDialog({super.key, required this.productId});
+  
   @override
   State<EvaluationDialog> createState() => _EvaluationDialogState();
 }
 
 class _EvaluationDialogState extends State<EvaluationDialog> {
   final contentController = TextEditingController();
+  final ReviewService reviewService = ReviewService();
   String message = "";
   double rateCount = 0;
+
+void createReview(int productId,double rating,String comment) async {
+  final reviewData = {
+    'rating': rating,
+    'comment': comment,
+  };
+
+  try {
+    final newReview = await reviewService.createReview(productId, reviewData);
+    print('Created Review: $newReview');
+  } catch (e) {
+    print('Error: $e');
+  }
+}
 
   // Hàm chuyển đổi rating thành text
   String getRatingText(double rating) {
@@ -546,6 +596,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
       } else if (content.isEmpty) {
         message = "Vui lòng nhập nội dung đánh giá!";
       } else {
+        createReview(widget.productId, rateCount, content);
         Navigator.pop(context);
 
         ScaffoldMessenger.of(context).showSnackBar(
