@@ -3,14 +3,18 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
+import 'package:techx_app/pages/product/product_cat_page.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
+import 'package:techx_app/utils/constant.dart';
 
 class ProductCatWidget extends StatefulWidget {
-  const ProductCatWidget({super.key});
+  const ProductCatWidget({super.key, required this.providerId});
+  final int providerId; // Nhận ID từ ProductCatPage
 
   @override
   State<ProductCatWidget> createState() => _ProductCatWidgetState();
 }
+
 
 class _ProductCatWidgetState extends State<ProductCatWidget> {
   bool _isLoading = true;
@@ -25,10 +29,13 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
   // Fetch data from API
   Future<void> fetchProducts() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:8080/api/v1/products'));
+      final response = await http.get(Uri.parse('${Constant.products}'));
       if (response.statusCode == 200) {
+        final allProducts = json.decode(response.body);
         setState(() {
-          _products = json.decode(response.body);
+          _products = allProducts.where((product) {
+            return product['provider']['id'] == widget.providerId;
+          }).toList();
           _isLoading = false;
         });
       } else {
@@ -39,6 +46,8 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
     }
   }
 
+
+
   // Format currency
   String formatCurrency(double originalCurrency) {
     var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
@@ -47,24 +56,31 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
 
   @override
   Widget build(BuildContext context) {
-    int size = 7;
     return GridView.count(
       childAspectRatio: 0.54,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
       shrinkWrap: true,
-      children: [
-        for (int i = 0; i < size; i++)
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ProductDetailPage()));
-            },
-            child: _isLoading
-                ? buildShimmerPlaceholder()
-                : buildProductContainer(_products[i]),  // Truyền sản phẩm từ danh sách _products
-          ),
-      ],
+      children: _isLoading
+          ? List.generate(
+        10, // Hiển thị 10 shimmer placeholders khi đang tải
+            (_) => buildShimmerPlaceholder(),
+      )
+          : _products.map((product) {
+        return GestureDetector(
+          onTap: () {
+            // Điều hướng tới một ProductCatPage khác (nếu cần)
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ProductCatPage(
+                  providerId: product['providerId'], // Truyền ID nhà cung cấp
+                ),
+              ),
+            );
+          },
+          child: buildProductContainer(product), // Xây dựng UI của từng sản phẩm
+        );
+      }).toList(),
     );
   }
 
