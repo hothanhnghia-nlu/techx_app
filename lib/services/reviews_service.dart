@@ -1,10 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:techx_app/utils/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReviewService {
   final baseUrl = Constant.reviews;
-  final String token = '';
+
+ Future<String?> getToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString("accessToken");
+}
 
 /// Lấy tất cả các review của sản phẩm theo `productId`.
   Future<List<Map<String, dynamic>>> getAllReviewsByProduct(int productId) async {
@@ -20,6 +25,11 @@ class ReviewService {
 
   /// Tạo một review mới cho sản phẩm.
   Future<Map<String, dynamic>> createReview(int productId, Map<String, dynamic> reviewData) async {
+     final token = await getToken();
+        if (token == null) {
+          print("No token found!");
+        }
+
     final url = Uri.parse('$baseUrl?productId=$productId');
     final response = await http.post(
       url,
