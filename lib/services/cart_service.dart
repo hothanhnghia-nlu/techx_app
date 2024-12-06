@@ -2,13 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:techx_app/utils/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CartService {
-
   final baseUrl = Constant.carts;
-  final String token = '';
   ValueNotifier<int> cartItemSize = ValueNotifier<int>(0);
-  
   static final CartService _instance = CartService._internal();
 
   factory CartService() {
@@ -16,8 +14,18 @@ class CartService {
   }
   CartService._internal();
 
+Future<String?> getToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString("accessToken");
+}
+
 Future<dynamic> getCartsByUser() async {
     try {
+        final token = await getToken();
+        if (token == null) {
+          print("No token found!");
+          return;
+        }
       final response = await http.get(
         Uri.parse('$baseUrl/getCartsByUser'),
         headers: { 
@@ -38,6 +46,11 @@ Future<dynamic> getCartsByUser() async {
 
 Future<void> updateCart(var cartProduct) async {
   try {
+     final token = await getToken();
+        if (token == null) {
+          print("No token found!");
+          return;
+        }
     final response = await http.put(
       Uri.parse('$baseUrl/${cartProduct.id}'),
       body: jsonEncode({  // Sử dụng jsonEncode để chuyển Map thành JSON string
@@ -65,6 +78,11 @@ Future<void> updateCart(var cartProduct) async {
 
 Future<void> removeProduct(int cartId) async {
   try {
+     final token = await getToken();
+        if (token == null) {
+          print("No token found!");
+          return;
+        }
     final response = await http.delete(
       Uri.parse('$baseUrl/$cartId'),
       headers: { 
@@ -85,6 +103,11 @@ Future<void> removeProduct(int cartId) async {
 
 Future<void> removeProductAll() async {
   try {
+     final token = await getToken();
+        if (token == null) {
+          print("No token found!");
+          return;
+        }
     final response = await http.delete(
       Uri.parse('$baseUrl'),
         headers: { 
@@ -106,7 +129,11 @@ Future<void> removeProductAll() async {
 
 Future<void> addProductCart(int productId) async {
   try {
-
+        final token = await getToken();
+        if (token == null) {
+          print("No token found!");
+          return;
+        }
     final response = await http.post(
       Uri.parse('$baseUrl?productId=$productId'),
       headers: { 
@@ -129,6 +156,10 @@ Future<void> addProductCart(int productId) async {
 
  Future<int> getQuantityProduct() async {
     try {
+       final token = await getToken();
+        if (token == null) {
+          print("No token found!");
+        }
       final response = await http.get(
         Uri.parse('$baseUrl/quantity'),
         headers: { 
