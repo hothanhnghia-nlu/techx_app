@@ -35,7 +35,7 @@ class ReviewService {
       url,
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'multipart/form-data'
         },
       body: json.encode({'productId': productId, ...reviewData}),
     );
