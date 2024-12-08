@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:techx_app/pages/cart/checkout_page.dart';
 import 'package:techx_app/pages/cart/cart_items_widget.dart';
 import 'package:techx_app/services/cart_service.dart';
-import 'cart_product_model.dart'; 
+import '../../models/cart_product_model.dart'; 
 import 'package:techx_app/utils/currency.dart';
 
 class ShoppingCartPage extends StatefulWidget {

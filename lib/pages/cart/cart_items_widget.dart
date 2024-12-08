@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
-import 'cart_product_model.dart';
+import '../../models/cart_product_model.dart';
 import 'package:techx_app/services/cart_service.dart';
 import 'package:techx_app/utils/currency.dart';
 
@@ -21,6 +23,7 @@ class CartItemsWidget extends StatefulWidget {
 class _CartItemsWidgetState extends State<CartItemsWidget> {
   final CartService cartService = CartService();
 
+  // Remove Product button
   void _removeProduct(var carProduct) async {
      await cartService.removeProduct(carProduct.id);
     setState(() {
@@ -30,6 +33,15 @@ class _CartItemsWidgetState extends State<CartItemsWidget> {
     // widget.onProductCountChanged(widget.products.length);
     });
    
+  }
+
+  // Decode UTF8
+  String decodeUtf8(String value) {
+    try {
+      return utf8.decode(value.runes.toList());
+    } catch (e) {
+      return value;
+    }
   }
 
   @override
@@ -54,7 +66,7 @@ class _CartItemsWidgetState extends State<CartItemsWidget> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Lỗi: $e'),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -77,7 +89,7 @@ class _CartItemsWidgetState extends State<CartItemsWidget> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Lỗi: $e'),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -196,16 +208,16 @@ class _CartItemsWidgetState extends State<CartItemsWidget> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Padding(
-                          //   padding: const EdgeInsets.only(top: 12.0, left: 12.0, bottom: 12.0),
-                          //   child:
-                          //   Image.network(
-                          //     'https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-20 0x200.jpg',
-                          //     height: 75,
-                          //     width: 75,
-                          //     fit: BoxFit.cover,
-                          //   ),
-                          // ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12.0, left: 12.0, bottom: 12.0),
+                            child:
+                            Image.network(
+                              cartProduct.imageUrl,
+                              height: 75,
+                              width: 75,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                           const SizedBox(width: 12),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -223,7 +235,7 @@ class _CartItemsWidgetState extends State<CartItemsWidget> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  '${0}Thông số kỹ thuật',
+                                  '${cartProduct.ram}/ ${cartProduct.storage}/ ${decodeUtf8(cartProduct.color)}',
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: Color(0xff727880),
@@ -232,7 +244,7 @@ class _CartItemsWidgetState extends State<CartItemsWidget> {
                                 const SizedBox(height: 8),
                                 Text( 
                                   formatCurrency(cartProduct.price),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 15,
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
