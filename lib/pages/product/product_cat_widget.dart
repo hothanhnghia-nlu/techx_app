@@ -69,15 +69,16 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
           : _products.map((product) {
         return GestureDetector(
           onTap: () {
-            // Điều hướng đến ProductDetailPage (giống như code cũ)
+            // Điều hướng đến ProductDetailPage và truyền sản phẩm vào
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => const ProductDetailPage(),
+                builder: (_) => ProductDetailPage(product: product), // Truyền sản phẩm vào đây
               ),
             );
           },
           child: buildProductContainer(product),  // Truyền 'product' vào đây
         );
+
       }).toList(),
     );
   }

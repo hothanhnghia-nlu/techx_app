@@ -58,7 +58,7 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
         GestureDetector(
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ProductDetailPage()));
+              MaterialPageRoute(builder: (_) => const ProductDetailPage(product: null,)));
           },
           child: _isLoading
               ? buildShimmerPlaceholder()

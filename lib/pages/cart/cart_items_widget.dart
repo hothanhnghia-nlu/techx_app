@@ -126,7 +126,7 @@ class CartItemsWidget extends StatelessWidget {
             child: GestureDetector(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const ProductDetailPage()));
+                    builder: (_) => const ProductDetailPage(product: null,)));
               },
               child: Card(
                 surfaceTintColor: Colors.white,
