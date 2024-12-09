@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:techx_app/pages/auth/forgot_password_page.dart';
 import 'package:techx_app/pages/home/navigation_page.dart';
 import 'package:techx_app/pages/auth/signup_page.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:techx_app/utils/constant.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,6 +16,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final baseUrl = Constant.authLogin;
   bool _obscureText = true;
 
   // Nút Đăng nhập
@@ -20,21 +24,44 @@ class _LoginPageState extends State<LoginPage> {
     String email = emailController.text;
     String password = passwordController.text;
 
-    // if (email.isNotEmpty && password.isNotEmpty) {
-    //   Navigator.of(context).pushAndRemoveUntil(
-    //     MaterialPageRoute(builder: (_) => const CompletedPage()),
-    //     (route) => false);
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('Vui lòng điền đầy đủ thông tin'),
-    //     ),
-    //   );
-    // }
+    if (email.isNotEmpty && password.isNotEmpty) {
+      try {
+        Dio dio = Dio();
+        // Gọi api đăng nhập
+        final reponse = await dio.post(
+          "$baseUrl",
+          data: {'email': email, 'password': password},
+        );
+        if (reponse.statusCode == 200) {
+          final token = reponse.data['accessToken'];
+          print('$token');
+          await saveToken(token); // Lưu token vào SharedPreferences
+          // Điều hướng tới trang chính
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const NavigationPage()),
+            (route) => false,
+          );
+        } else {
+          _showSnackbar('Đăng nhập thất bại. Vui lòng thử lại.');
+        }
+      } catch (e) {
+        _showSnackbar('Lỗi khi gọi API: $e');
+        print('Lỗi khi gọi API: $e');
+      }
+    } else {
+      _showSnackbar('Vui lòng điền đầy đủ thông tin');
+    }
+  }
 
-    Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const NavigationPage()),
-        (route) => false);
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("accessToken", token);
+    print('Token saved: $token');
   }
 
   // Nút Đăng nhập Google
@@ -59,42 +86,45 @@ class _LoginPageState extends State<LoginPage> {
   // Hiển thị Dialog
   Future<dynamic> showAlertDialog() {
     return showDialog(
-    context: context,
-    builder: (BuildContext context) => AlertDialog(
-      backgroundColor: Colors.white, 
-      title: const Text(
-        'Thông báo',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.red,
-          fontSize: 17,
-          fontWeight: FontWeight.bold,
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Thông báo',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
-      content: const Text(
-        'Chức năng đang phát triển, vui lòng quay lại sau',
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.black,
+        content: const Text(
+          'Chức năng đang phát triển, vui lòng quay lại sau',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.black,
+          ),
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, 'Đóng'),
-          style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
-            foregroundColor: WidgetStateProperty.all(Colors.white),
-            padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
-            shape: WidgetStateProperty.all(RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Đóng'),
+            style: ButtonStyle(
+              backgroundColor:
+                  WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
+              foregroundColor: WidgetStateProperty.all(Colors.white),
+              padding: WidgetStateProperty.all(
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
             ),
+            child: const Text('Đóng'),
           ),
-          child: const Text('Đóng'),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
   }
 
   @override
@@ -124,9 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 24.0,
                         ),
                       ),
-              
                       SizedBox(height: 8),
-              
                       Text(
                         'Quản lý giá thầu, bán hàng và hơn thế nữa',
                         style: TextStyle(
@@ -136,9 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
-              
                   const SizedBox(height: 20),
-                        
                   TextFormField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -149,9 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     obscureText: false,
                   ),
-               
                   const SizedBox(height: 20),
-                  
                   TextFormField(
                     controller: passwordController,
                     decoration: InputDecoration(
@@ -164,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                           _obscureText
                               ? Icons.visibility
                               : Icons.visibility_off,
-                        color: Color(hexColor('#9DA2A7')),
+                          color: Color(hexColor('#9DA2A7')),
                         ),
                         onPressed: () {
                           setState(() {
@@ -175,9 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     obscureText: _obscureText,
                   ),
-                        
                   const SizedBox(height: 15),
-        
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -199,9 +221,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
-        
                   const SizedBox(height: 20),
-                        
                   GestureDetector(
                     onTap: _loginButton,
                     child: Container(
@@ -221,9 +241,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                        
                   const SizedBox(height: 20),
-                        
                   Text(
                     '--- Hoặc tiếp tục với---',
                     style: TextStyle(
@@ -232,7 +250,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                        
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -255,9 +272,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                        
                       const SizedBox(width: 50),
-                        
                       GestureDetector(
                         onTap: _googleLoginButton,
                         child: Container(
@@ -276,9 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      
                       const SizedBox(width: 50),
-                        
                       GestureDetector(
                         onTap: _appleLoginButton,
                         child: Container(
@@ -299,7 +312,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
-                        
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: Row(
@@ -317,7 +329,8 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const SignupPage()),
+                              MaterialPageRoute(
+                                  builder: (_) => const SignupPage()),
                             );
                           },
                           child: const Text(

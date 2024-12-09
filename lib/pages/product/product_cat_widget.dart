@@ -46,12 +46,25 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
     }
   }
 
-
+  // Decode UTF8
+  String decodeUtf8(String value) {
+    try {
+      return utf8.decode(value.runes.toList());
+    } catch (e) {
+      return value;
+    }
+  }
 
   // Format currency
   String formatCurrency(double originalCurrency) {
     var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
     return formatter.format(originalCurrency);
+  }
+
+  // Calculate discount percentage
+  String discountPercentage(double originalPrice, double newPrice) {
+    double discount = ((originalPrice - newPrice) / originalPrice) * 100;
+    return discount.round().toString();
   }
 
   @override
@@ -123,7 +136,7 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          
           Shimmer.fromColors(
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
@@ -133,7 +146,16 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
               color: Colors.grey[300],
             ),
           ),
-          const SizedBox(height: 10),
+          
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 20,
+              width: 150,
+              color: Colors.grey[300],
+            ),
+          ),
           Shimmer.fromColors(
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
@@ -180,9 +202,9 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
                   color: Color(hexColor('#4C53A5')),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  '-0%', // Placeholder for discount
-                  style: TextStyle(
+                child: Text(
+                  '${discountPercentage(product['originalPrice'].toDouble(), product['newPrice'].toDouble())}%',
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -219,6 +241,17 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
                 fontSize: 16,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.only(bottom: 8),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              product['ram'] + '/ ' + product['storage'] + '/ ' + decodeUtf8(product['color']),
+              style: const TextStyle(
+                fontSize: 12,
+                color: Color(0xff727880),
               ),
             ),
           ),

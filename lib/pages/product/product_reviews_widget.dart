@@ -1,79 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:techx_app/utils/date_format .dart';
 
 class ProductReviewWidget extends StatelessWidget {
-  const ProductReviewWidget({super.key});
+
+  final List<Map<String, dynamic>> reviews;
+  const ProductReviewWidget({Key? key, required this.reviews}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    int size = 5;
-
-    return SizedBox(
-      height: 300,
-      child: ListView(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        children: [
-          for (int i = 1; i <= size; i++)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  'DD/MM/YYYY',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(hexColor('#727880')),
-                  ),
-                )
-              ),
-              const SizedBox(width: 17),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Column(
+      return SizedBox(
+            height: 300,
+            child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: reviews.length,
+              itemBuilder: (context, index) {
+                final review = reviews[index];
+                return Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Họ tên khách hàng',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        formatDateTime(review['createdAt']) ?? 'Unknown Date', // Ngày đánh giá
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(hexColor('#727880')),
+                        ),
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Text(
-                          '5',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.black,
+                    const SizedBox(width: 17),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            review['user']['fullName'] ?? 'Anonymous', // Họ tên khách hàng
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 5),
-                        Icon(Icons.star, color: Colors.amber),
-                      ],
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      'Nội dung đánh giá',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.black,
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Text(
+                                review['rating'].toString(), // Số sao đánh giá
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              const Icon(Icons.star, color: Colors.amber),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            review['comment'] ?? 'No comment', // Nội dung đánh giá
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+                );
+              },
+            ),
+          );
+        }
 }
 
 int hexColor(String color) {
