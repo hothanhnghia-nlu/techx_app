@@ -17,6 +17,7 @@ class ProductCatWidget extends StatefulWidget {
 
 class _ProductCatWidgetState extends State<ProductCatWidget> {
   bool _isLoading = true;
+  final baseUrl = Constant.api;
   List<dynamic> _products = [];
 
   @override
@@ -28,7 +29,7 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
   // Fetch data from API
   Future<void> fetchProducts() async {
     try {
-      final response = await http.get(Uri.parse('${Constant.products}'));
+      final response = await http.get(Uri.parse('$baseUrl/products'));
       if (response.statusCode == 200) {
         final allProducts = json.decode(response.body);
         setState(() {

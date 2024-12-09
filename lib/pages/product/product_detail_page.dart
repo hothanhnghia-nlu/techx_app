@@ -585,35 +585,20 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   String message = "";
   double rateCount = 0;
 
-void createReview(int productId,double rating,String comment) async {
-  final reviewData = {
-    'rating': rating,
-    'comment': comment,
-  };
+  void createReview(int productId, double rating, String comment) async {
+    final reviewData = {
+      'rating': rating,
+      'comment': comment,
+    };
 
-  try {
-    final newReview = await reviewService.createReview(productId, reviewData);
-    print('Created Review: $newReview');
-  } catch (e) {
-    print('Error: $e');
-  }
-}
-
-  // Hàm chuyển đổi rating thành text
-  String getRatingText(double rating) {
-    switch (rating) {
-      case 1:
-        return "Rất tệ";
-      case 2:
-        return "Tệ";
-      case 3:
-        return "Tạm ổn";
-      case 4:
-        return "Tốt";
-      case 5:
-        return "Rất tốt";
-      default:
-        return "";
+    try {
+      final newReview = await reviewService.createReview(productId, reviewData);
+      print('Created Review: $newReview');
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        message = "Đã xảy ra lỗi khi tạo đánh giá!";
+      });
     }
   }
 
@@ -637,6 +622,24 @@ void createReview(int productId,double rating,String comment) async {
         );
       }
     });
+  }
+
+  // Hàm chuyển đổi rating thành text
+  String getRatingText(double rating) {
+    switch (rating) {
+      case 1:
+        return "Rất tệ";
+      case 2:
+        return "Tệ";
+      case 3:
+        return "Tạm ổn";
+      case 4:
+        return "Tốt";
+      case 5:
+        return "Rất tốt";
+      default:
+        return "";
+    }
   }
 
   @override

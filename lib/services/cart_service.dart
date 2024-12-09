@@ -5,7 +5,7 @@ import 'package:techx_app/utils/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CartService {
-  final baseUrl = Constant.carts;
+  final baseUrl = Constant.api;
   ValueNotifier<int> cartItemSize = ValueNotifier<int>(0);
   static final CartService _instance = CartService._internal();
 
@@ -52,7 +52,7 @@ Future<void> updateCart(var cartProduct) async {
           return;
         }
     final response = await http.put(
-      Uri.parse('$baseUrl/${cartProduct.id}'),
+      Uri.parse('$baseUrl/carts/${cartProduct.id}'),
       body: jsonEncode({  // Sử dụng jsonEncode để chuyển Map thành JSON string
         'product': {
           'id': cartProduct.productId
@@ -84,7 +84,7 @@ Future<void> removeProduct(int cartId) async {
           return;
         }
     final response = await http.delete(
-      Uri.parse('$baseUrl/$cartId'),
+      Uri.parse('$baseUrl/carts/$cartId'),
       headers: { 
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',}
@@ -109,7 +109,7 @@ Future<void> removeProductAll() async {
           return;
         }
     final response = await http.delete(
-      Uri.parse('$baseUrl'),
+      Uri.parse('$baseUrl/carts'),
         headers: { 
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json'
@@ -135,7 +135,7 @@ Future<void> addProductCart(int productId) async {
           return;
         }
     final response = await http.post(
-      Uri.parse('$baseUrl?productId=$productId'),
+      Uri.parse('$baseUrl/carts?productId=$productId'),
       headers: { 
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json'  // Đảm bảo Content-Type là application/json
@@ -161,7 +161,7 @@ Future<void> addProductCart(int productId) async {
           print("No token found!");
         }
       final response = await http.get(
-        Uri.parse('$baseUrl/quantity'),
+        Uri.parse('$baseUrl/carts/quantity'),
         headers: { 
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
