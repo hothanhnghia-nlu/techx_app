@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
@@ -36,23 +38,39 @@ void fetchReviews(int productId) async {
     super.initState();
     fetchReviews(7);
   }
-// Tính trung bình sao đánh giá
-double calculateAverageRating(List<Map<String, dynamic>> reviews) {
-  if (reviews.isEmpty) {
-    return 0.0; // Trả về 0 nếu không có đánh giá
+
+  // Tính trung bình sao đánh giá
+  double calculateAverageRating(List<Map<String, dynamic>> reviews) {
+    if (reviews.isEmpty) {
+      return 0.0; // Trả về 0 nếu không có đánh giá
+    }
+
+    double totalRating =
+        reviews.fold(0, (sum, review) => sum + (review['rating'] ?? 0));
+    double average = totalRating / reviews.length;
+
+    return double.parse(average.toStringAsFixed(1));
   }
-  
-  double totalRating = reviews.fold(0, (sum, review) => sum + (review['rating'] ?? 0));
-  double average = totalRating / reviews.length;
 
-  return double.parse(average.toStringAsFixed(1));
-}
+  // Decode UTF8
+  String decodeUtf8(String value) {
+    try {
+      return utf8.decode(value.runes.toList());
+    } catch (e) {
+      return value;
+    }
+  }
 
-
-  // Định dạng đơn vị tiền tệ
-  String formatCurrency(double orginalCurrency) {
+  // Format currency
+  String formatCurrency(double originalCurrency) {
     var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
-    return formatter.format(orginalCurrency);
+    return formatter.format(originalCurrency);
+  }
+
+  // Calculate discount percentage
+  String discountPercentage(double originalPrice, double newPrice) {
+    double discount = ((originalPrice - newPrice) / originalPrice) * 100;
+    return discount.round().toString();
   }
 
   // Nút Thêm vào Yêu thích
@@ -88,8 +106,8 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         title: Text(
-          product['provider']?['name'] ?? 'Hãng không xác định',
-          style: TextStyle(
+          product['name'] ?? '',
+          style: const TextStyle(
             fontSize: 18,
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -121,9 +139,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
               const SizedBox(height: 10),
 
-              const Text(
-                'Tên sản phẩm',
-                style: TextStyle(
+              Text(
+                product['name'],
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -132,11 +150,11 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
               const SizedBox(height: 5),
 
-              const Row(
+              Row(
                 children: [
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         'Thương hiệu: ',
                         style: TextStyle(
                           fontSize: 16,
@@ -144,8 +162,8 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                         ),
                       ),
                       Text(
-                        'Brand',
-                        style: TextStyle(
+                        product['provider']?['name'],
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black,
                         ),
@@ -153,11 +171,11 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                     ],
                   ),
 
-                  SizedBox(width: 30),
+                  const SizedBox(width: 30),
 
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         'SKU: ',
                         style: TextStyle(
                           fontSize: 16,
@@ -165,8 +183,8 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                         ),
                       ),
                       Text(
-                        '1',
-                        style: TextStyle(
+                        product['id'].toString(),
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black,
                         ),
@@ -181,9 +199,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    '0đ',
-                    style: TextStyle(
+                  Text(
+                    formatCurrency(product['newPrice']),
+                    style: const TextStyle(
                       color: Colors.red,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -197,12 +215,12 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                       color: Color(hexColor('#F1F1F1')),
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(6.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
                       child: Text(
-                        '-0%',
+                        '${discountPercentage(product['originalPrice'].toDouble(), product['newPrice'].toDouble())}%',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.red,
                           fontWeight: FontWeight.bold,
                         ),
@@ -246,9 +264,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Screen',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['screen']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -270,9 +288,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Camera',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['camera']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -294,9 +312,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT OS',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['operatingSystem']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -318,9 +336,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT CPU',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['cpu']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -342,9 +360,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT RAM',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['ram']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -366,9 +384,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Storage',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['storage']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -390,9 +408,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Battery',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['battery']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -414,9 +432,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Color',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['color']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -428,11 +446,11 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
               const SizedBox(height: 24),
 
-              const Column(
+              Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Mô tả',
                     style: TextStyle(
                       fontSize: 18,
@@ -441,11 +459,11 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                     ),
                   ),
 
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
                   Text(
-                    'Mô tả chi tiết sản phẩm',
-                    style: TextStyle(
+                    decodeUtf8(product['description'] ?? 'Chưa có mô tả cho sản phẩm này'),
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black,
                     ),
@@ -495,14 +513,14 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                         children: [
                           Text(
                             '${calculateAverageRating(reviews)}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
                           ),
-                          SizedBox(width: 5),
-                          Icon(Icons.star, color: Colors.amber),
+                          const SizedBox(width: 5),
+                          const Icon(Icons.star, color: Colors.amber),
                         ],
                       ),
                     ],
@@ -527,7 +545,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
               const SizedBox(height: 8),
 
-               ProductReviewWidget(reviews: reviews ,),
+              reviews.isNotEmpty
+                  ? ProductReviewWidget(reviews: reviews)
+                  : const SizedBox.shrink(),
             ],
           ),
         ),
@@ -536,7 +556,7 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
     );
   }
 
-  void showEvaluationDialog(BuildContext context,int _productId) {
+  void showEvaluationDialog(BuildContext context, int productId) {
     showModalBottomSheet(
       backgroundColor: Colors.white,
       context: context,
@@ -544,7 +564,7 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
       isDismissible: false,
       enableDrag: false,
       builder: (context) {
-        return EvaluationDialog(productId: _productId);
+        return EvaluationDialog(productId: productId);
       },
     );
   }

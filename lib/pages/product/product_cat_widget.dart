@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
-import 'package:techx_app/pages/product/product_cat_page.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
 import 'package:techx_app/utils/constant.dart';
 
