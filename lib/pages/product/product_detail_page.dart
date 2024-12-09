@@ -6,7 +6,9 @@ import 'package:techx_app/services/cart_service.dart';
 import 'package:techx_app/services/reviews_service.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  const ProductDetailPage({super.key});
+  final dynamic product; // Thêm thuộc tính để nhận thông tin sản phẩm
+
+  const ProductDetailPage({super.key, required this.product}); // Constructor nhận sản phẩm
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -78,20 +80,22 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
   @override
   Widget build(BuildContext context) {
-
+    final product = widget.product;
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
-        title: const Text(
-          'Tên sản phẩm',
+        title: Text(
+          product['provider']?['name'] ?? 'Hãng không xác định',
           style: TextStyle(
             fontSize: 18,
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
+
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -103,11 +107,17 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
             children: [
               Center(
                 child: Image.network(
-                  'https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-200x200.jpg',
+                  (product['images'] != null && product['images'].isNotEmpty)
+                      ? product['images'][0]['url']
+                      : 'https://via.placeholder.com/240', // URL placeholder nếu không có ảnh
                   height: 240,
                   fit: BoxFit.fill,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.broken_image, size: 240); // Hiển thị icon nếu URL không hợp lệ
+                  },
                 ),
               ),
+
 
               const SizedBox(height: 10),
 

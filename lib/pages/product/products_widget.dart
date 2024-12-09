@@ -59,7 +59,7 @@ class _ProductsWidgetState extends State<ProductsWidget> {
               child: InkWell(
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const ProductDetailPage()));
+                      builder: (_) => const ProductDetailPage(product: null,)));
                 },
                 child: _isLoading
                     ? buildShimmerPlaceholder()
