@@ -8,9 +8,9 @@ import 'package:techx_app/services/cart_service.dart';
 import 'package:techx_app/services/reviews_service.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  final dynamic product; // Thêm thuộc tính để nhận thông tin sản phẩm
+  final dynamic product;
 
-  const ProductDetailPage({super.key, required this.product}); // Constructor nhận sản phẩm
+  const ProductDetailPage({super.key, required this.product});
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -552,7 +552,7 @@ void fetchReviews(int productId) async {
           ),
         ),
       ),
-      bottomNavigationBar: const ButtonBottomNav(),
+      bottomNavigationBar: ButtonBottomNav(product: product),
     );
   }
 
@@ -572,7 +572,7 @@ void fetchReviews(int productId) async {
 
 // Dialog Đánh giá sản phẩm
 class EvaluationDialog extends StatefulWidget {
-   final int productId;
+  final int productId;
   const EvaluationDialog({super.key, required this.productId});
   
   @override
@@ -763,32 +763,33 @@ void createReview(int productId,double rating,String comment) async {
 
 // Nút AddToCart và BuyNow
 class ButtonBottomNav extends StatelessWidget {
-  const ButtonBottomNav({super.key});
+  final Map<String, dynamic> product; // Accept product as a parameter
 
+  const ButtonBottomNav({super.key, required this.product}); // Pass product to the constructor
 
   @override
   Widget build(BuildContext context) {
     CartService cartService = CartService();
 
     // Nút Thêm vào Giỏ hàng
-void addToCartButton(int productId) async {
-  try {
-    await cartService.addProductCart(productId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Sản phẩm đã được thêm vào giỏ hàng!'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Không thể thêm sản phẩm vào giỏ hàng. Lỗi: $e'),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-}
+    void addToCartButton(int productId) async {
+      try {
+        await cartService.addProductCart(productId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sản phẩm đã được thêm vào giỏ hàng!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Không thể thêm sản phẩm vào giỏ hàng. Lỗi: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
 
     // Nút Mua ngay
     void buyNowButton() {
@@ -807,8 +808,7 @@ void addToCartButton(int productId) async {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            // parameter product id  addToCartButton(parameter)
-            onTap: () => addToCartButton(4),
+            onTap: () => addToCartButton(product['id']), // Use product['id'] here
             child: Container(
               height: 50,
               width: 150,

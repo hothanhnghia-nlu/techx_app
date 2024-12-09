@@ -188,10 +188,10 @@ class _CartItemsWidgetState extends State<CartItemsWidget> {
                 return Padding(
                   padding: const EdgeInsets.only(top: 1, left: 5, right: 5),
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => const ProductDetailPage(product: null,)));
-                    },
+                    // onTap: () {
+                    //   Navigator.of(context).push(MaterialPageRoute(
+                    //       builder: (_) => const ProductDetailPage(product: {},)));
+                    // },
                     child: Card(
                       surfaceTintColor: Colors.white,
                       elevation: 3,
