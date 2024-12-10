@@ -121,8 +121,8 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
               const SizedBox(height: 10),
 
-              const Text(
-                'Tên sản phẩm',
+               Text(
+                product['name'] ?? 'Tên sản phẩm',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -132,20 +132,20 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
               const SizedBox(height: 5),
 
-              const Row(
+              Row(
                 children: [
                   Row(
                     children: [
-                      Text(
-                        'Thương hiệu: ',
+                      const Text(
+                         'Thương hiệu: ',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.black,
                         ),
                       ),
                       Text(
-                        'Brand',
-                        style: TextStyle(
+                        product['provider']?['name'] ?? 'Hãng không xác định',
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black,
                         ),
@@ -153,9 +153,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                     ],
                   ),
 
-                  SizedBox(width: 30),
+                  const SizedBox(width: 30),
 
-                  Row(
+                   Row(
                     children: [
                       Text(
                         'SKU: ',
@@ -165,7 +165,7 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                         ),
                       ),
                       Text(
-                        '1',
+                        product['id'].toString(), // Lấy id từ product và chuyển thành chuỗi
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.black,
