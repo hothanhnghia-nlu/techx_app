@@ -441,6 +441,30 @@ void fetchReviews(int productId) async {
                       ),
                     ],
                   ),
+
+                  const SizedBox(height: 12),
+                  const Divider(color: Color(0xffF6F6F6)),
+                  const SizedBox(height: 12),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Năm sản xuất',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Color(hexColor('#727880')),
+                        ),
+                      ),
+                      Text(
+                        product['producedYear'].toString(),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
 
