@@ -42,7 +42,7 @@ dependencies:
   logger: ^1.4.0
   flutter_svg: ^1.0.0
   dio: ^5.0.0
-
+  jwt_decoder: ^2.0.1  # Sử dụng phiên bản mới nhất
 dev_dependencies:
   flutter_test:
     sdk: flutter
