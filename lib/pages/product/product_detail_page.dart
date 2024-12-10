@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
@@ -6,9 +8,9 @@ import 'package:techx_app/services/cart_service.dart';
 import 'package:techx_app/services/reviews_service.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  final dynamic product; // Thêm thuộc tính để nhận thông tin sản phẩm
+  final dynamic product;
 
-  const ProductDetailPage({super.key, required this.product}); // Constructor nhận sản phẩm
+  const ProductDetailPage({super.key, required this.product});
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -19,40 +21,56 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   final ReviewService reviewService = ReviewService();
   List<Map<String, dynamic>> reviews = [];
 
-void fetchReviews(int productId) async {
-  try {
-    final data = await reviewService.getAllReviewsByProduct(productId);
-   setState(() {
+  void fetchReviews(int productId) async {
+    try {
+      final data = await reviewService.getAllReviewsByProduct(productId);
+      setState(() {
         reviews = data;
       });
-    print('Reviews: $reviews');
-  } catch (e) {
-    print('Error: $e');
+      print('Reviews: $reviews');
+    } catch (e) {
+      print('Error: $e');
+    }
   }
-}
- 
+
   @override
   void initState() {
     super.initState();
     fetchReviews(7);
   }
-// Tính trung bình sao đánh giá
-double calculateAverageRating(List<Map<String, dynamic>> reviews) {
-  if (reviews.isEmpty) {
-    return 0.0; // Trả về 0 nếu không có đánh giá
+
+  // Tính trung bình sao đánh giá
+  double calculateAverageRating(List<Map<String, dynamic>> reviews) {
+    if (reviews.isEmpty) {
+      return 0.0; // Trả về 0 nếu không có đánh giá
+    }
+
+    double totalRating =
+    reviews.fold(0, (sum, review) => sum + (review['rating'] ?? 0));
+    double average = totalRating / reviews.length;
+
+    return double.parse(average.toStringAsFixed(1));
   }
-  
-  double totalRating = reviews.fold(0, (sum, review) => sum + (review['rating'] ?? 0));
-  double average = totalRating / reviews.length;
 
-  return double.parse(average.toStringAsFixed(1));
-}
+  // Decode UTF8
+  String decodeUtf8(String value) {
+    try {
+      return utf8.decode(value.runes.toList());
+    } catch (e) {
+      return value;
+    }
+  }
 
-
-  // Định dạng đơn vị tiền tệ
-  String formatCurrency(double orginalCurrency) {
+  // Format currency
+  String formatCurrency(double originalCurrency) {
     var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
-    return formatter.format(orginalCurrency);
+    return formatter.format(originalCurrency);
+  }
+
+  // Calculate discount percentage
+  String discountPercentage(double originalPrice, double newPrice) {
+    double discount = ((originalPrice - newPrice) / originalPrice) * 100;
+    return discount.round().toString();
   }
 
   // Nút Thêm vào Yêu thích
@@ -81,15 +99,15 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         title: Text(
-          product['provider']?['name'] ?? 'Hãng không xác định',
-          style: TextStyle(
+          product['name'] ?? '',
+          style: const TextStyle(
             fontSize: 18,
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -121,9 +139,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
               const SizedBox(height: 10),
 
-               Text(
-                product['name'] ?? 'Tên sản phẩm',
-                style: TextStyle(
+              Text(
+                product['name'],
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -137,14 +155,14 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                   Row(
                     children: [
                       const Text(
-                         'Thương hiệu: ',
+                        'Thương hiệu: ',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.black,
                         ),
                       ),
                       Text(
-                        product['provider']?['name'] ?? 'Hãng không xác định',
+                        product['provider']?['name'],
                         style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black,
@@ -155,9 +173,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
                   const SizedBox(width: 30),
 
-                   Row(
+                  Row(
                     children: [
-                      Text(
+                      const Text(
                         'SKU: ',
                         style: TextStyle(
                           fontSize: 16,
@@ -165,8 +183,8 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                         ),
                       ),
                       Text(
-                        product['id'].toString(), // Lấy id từ product và chuyển thành chuỗi
-                        style: TextStyle(
+                        product['id'].toString(),
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black,
                         ),
@@ -181,9 +199,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    '0đ',
-                    style: TextStyle(
+                  Text(
+                    formatCurrency(product['newPrice']),
+                    style: const TextStyle(
                       color: Colors.red,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -197,12 +215,12 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                       color: Color(hexColor('#F1F1F1')),
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(6.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
                       child: Text(
-                        '-0%',
+                        '${discountPercentage(product['originalPrice'].toDouble(), product['newPrice'].toDouble())}%',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.red,
                           fontWeight: FontWeight.bold,
                         ),
@@ -246,9 +264,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Screen',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['screen']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -270,9 +288,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Camera',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['camera']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -294,9 +312,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT OS',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['operatingSystem']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -318,9 +336,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT CPU',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['cpu']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -342,9 +360,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT RAM',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['ram']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -366,9 +384,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Storage',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['storage']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -390,9 +408,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Battery',
-                        style: TextStyle(
+                      Text(
+                        decodeUtf8(product['battery']),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -414,9 +432,33 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                           color: Color(hexColor('#727880')),
                         ),
                       ),
-                      const Text(
-                        'TSKT Color',
+                      Text(
+                        decodeUtf8(product['color']),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+                  const Divider(color: Color(0xffF6F6F6)),
+                  const SizedBox(height: 12),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Năm sản xuất',
                         style: TextStyle(
+                          fontSize: 16,
+                          color: Color(hexColor('#727880')),
+                        ),
+                      ),
+                      Text(
+                        product['producedYear'].toString(),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
@@ -428,11 +470,11 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
               const SizedBox(height: 24),
 
-              const Column(
+              Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Mô tả',
                     style: TextStyle(
                       fontSize: 18,
@@ -441,11 +483,11 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                     ),
                   ),
 
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
                   Text(
-                    'Mô tả chi tiết sản phẩm',
-                    style: TextStyle(
+                    decodeUtf8(product['description'] ?? 'Chưa có mô tả cho sản phẩm này'),
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black,
                     ),
@@ -483,7 +525,7 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                 children: [
                   Column(
                     children: [
-                    const  Text(
+                      const  Text(
                         'Trung bình',
                         style: TextStyle(
                           fontSize: 16,
@@ -495,14 +537,14 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
                         children: [
                           Text(
                             '${calculateAverageRating(reviews)}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
                           ),
-                          SizedBox(width: 5),
-                          Icon(Icons.star, color: Colors.amber),
+                          const SizedBox(width: 5),
+                          const Icon(Icons.star, color: Colors.amber),
                         ],
                       ),
                     ],
@@ -527,16 +569,18 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
               const SizedBox(height: 8),
 
-               ProductReviewWidget(reviews: reviews ,),
+              reviews.isNotEmpty
+                  ? ProductReviewWidget(reviews: reviews)
+                  : const SizedBox.shrink(),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: const ButtonBottomNav(),
+      bottomNavigationBar: ButtonBottomNav(product: product),
     );
   }
 
-  void showEvaluationDialog(BuildContext context,int _productId) {
+  void showEvaluationDialog(BuildContext context, int productId) {
     showModalBottomSheet(
       backgroundColor: Colors.white,
       context: context,
@@ -544,7 +588,7 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
       isDismissible: false,
       enableDrag: false,
       builder: (context) {
-        return EvaluationDialog(productId: _productId);
+        return EvaluationDialog(productId: productId);
       },
     );
   }
@@ -552,9 +596,9 @@ double calculateAverageRating(List<Map<String, dynamic>> reviews) {
 
 // Dialog Đánh giá sản phẩm
 class EvaluationDialog extends StatefulWidget {
-   final int productId;
+  final int productId;
   const EvaluationDialog({super.key, required this.productId});
-  
+
   @override
   State<EvaluationDialog> createState() => _EvaluationDialogState();
 }
@@ -565,35 +609,20 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   String message = "";
   double rateCount = 0;
 
-void createReview(int productId,double rating,String comment) async {
-  final reviewData = {
-    'rating': rating,
-    'comment': comment,
-  };
+  void createReview(int productId, double rating, String comment) async {
+    final reviewData = {
+      'rating': rating,
+      'comment': comment,
+    };
 
-  try {
-    final newReview = await reviewService.createReview(productId, reviewData);
-    print('Created Review: $newReview');
-  } catch (e) {
-    print('Error: $e');
-  }
-}
-
-  // Hàm chuyển đổi rating thành text
-  String getRatingText(double rating) {
-    switch (rating) {
-      case 1:
-        return "Rất tệ";
-      case 2:
-        return "Tệ";
-      case 3:
-        return "Tạm ổn";
-      case 4:
-        return "Tốt";
-      case 5:
-        return "Rất tốt";
-      default:
-        return "";
+    try {
+      final newReview = await reviewService.createReview(productId, reviewData);
+      print('Created Review: $newReview');
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        message = "Đã xảy ra lỗi khi tạo đánh giá!";
+      });
     }
   }
 
@@ -617,6 +646,24 @@ void createReview(int productId,double rating,String comment) async {
         );
       }
     });
+  }
+
+  // Hàm chuyển đổi rating thành text
+  String getRatingText(double rating) {
+    switch (rating) {
+      case 1:
+        return "Rất tệ";
+      case 2:
+        return "Tệ";
+      case 3:
+        return "Tạm ổn";
+      case 4:
+        return "Tốt";
+      case 5:
+        return "Rất tốt";
+      default:
+        return "";
+    }
   }
 
   @override
@@ -743,32 +790,33 @@ void createReview(int productId,double rating,String comment) async {
 
 // Nút AddToCart và BuyNow
 class ButtonBottomNav extends StatelessWidget {
-  const ButtonBottomNav({super.key});
+  final Map<String, dynamic> product; // Accept product as a parameter
 
+  const ButtonBottomNav({super.key, required this.product}); // Pass product to the constructor
 
   @override
   Widget build(BuildContext context) {
     CartService cartService = CartService();
 
     // Nút Thêm vào Giỏ hàng
-void addToCartButton(int productId) async {
-  try {
-    await cartService.addProductCart(productId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Sản phẩm đã được thêm vào giỏ hàng!'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Không thể thêm sản phẩm vào giỏ hàng. Lỗi: $e'),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-}
+    void addToCartButton(int productId) async {
+      try {
+        await cartService.addProductCart(productId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sản phẩm đã được thêm vào giỏ hàng!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Không thể thêm sản phẩm vào giỏ hàng. Lỗi: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
 
     // Nút Mua ngay
     void buyNowButton() {
@@ -787,8 +835,7 @@ void addToCartButton(int productId) async {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            // parameter product id  addToCartButton(parameter)
-            onTap: () => addToCartButton(4),
+            onTap: () => addToCartButton(product['id']), // Use product['id'] here
             child: Container(
               height: 50,
               width: 150,

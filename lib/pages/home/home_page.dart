@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:techx_app/pages/cart/cart_page.dart';
+import 'package:techx_app/pages/product/promotion_products_widget.dart';
 import 'package:techx_app/pages/search/search_page.dart';
 import 'package:techx_app/pages/home/banners_widget.dart';
-import 'package:techx_app/pages/product/products_widget.dart';
+import 'package:techx_app/pages/product/new_products_widget.dart';
 import 'package:techx_app/services/cart_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -139,7 +140,7 @@ void initState() {
                     ],
                   ),
         
-                  const ProductsWidget(),
+                  const NewProductsWidget(),
                 ],
               ),
             ),
@@ -175,7 +176,7 @@ void initState() {
                     ],
                   ),
         
-                  const ProductsWidget(),
+                  const NewProductsWidget(),
                 ],
               ),
             ),
@@ -211,7 +212,7 @@ void initState() {
                     ],
                   ),
         
-                  const ProductsWidget(),
+                  const PromotionProductsWidget(),
                 ],
               ),
             ),

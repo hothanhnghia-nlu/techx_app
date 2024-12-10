@@ -1,36 +1,69 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
+import 'package:techx_app/utils/constant.dart';
 
-class ProductsWidget extends StatefulWidget {
-  const ProductsWidget({super.key});
+class PromotionProductsWidget extends StatefulWidget {
+  const PromotionProductsWidget({super.key});
 
   @override
-  State<ProductsWidget> createState() => _ProductsWidgetState();
+  State<PromotionProductsWidget> createState() => _PromotionProductsWidgetState();
 }
 
-class _ProductsWidgetState extends State<ProductsWidget> {
+class _PromotionProductsWidgetState extends State<PromotionProductsWidget> {
   bool isPressed = false;
   bool _isLoading = true;
+  final baseUrl = Constant.api;
+  List<dynamic> _products = [];
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    fetchPromotionProducts();
   }
 
-  // Định dạng đơn vị tiền tệ
-  String formatCurrency(double orginalCurrency) {
+  // Fetch data from API
+  Future<void> fetchPromotionProducts() async {
+    try {
+      final response = await http.get(Uri.parse("$baseUrl/products/promotion-product"));
+      if (response.statusCode == 200) {
+        setState(() {
+          _products = json.decode(response.body);
+          _isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load products");
+      }
+    } catch (e) {
+      print('Error fetching products: $e');
+    }
+  }
+
+  // Decode UTF8
+  String decodeUtf8(String value) {
+    try {
+      return utf8.decode(value.runes.toList());
+    } catch (e) {
+      return value;
+    }
+  }
+
+  // Format currency
+  String formatCurrency(double originalCurrency) {
     var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
-    return formatter.format(orginalCurrency);
+    return formatter.format(originalCurrency);
   }
 
-  // Nút Thêm vào Yêu thích
+  // Calculate discount percentage
+  String discountPercentage(double originalPrice, double newPrice) {
+    double discount = ((originalPrice - newPrice) / originalPrice) * 100;
+    return discount.round().toString();
+  }
+
+  // Add to Favorite button
   void _addToFavoriteButton() {
     setState(() {
       isPressed = !isPressed;
@@ -47,13 +80,13 @@ class _ProductsWidgetState extends State<ProductsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    int size = 5;
+    int size = _products.length > 5 ? 5 : _products.length; // Ensure we don't exceed the number of products
     return SizedBox(
       height: 365,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          for (int i = 1; i <= size; i++)
+          for (int i = 0; i < size; i++)
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
@@ -63,7 +96,7 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                 },
                 child: _isLoading
                     ? buildShimmerPlaceholder()
-                    : buildProductContainer(),
+                    : buildProductContainer(_products[i]),
               ),
             ),
         ],
@@ -164,9 +197,12 @@ class _ProductsWidgetState extends State<ProductsWidget> {
     );
   }
 
+  // Container after data has been loaded
+  Widget buildProductContainer(dynamic product) {
+    // Ensure proper conversion to double for prices
+    double originalPrice = double.tryParse(product['originalPrice'].toString()) ?? 0.0;
+    double newPrice = double.tryParse(product['newPrice'].toString()) ?? 0.0;
 
-  // Container Sau khi dữ liệu đã được tải
-  Widget buildProductContainer() {
     return Container(
       width: 200,
       decoration: BoxDecoration(
@@ -199,10 +235,10 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                     color: Colors.indigo,
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(5.0),
                     child: Text(
-                      '-0%',
+                      '${discountPercentage(originalPrice, newPrice)}%',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
@@ -212,7 +248,6 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                     ),
                   ),
                 ),
-
                 GestureDetector(
                   onTap: _addToFavoriteButton,
                   child: Icon(
@@ -227,21 +262,21 @@ class _ProductsWidgetState extends State<ProductsWidget> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
-                'https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-200x200.jpg',
+                product['images'][0]['url'],
                 height: 150,
                 fit: BoxFit.fill,
               ),
             ),
           ),
           const SizedBox(height: 8),
-          const Expanded(
+          Expanded(
             child: Padding(
               padding: EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Tên sản phẩm',
+                    product['name'],
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
@@ -250,17 +285,15 @@ class _ProductsWidgetState extends State<ProductsWidget> {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Thông số kỹ thuật',
+                    product['ram'] + '/ ' + product['storage'] + '/ ' + decodeUtf8(product['color']),
                     style: TextStyle(
                       fontSize: 13,
                       color: Color(0xff727880),
                     ),
                   ),
-                  
                   SizedBox(height: 8),
-
                   Text(
-                    '0đ',
+                    formatCurrency(newPrice),
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.red,
