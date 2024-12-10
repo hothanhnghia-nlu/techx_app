@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:techx_app/services/user_service.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -13,26 +14,80 @@ class _SignupPageState extends State<SignupPage> {
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
   final confPasswordController = TextEditingController();
-  bool _obscureText = true;
+  final UserService _userService = UserService();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
+  // Hàm kiểm tra dữ liệu hợp lệ
+  bool _validateInput() {
+    if (nameController.text.isEmpty) {
+      _showError('Họ và tên không được để trống');
+      return false;
+    }
+    if (emailController.text.isEmpty ||
+        !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(emailController.text)) {
+      _showError('Email không hợp lệ');
+      return false;
+    }
+    if (phoneController.text.isEmpty ||
+        !RegExp(r'^\d{10,11}$').hasMatch(phoneController.text)) {
+      _showError('Số điện thoại không hợp lệ');
+      return false;
+    }
+    if (passwordController.text.isEmpty) {
+      _showError('Mật khẩu không được để trống');
+      return false;
+    }
+    if (confPasswordController.text.isEmpty) {
+      _showError('Vui lòng nhập lại mật khẩu');
+      return false;
+    }
+    if (passwordController.text != confPasswordController.text) {
+      _showError('Mật khẩu và mật khẩu nhập lại không khớp');
+      return false;
+    }
+    return true;
+  }
+
+  // Hàm hiển thị thông báo lỗi
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _showMess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  // Hàm gọi API đăng ký
   void _signUpButton() async {
-    String name = nameController.text;
-    String email = emailController.text;
-    String phone = phoneController.text;
-    String password = passwordController.text;
-    String confPassword = confPasswordController.text;
-
-    // if (name.isNotEmpty && email.isNotEmpty && phone.isNotEmpty && password.isNotEmpty && confPassword.isNotEmpty) {
-    //   Navigator.of(context).pushAndRemoveUntil(
-    //     MaterialPageRoute(builder: (_) => const CompletedPage()),
-    //     (route) => false);
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('Vui lòng điền đầy đủ thông tin'),
-    //     ),
-    //   );
-    // }
+    if (_validateInput()) {
+      String? error = await _userService.registerUser(
+        fullName: nameController.text,
+        email: emailController.text,
+        phoneNumber: phoneController.text,
+        password: passwordController.text,
+      );
+      if (error == 'Đăng ký thành công') {
+        // Đăng ký thành công
+        _showMess('Đăng ký thành công, vui lòng đăng nhập');
+        // Chờ 1 giây trước khi quay về màn hình đăng nhập
+        await Future.delayed(const Duration(seconds: 1));
+        Navigator.pop(context);
+      } else {
+        // Đăng ký thất bại, hiển thị thông báo lỗi
+        _showError('$error');
+      }
+    }
   }
 
   @override
@@ -63,9 +118,7 @@ class _SignupPageState extends State<SignupPage> {
                           fontSize: 24,
                         ),
                       ),
-              
                       SizedBox(height: 8),
-              
                       Text(
                         '6.000.000+ sản phẩm sẵn sàng để mua bán',
                         style: TextStyle(
@@ -75,9 +128,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ],
                   ),
-                        
                   const SizedBox(height: 20),
-              
                   TextFormField(
                     controller: nameController,
                     keyboardType: TextInputType.name,
@@ -88,9 +139,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     obscureText: false,
                   ),
-              
                   const SizedBox(height: 20),
-              
                   TextFormField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -101,9 +150,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     obscureText: false,
                   ),
-                 
                   const SizedBox(height: 20),
-              
                   TextFormField(
                     controller: phoneController,
                     keyboardType: TextInputType.phone,
@@ -114,9 +161,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     obscureText: false,
                   ),
-                 
                   const SizedBox(height: 20),
-
                   TextFormField(
                     controller: passwordController,
                     decoration: InputDecoration(
@@ -126,25 +171,23 @@ class _SignupPageState extends State<SignupPage> {
                       labelText: 'Mật khẩu',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureText
+                          _obscurePassword
                               ? Icons.visibility
                               : Icons.visibility_off,
-                        color: Color(hexColor('#9DA2A7')),
+                          color: Color(hexColor('#9DA2A7')),
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscureText = !_obscureText;
+                            _obscurePassword = !_obscurePassword;
                           });
                         },
                       ),
                     ),
-                    obscureText: _obscureText,
+                    obscureText: _obscurePassword,
                   ),
-              
                   const SizedBox(height: 20),
-              
                   TextFormField(
-                    controller: passwordController,
+                    controller: confPasswordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -152,23 +195,22 @@ class _SignupPageState extends State<SignupPage> {
                       labelText: 'Nhập lại mật khẩu',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureText
+                          _obscureConfirmPassword
                               ? Icons.visibility
                               : Icons.visibility_off,
-                        color: Color(hexColor('#9DA2A7')),
+                          color: Color(hexColor('#9DA2A7')),
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscureText = !_obscureText;
+                            _obscureConfirmPassword =
+                            !_obscureConfirmPassword;
                           });
                         },
                       ),
                     ),
-                    obscureText: _obscureText,
+                    obscureText: _obscureConfirmPassword,
                   ),
-              
                   const SizedBox(height: 20),
-              
                   GestureDetector(
                     onTap: _signUpButton,
                     child: Container(
@@ -188,7 +230,6 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ),
                   ),
-              
                   const SizedBox(height: 20),
                 ],
               ),
