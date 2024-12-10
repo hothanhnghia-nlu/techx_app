@@ -71,10 +71,8 @@ class _MySearchBarState extends State<MySearchBar> {
             itemBuilder: (context, index) => InkWell(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => ProductDetailPage(product: displayList[index]),
-                ));
+                  builder: (_) => const ProductDetailPage(product: null,)));
               },
-
               child: ListTile(
                 title: Text(
                   displayList[index].name!,
