@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../utils/constant.dart' as api;
+import 'package:techx_app/models/user_model.dart';
+import 'package:techx_app/utils/constant.dart' as api;
 import 'package:jwt_decoder/jwt_decoder.dart'; // Thêm thư viện jwt_decoder
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
+  final baseUrl = api.Constant.api;
+
   /// Đăng ký người dùng mới
   Future<String?> registerUser({
     required String fullName,
@@ -100,4 +103,28 @@ class UserService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('accessToken');
   }
+
+  // Lấy thông tin cá nhân người dùng sau khi login
+  Future<User> getUserInfo() async {
+  final url = Uri.parse('$baseUrl/users/user-info');
+  
+  final String? bearerToken = await getToken();
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Authorization': 'Bearer $bearerToken',
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> jsonData = json.decode(response.body);
+    User user = User.fromJson(jsonData);
+    return user;
+  } else {
+    throw Exception('Failed to load user info: ${response.body}');
+  }
+}
+
 }

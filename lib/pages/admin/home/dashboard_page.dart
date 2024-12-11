@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:techx_app/pages/admin/category/category_table.dart';
+import 'package:techx_app/pages/admin/customer/customer_table.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -23,7 +24,7 @@ class DashboardPage extends StatelessWidget {
     ];
 
     final List<Widget> pages = [
-      const CategoryTable(), // replace by CustomerTable
+      const CustomerTable(), // replace by CustomerTable
       const CategoryTable(), // replace by OrderTable
       const CategoryTable(),
       const CategoryTable(), // replace by ProductTable

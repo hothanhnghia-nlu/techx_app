@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:techx_app/pages/auth/change_password_page.dart';
 import 'package:techx_app/pages/auth/login_page.dart';
 import 'package:techx_app/pages/profile/edit_profile_page.dart';
+import 'package:techx_app/services/user_service.dart';
 
 class AdminProfilePage extends StatefulWidget {
   const AdminProfilePage({super.key});
@@ -12,6 +13,8 @@ class AdminProfilePage extends StatefulWidget {
 }
 
 class _AdminProfilePageState extends State<AdminProfilePage> {
+  UserService userService = UserService();
+
   void _logoutButton() {
     showDialog(
       context: context,
@@ -99,198 +102,211 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Icon(Icons.person_outline, color: Colors.black45),
-                  const SizedBox(width: 10),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Họ và tên',
-                        style: TextStyle(
-                          color: Color(hexColor('#9DA2A7')),
-                          fontSize: 15,
-                        ),
-                      ),
-                  
-                      const SizedBox(height: 10),
-                  
-                      const Text(
-                        'Trống',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-              Divider(color: Color(hexColor('#F0F1F0'))),
-              const SizedBox(height: 10),
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Icon(Icons.mail_outline, color: Colors.black45),
-                  const SizedBox(width: 10),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Email',
-                        style: TextStyle(
-                          color: Color(hexColor('#9DA2A7')),
-                          fontSize: 15,
-                        ),
-                      ),
-                  
-                      const SizedBox(height: 10),
-                  
-                      const Text(
-                        'Trống',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-              Divider(color: Color(hexColor('#F0F1F0'))),
-              const SizedBox(height: 10),
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Icon(Icons.phone_outlined, color: Colors.black45),
-                  const SizedBox(width: 10),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Số điện thoại',
-                        style: TextStyle(
-                          color: Color(hexColor('#9DA2A7')),
-                          fontSize: 15,
-                        ),
-                      ),
-                  
-                      const SizedBox(height: 10),
-                  
-                      const Text(
-                        'Trống',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-              Divider(color: Color(hexColor('#F0F1F0'))),
-              const SizedBox(height: 30),
-
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (_) => const EditProfilePage()),
+          child: SingleChildScrollView(
+            child: FutureBuilder(
+              future: userService.getUserInfo(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return const Text(
+                    'Không có dữ liệu',
+                    style: TextStyle(color: Colors.grey),
                   );
-                },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.person_outline),
-                        SizedBox(width: 20),
-                        Text(
-                          'Chỉnh sửa hồ sơ',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
+                }
+                
+              final user = snapshot.data!;
+              return Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.person_outline, color: Colors.black45),
+                      const SizedBox(width: 10),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Họ và tên',
+                            style: TextStyle(
+                              color: Color(hexColor('#9DA2A7')),
+                              fontSize: 15,
+                            ),
                           ),
+                      
+                          const SizedBox(height: 10),
+                      
+                          Text(
+                            user.fullName,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+              
+                  const SizedBox(height: 10),
+                  Divider(color: Color(hexColor('#F0F1F0'))),
+                  const SizedBox(height: 10),
+              
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.mail_outline, color: Colors.black45),
+                      const SizedBox(width: 10),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Email',
+                            style: TextStyle(
+                              color: Color(hexColor('#9DA2A7')),
+                              fontSize: 15,
+                            ),
+                          ),
+                      
+                          const SizedBox(height: 10),
+                      
+                          Text(
+                            user.email,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+              
+                  const SizedBox(height: 10),
+                  Divider(color: Color(hexColor('#F0F1F0'))),
+                  const SizedBox(height: 10),
+              
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.phone_outlined, color: Colors.black45),
+                      const SizedBox(width: 10),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Số điện thoại',
+                            style: TextStyle(
+                              color: Color(hexColor('#9DA2A7')),
+                              fontSize: 15,
+                            ),
+                          ),
+                      
+                          const SizedBox(height: 10),
+                      
+                          Text(
+                            user.phoneNumber,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+              
+                  const SizedBox(height: 10),
+                  Divider(color: Color(hexColor('#F0F1F0'))),
+                  const SizedBox(height: 30),
+              
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const EditProfilePage()),
+                      );
+                    },
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.person_outline),
+                            SizedBox(width: 20),
+                            Text(
+                              'Chỉnh sửa hồ sơ',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
+                        Icon(Icons.arrow_forward_ios,
+                              size: 20, color: Colors.black54),
                       ],
                     ),
-                    Icon(Icons.arrow_forward_ios,
-                          size: 20, color: Colors.black54),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 10),
-              Divider(color: Color(hexColor('#F0F1F0'))),
-              const SizedBox(height: 10),
-
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (_) => const ChangePasswordPage()),
-                  );
-                },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+                  ),
+              
+                  const SizedBox(height: 10),
+                  Divider(color: Color(hexColor('#F0F1F0'))),
+                  const SizedBox(height: 10),
+              
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const ChangePasswordPage()),
+                      );
+                    },
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(Icons.password),
-                        SizedBox(width: 20),
-                        Text(
-                          'Thay đổi mật khẩu',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          children: [
+                            Icon(Icons.password),
+                            SizedBox(width: 20),
+                            Text(
+                              'Thay đổi mật khẩu',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
+                        Icon(Icons.arrow_forward_ios,
+                              size: 20, color: Colors.black54),
                       ],
                     ),
-                    Icon(Icons.arrow_forward_ios,
-                          size: 20, color: Colors.black54),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 12),
-              Divider(color: Color(hexColor('#F0F1F0'))),
-              const SizedBox(height: 5),
-        
-              Center(
-                child: TextButton(
-                  onPressed: _logoutButton,
-                  child: const Text(
-                    'Đăng xuất',
-                    style: TextStyle(
-                      color: Color(0xffDD5D65)
+                  ),
+              
+                  const SizedBox(height: 12),
+                  Divider(color: Color(hexColor('#F0F1F0'))),
+                  const SizedBox(height: 5),
+                      
+                  Center(
+                    child: TextButton(
+                      onPressed: _logoutButton,
+                      child: const Text(
+                        'Đăng xuất',
+                        style: TextStyle(
+                          color: Color(0xffDD5D65)
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 30),
-            ],
+                  const SizedBox(height: 30),
+                ],
+              );
+            }
           ),
         ),
       )

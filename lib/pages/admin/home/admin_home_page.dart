@@ -22,13 +22,13 @@ class AdminHomePage extends StatelessWidget {
           ),
         ),
       ),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Tổng quan',
                 style: TextStyle(
                   color: Colors.black,
@@ -37,13 +37,13 @@ class AdminHomePage extends StatelessWidget {
                 ),
               ),
           
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
           
               OverviewWidget(),
           
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
           
-              Text(
+              const Text(
                 'Đơn hàng gần đây',
                 style: TextStyle(
                   color: Colors.black,
@@ -52,9 +52,9 @@ class AdminHomePage extends StatelessWidget {
                 ),
               ),
           
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
-              RecentOrderWidget(),
+              const RecentOrderWidget(),
             ],
           ),
         ),
