@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:techx_app/pages/admin/home/admin_nav_page.dart';
 import 'package:techx_app/pages/auth/forgot_password_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:techx_app/pages/home/navigation_page.dart'; // Trang chính sau khi đăng nhập
 import 'package:techx_app/pages/auth/signup_page.dart'; // Trang đăng ký
 import 'package:techx_app/services/user_service.dart'; // Import UserService
 import 'package:techx_app/utils/constant.dart';
-
-import '../admin/category/category_detail_screen.dart'; // Import các constants
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -35,12 +34,10 @@ class _LoginPageState extends State<LoginPage> {
 
       if (loginResponse == 'ROLE_ADMIN') {
         // Điều hướng tới trang Admin nếu phân quyền là admin
-        // Điều hướng đến trang Admin nếu phân quyền là admin
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => CategoryDetailScreen()),
+          MaterialPageRoute(builder: (_) => const AdminNavigationPage()),
         );
-        _showMess('Đăng nhập thành công chuyển đến trang admin');
       } else if (loginResponse == 'ROLE_USER') {
         // Điều hướng tới trang User nếu phân quyền là user
         Navigator.of(context).pushAndRemoveUntil(
