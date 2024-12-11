@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:techx_app/pages/admin/home/admin_nav_page.dart';
 import 'package:techx_app/pages/auth/forgot_password_page.dart';
-import 'package:techx_app/pages/home/navigation_page.dart';
-import 'package:techx_app/pages/auth/signup_page.dart';
-import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:techx_app/pages/home/navigation_page.dart'; // Trang chính sau khi đăng nhập
+import 'package:techx_app/pages/auth/signup_page.dart'; // Trang đăng ký
+import 'package:techx_app/services/user_service.dart'; // Import UserService
 import 'package:techx_app/utils/constant.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,35 +19,33 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   final baseUrl = Constant.authLogin;
   bool _obscureText = true;
-
+  final UserService _userService = UserService(); // Khởi tạo UserService
   // Nút Đăng nhập
   void _loginButton() async {
     String email = emailController.text;
     String password = passwordController.text;
 
     if (email.isNotEmpty && password.isNotEmpty) {
-      try {
-        Dio dio = Dio();
-        // Gọi api đăng nhập
-        final reponse = await dio.post(
-          "$baseUrl",
-          data: {'email': email, 'password': password},
+      // Gọi API đăng nhập
+      String? loginResponse = await _userService.loginUser(
+        email: email,
+        password: password,
+      );
+
+      if (loginResponse == 'ROLE_ADMIN') {
+        // Điều hướng tới trang Admin nếu phân quyền là admin
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminNavigationPage()),
         );
-        if (reponse.statusCode == 200) {
-          final token = reponse.data['accessToken'];
-          print('$token');
-          await saveToken(token); // Lưu token vào SharedPreferences
-          // Điều hướng tới trang chính
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const NavigationPage()),
-            (route) => false,
-          );
-        } else {
-          _showSnackbar('Đăng nhập thất bại. Vui lòng thử lại.');
-        }
-      } catch (e) {
-        _showSnackbar('Lỗi khi gọi API: $e');
-        print('Lỗi khi gọi API: $e');
+      } else if (loginResponse == 'ROLE_USER') {
+        // Điều hướng tới trang User nếu phân quyền là user
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const NavigationPage()),
+              (route) => false,
+        );
+      } else {
+        _showSnackbar(loginResponse ?? 'Đăng nhập thất bại');
       }
     } else {
       _showSnackbar('Vui lòng điền đầy đủ thông tin');
@@ -56,6 +55,15 @@ class _LoginPageState extends State<LoginPage> {
   void _showSnackbar(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _showMess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   Future<void> saveToken(String token) async {
@@ -87,43 +95,44 @@ class _LoginPageState extends State<LoginPage> {
   Future<dynamic> showAlertDialog() {
     return showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: const Text(
-          'Thông báo',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: const Text(
-          'Chức năng đang phát triển, vui lòng quay lại sau',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.black,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Đóng'),
-            style: ButtonStyle(
-              backgroundColor:
-                  WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
-              foregroundColor: WidgetStateProperty.all(Colors.white),
-              padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
-              shape: WidgetStateProperty.all(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+      builder: (BuildContext context) =>
+          AlertDialog(
+            backgroundColor: Colors.white,
+            title: const Text(
+              'Thông báo',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            child: const Text('Đóng'),
+            content: const Text(
+              'Chức năng đang phát triển, vui lòng quay lại sau',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Đóng'),
+                style: ButtonStyle(
+                  backgroundColor:
+                  WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
+                  foregroundColor: WidgetStateProperty.all(Colors.white),
+                  padding: WidgetStateProperty.all(
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+                child: const Text('Đóng'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -263,7 +272,7 @@ class _LoginPageState extends State<LoginPage> {
                           decoration: BoxDecoration(
                               color: Colors.white,
                               border:
-                                  Border.all(color: Color(hexColor('#1877F2'))),
+                              Border.all(color: Color(hexColor('#1877F2'))),
                               borderRadius: BorderRadius.circular(14)),
                           child: const Image(
                             image: AssetImage('assets/logo_facebook.png'),
@@ -282,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                           decoration: BoxDecoration(
                               color: Colors.white,
                               border:
-                                  Border.all(color: Color(hexColor('#EA4335'))),
+                              Border.all(color: Color(hexColor('#EA4335'))),
                               borderRadius: BorderRadius.circular(14)),
                           child: const Image(
                             image: AssetImage('assets/logo_google.png'),
@@ -301,7 +310,7 @@ class _LoginPageState extends State<LoginPage> {
                           decoration: BoxDecoration(
                               color: Colors.white,
                               border:
-                                  Border.all(color: Color(hexColor('#000000'))),
+                              Border.all(color: Color(hexColor('#000000'))),
                               borderRadius: BorderRadius.circular(14)),
                           child: const Image(
                             image: AssetImage('assets/logo_apple.png'),

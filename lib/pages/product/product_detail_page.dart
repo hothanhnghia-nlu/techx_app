@@ -21,18 +21,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   final ReviewService reviewService = ReviewService();
   List<Map<String, dynamic>> reviews = [];
 
-void fetchReviews(int productId) async {
-  try {
-    final data = await reviewService.getAllReviewsByProduct(productId);
-   setState(() {
+  void fetchReviews(int productId) async {
+    try {
+      final data = await reviewService.getAllReviewsByProduct(productId);
+      setState(() {
         reviews = data;
       });
-    print('Reviews: $reviews');
-  } catch (e) {
-    print('Error: $e');
+      print('Reviews: $reviews');
+    } catch (e) {
+      print('Error: $e');
+    }
   }
-}
- 
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +46,7 @@ void fetchReviews(int productId) async {
     }
 
     double totalRating =
-        reviews.fold(0, (sum, review) => sum + (review['rating'] ?? 0));
+    reviews.fold(0, (sum, review) => sum + (review['rating'] ?? 0));
     double average = totalRating / reviews.length;
 
     return double.parse(average.toStringAsFixed(1));
@@ -99,7 +99,7 @@ void fetchReviews(int productId) async {
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -525,7 +525,7 @@ void fetchReviews(int productId) async {
                 children: [
                   Column(
                     children: [
-                    const  Text(
+                      const  Text(
                         'Trung bình',
                         style: TextStyle(
                           fontSize: 16,
@@ -598,7 +598,7 @@ void fetchReviews(int productId) async {
 class EvaluationDialog extends StatefulWidget {
   final int productId;
   const EvaluationDialog({super.key, required this.productId});
-  
+
   @override
   State<EvaluationDialog> createState() => _EvaluationDialogState();
 }
