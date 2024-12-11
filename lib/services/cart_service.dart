@@ -27,7 +27,7 @@ Future<dynamic> getCartsByUser() async {
           return;
         }
       final response = await http.get(
-        Uri.parse('$baseUrl/by-user'),
+        Uri.parse('$baseUrl/carts/by-user'),
         headers: { 
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',}
@@ -37,7 +37,7 @@ Future<dynamic> getCartsByUser() async {
            final data = json.decode(response.body);
         return data;
       } else {
-        throw Exception('Failed to load data');
+        throw Exception('Cart failed to load data');
       }
     } catch (e) {
       throw Exception('Error: $e');
