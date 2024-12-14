@@ -106,25 +106,62 @@ class UserService {
 
   // Lấy thông tin cá nhân người dùng sau khi login
   Future<User> getUserInfo() async {
-  final url = Uri.parse('$baseUrl/users/user-info');
-  
-  final String? bearerToken = await getToken();
+    final url = Uri.parse('$baseUrl/users/user-info');
 
-  final response = await http.get(
-    url,
-    headers: {
-      'Authorization': 'Bearer $bearerToken',
-      'Content-Type': 'application/json',
-    },
-  );
+    final String? bearerToken = await getToken();
 
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> jsonData = json.decode(response.body);
-    User user = User.fromJson(jsonData);
-    return user;
-  } else {
-    throw Exception('Failed to load user info: ${response.body}');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $bearerToken',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      User user = User.fromJson(jsonData);
+      return user;
+    } else {
+      throw Exception('Failed to load user info: ${response.body}');
+    }
   }
-}
 
+  Future<String?> changePassword({
+    required String newPassword,
+  }) async {
+    final url = Uri.parse('$baseUrl/users/change-password');
+    final String? bearerToken = await getToken();
+
+    if (bearerToken == null || bearerToken.isEmpty) {
+      return 'Không tìm thấy token. Vui lòng đăng nhập lại.';
+    }
+
+    try {
+      var request = http.MultipartRequest('PUT', url);
+
+      // Thêm trường dữ liệu vào request
+      request.fields['password'] = newPassword;
+      request.fields['status'] = '1';
+      request.fields['role'] = '1';
+
+      // Thêm header Authorization
+      request.headers['Authorization'] = 'Bearer $bearerToken';
+      request.headers['Accept'] = '*/*';
+      request.headers['Content-Type'] = 'multipart/form-data';
+
+      final response = await request.send();
+
+      final responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return 'Đổi mật khẩu thành công';
+      } else {
+        return 'Đổi mật khẩu thất bại. Mã lỗi: ${response.statusCode} - $responseBody';
+      }
+    } catch (e) {
+      print('Lỗi khi gọi API: $e');
+      return 'Lỗi khi gọi API: $e';
+    }
+  }
 }

@@ -71,13 +71,13 @@ class _SignupPageState extends State<SignupPage> {
   // Hàm gọi API đăng ký
   void _signUpButton() async {
     if (_validateInput()) {
-      String? error = await _userService.registerUser(
+      String? result = await _userService.registerUser(
         fullName: nameController.text,
         email: emailController.text,
         phoneNumber: phoneController.text,
         password: passwordController.text,
       );
-      if (error == 'Đăng ký thành công') {
+      if (result == 'Đăng ký thành công') {
         // Đăng ký thành công
         _showMess('Đăng ký thành công, vui lòng đăng nhập');
         // Chờ 1 giây trước khi quay về màn hình đăng nhập
@@ -85,7 +85,7 @@ class _SignupPageState extends State<SignupPage> {
         Navigator.pop(context);
       } else {
         // Đăng ký thất bại, hiển thị thông báo lỗi
-        _showError('$error');
+        _showError('$result');
       }
     }
   }
