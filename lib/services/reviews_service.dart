@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:techx_app/utils/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:techx_app/pages/admin/reviews/review_model.dart';
+import 'package:techx_app/models/review_model.dart';
 
 class ReviewService {
   final baseUrl = Constant.api;
