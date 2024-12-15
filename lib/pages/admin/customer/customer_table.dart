@@ -171,61 +171,75 @@ class _CustomerTableState extends State<CustomerTable> {
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text('ID')),
-              DataColumn(label: Text('Tên khách hàng')),
-              DataColumn(label: Text('Số điện thoại')),
-              DataColumn(label: Text('Email')),
-              DataColumn(label: Text('Trạng thái')),
-              DataColumn(label: Text('Chức năng')),
-            ],
-            rows: _users.map((user) {
-              return DataRow(cells: [
-                DataCell(SizedBox(
-                    width: 40,
-                    child: Text('${user['id']}',
-                        overflow: TextOverflow.ellipsis))),
-                DataCell(SizedBox(
-                  width: 150,
-                  child:
-                      Text('${user['fullName']}', overflow: TextOverflow.ellipsis),
-                )),
-                DataCell(SizedBox(
-                  width: 120,
-                  child:
-                      Text('${user['phoneNumber']}', overflow: TextOverflow.ellipsis),
-                )),
-                DataCell(SizedBox(
-                  width: 150,
-                  child:
-                      Text('${user['email']}', overflow: TextOverflow.ellipsis),
-                )),
-                DataCell(convertStatusData(user['status'])),
-
-                DataCell(Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => CustomerDetailScreen(user: user)),
-                        );
-                      },
-                      icon: const Icon(Icons.edit),
+        child: _users.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.only(top: 300),
+                child: Center(
+                  child: Text(
+                    'Không có dữ liệu nào',
+                    style: TextStyle(
+                      color: Color(hexColor('#9DA2A7')),
+                      fontSize: 18,
                     ),
-                    IconButton(
-                      onPressed: () => deleteButton(user['id']),
-                      icon: const Icon(Icons.delete),
-                    ),
+                  ),
+                ),
+              )
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('ID')),
+                    DataColumn(label: Text('Tên khách hàng')),
+                    DataColumn(label: Text('Số điện thoại')),
+                    DataColumn(label: Text('Email')),
+                    DataColumn(label: Text('Trạng thái')),
+                    DataColumn(label: Text('Chức năng')),
                   ],
-                )),
-              ]);
-            }).toList(),
-          ),
-        ),
+                  rows: _users.map((user) {
+                    return DataRow(cells: [
+                      DataCell(SizedBox(
+                          width: 40,
+                          child: Text('${user['id']}',
+                              overflow: TextOverflow.ellipsis))),
+                      DataCell(SizedBox(
+                        width: 150,
+                        child: Text('${user['fullName']}',
+                            overflow: TextOverflow.ellipsis),
+                      )),
+                      DataCell(SizedBox(
+                        width: 120,
+                        child: Text('${user['phoneNumber']}',
+                            overflow: TextOverflow.ellipsis),
+                      )),
+                      DataCell(SizedBox(
+                        width: 150,
+                        child: Text('${user['email']}',
+                            overflow: TextOverflow.ellipsis),
+                      )),
+                      DataCell(convertStatusData(user['status'])),
+                      
+                      DataCell(Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        CustomerDetailScreen(user: user)),
+                              );
+                            },
+                            icon: const Icon(Icons.edit),
+                          ),
+                          IconButton(
+                            onPressed: () => deleteButton(user['id']),
+                            icon: const Icon(Icons.delete),
+                          ),
+                        ],
+                      )),
+                    ]);
+                  }).toList(),
+                ),
+              ),
       ),
     );
   }

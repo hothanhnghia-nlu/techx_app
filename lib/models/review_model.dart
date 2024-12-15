@@ -1,7 +1,7 @@
 class Review {
   final int id;
   final String userName;
-  final int productId;
+  final String productName;
   final double rating;
   final String comment;
   final int status;
@@ -10,7 +10,7 @@ class Review {
   Review({
     required this.id,
     required this.userName,
-    required this.productId,
+    required this.productName,
     required this.rating,
     required this.comment,
     required this.status,
@@ -21,7 +21,7 @@ class Review {
     return Review(
       id: json['id'],
       userName: json['user']['fullName'],
-      productId: json['product']['id'],
+      productName: json['product']['name'],
       rating: json['rating'],
       comment: json['comment'],
       status: json['status'],

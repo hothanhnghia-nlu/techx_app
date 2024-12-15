@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:techx_app/pages/admin/reviews/review_model.dart';
+import 'package:intl/intl.dart';
+import 'package:techx_app/models/review_model.dart';
 import 'package:techx_app/services/reviews_service.dart';
 
 class ReviewManagementPage extends StatefulWidget {
@@ -46,21 +49,21 @@ class _ReviewManagementPageState extends State<ReviewManagementPage> {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text("Xác nhận"),
-        content: Text("Bạn có chắc chắn muốn xóa bình luận này?"),
+        title: const Text("Xác nhận"),
+        content: const Text("Bạn có chắc chắn muốn xóa bình luận này?"),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(); // Đóng dialog
             },
-            child: Text("Hủy"),
+            child: const Text("Hủy"),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(); // Đóng dialog
               deleteReview(id); // Thực hiện xóa bình luận
             },
-            child: Text("Xóa", style: TextStyle(color: Colors.red)),
+            child: const Text("Xóa", style: TextStyle(color: Colors.red)),
           ),
         ],
       );
@@ -77,11 +80,11 @@ class _ReviewManagementPageState extends State<ReviewManagementPage> {
         filteredReviews = reviews;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Đã xóa bình luận!")),
+        const SnackBar(content: Text("Đã xóa bình luận!")),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Xóa bình luận thất bại!")),
+        const SnackBar(content: Text("Xóa bình luận thất bại!")),
       );
     }
   } catch (e) {
@@ -98,9 +101,9 @@ class _ReviewManagementPageState extends State<ReviewManagementPage> {
       builder: (context) {
         String replyText = "";
         return AlertDialog(
-          title: Text("Trả lời đánh giá"),
+          title: const Text("Trả lời đánh giá"),
           content: TextField(
-            decoration: InputDecoration(hintText: "Nhập trả lời"),
+            decoration: const InputDecoration(hintText: "Nhập trả lời"),
             onChanged: (value) => replyText = value,
           ),
           actions: [
@@ -110,7 +113,7 @@ class _ReviewManagementPageState extends State<ReviewManagementPage> {
                 print("Trả lời: $replyText cho đánh giá ID: ${review.id}");
                 // Thực hiện logic gửi trả lời lên API
               },
-              child: Text("Gửi"),
+              child: const Text("Gửi"),
             ),
           ],
         );
@@ -118,18 +121,35 @@ class _ReviewManagementPageState extends State<ReviewManagementPage> {
     );
   }
 
+  // Decode UTF8
+  String decodeUtf8(String value) {
+    try {
+      return utf8.decode(value.runes.toList());
+    } catch (e) {
+      return value;
+    }
+  }
+
+  String formatDate(DateTime date) {
+    return DateFormat('dd/MM/yyyy HH:mm:ss').format(date);
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 5,
+        shadowColor: Color(hexColor('#F0F1F0')),
+        surfaceTintColor: Colors.white,
         title: const Text("Quản lý đánh giá",
         style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 24.0,
           ),
-          ),
-        
+        ),
       ),
       body: Column(
         children: [
@@ -137,7 +157,7 @@ class _ReviewManagementPageState extends State<ReviewManagementPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Tìm kiếm theo tên người dùng",
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
@@ -152,18 +172,24 @@ class _ReviewManagementPageState extends State<ReviewManagementPage> {
               itemBuilder: (context, index) {
                 final review = filteredReviews[index];
                 return Card(
-                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  color: Colors.white,
+                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: ListTile(
-                    title: Text("Sản phẩm ID: ${review.productId}"),
+                    title: Text(
+                      review.productName, 
+                      style: const TextStyle(
+                        fontWeight:FontWeight.bold
+                        ),
+                      ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Người dùng: ${review.userName}"),
+                        Text("Người dùng: ${decodeUtf8(review.userName)}"),
                         Text("Đánh giá: ${review.rating} ⭐"),
-                        Text("Bình luận: ${review.comment}"),
+                        Text("Bình luận: ${decodeUtf8(review.comment)}"),
                         Text(
-                          "Ngày tạo: ${review.createdAt.toLocal()}",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          "Ngày tạo: ${formatDate(review.createdAt.toLocal())}",
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -171,11 +197,11 @@ class _ReviewManagementPageState extends State<ReviewManagementPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(Icons.reply, color: Colors.blue),
+                          icon: const Icon(Icons.reply, color: Colors.blue),
                           onPressed: () => replyToReview(review),
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
+                          icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () => confirmDeleteReview(review.id),
                         ),
                       ],
