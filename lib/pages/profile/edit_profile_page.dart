@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:techx_app/providers/auth_provider.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -12,32 +14,37 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final phoneController = TextEditingController();
   final emailController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    nameController.text = user?.fullName ?? '';
+    phoneController.text = user?.phoneNumber ?? '';
+    emailController.text = user?.email ?? '';
+  }
+
   void _saveButton() {
     String name = nameController.text;
     String phone = phoneController.text;
     String email = emailController.text;
 
-    // if (name.isNotEmpty && phone.isNotEmpty && email.isNotEmpty) {
-    //   Navigator.of(context).pushReplacement(
-    //     MaterialPageRoute(builder: (_) => const ChangePasswordCompleted()),
-    //   );
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('Vui lòng điền đầy đủ thông tin'),
-    //     ),
-    //   );
-    // }
+    // Call the update profile method from AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider.updateProfile(name, phone, email);
+    
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Cập nhật thông tin'),
+        content: Text('Cập nhật thông tin thành công'),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+ 
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

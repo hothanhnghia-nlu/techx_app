@@ -1,7 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:techx_app/models/address_model.dart';
 import 'package:techx_app/models/logistic/district_model.dart';
 import 'package:techx_app/models/logistic/province_model.dart';
 import 'package:techx_app/models/logistic/ward_model.dart';
+import 'package:techx_app/providers/address_provider.dart';
 import 'package:techx_app/services/logistic_service.dart';
 
 class MyAddressesPage extends StatefulWidget {
@@ -35,17 +40,35 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
     _fetchProvinces();
   }
 
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    provinceController.dispose();
+    districtController.dispose();
+    wardController.dispose();
+    addressDetailController.dispose();
+    super.dispose();
+  }
+
   // Get Provinces
   Future<void> _fetchProvinces() async {
     try {
+      log('MyAddressesPage: initState');
+
       List<Province> provinces = await service.getProvinces();
-      setState(() {
-        _provinceList = provinces;
-        if (_provinceList.isNotEmpty) {
-          _provinceSelected = _provinceList[0];
-          _fetchDistricts(_provinceSelected!.provinceID);
-        }
-      });
+      print(provinces);
+      log('MyAddressesPage: initState123');
+
+      if (mounted) {
+        setState(() {
+          _provinceList = provinces;
+          if (_provinceList.isNotEmpty) {
+            _provinceSelected = _provinceList[0];
+            _fetchDistricts(_provinceSelected!.provinceID);
+          }
+        });
+      }
     } catch (e) {
       throw Exception('Error fetching provinces: $e');
     }
@@ -55,52 +78,71 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
   Future<void> _fetchDistricts(int provinceId) async {
     try {
       List<District> districts = await service.getDistricts(provinceId);
-      setState(() {
-        _districtList = districts;
-        _districtSelected = _districtList.isNotEmpty ? _districtList[0] : null;
-        if (_districtSelected != null) {
-          _fetchWards(_districtSelected!.districtID);
-        } else {
-          _wardList.clear();
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _districtList = districts;
+          _districtSelected = _districtList.isNotEmpty ? _districtList[0] : null;
+          if (_districtSelected != null) {
+            _fetchWards(_districtSelected!.districtID);
+          } else {
+            _wardList.clear();
+          }
+        });
+      }
     } catch (e) {
       throw Exception('Error fetching provinces: $e');
     }
   }
-  
+
   // Get Wards by district id
   Future<void> _fetchWards(int districtId) async {
     try {
       List<Ward> wards = await service.getWards(districtId);
-      setState(() {
-        _wardList = wards;
-        _wardSelected = _wardList.isNotEmpty ? _wardList[0] : null;
-      });
+      if (mounted) {
+        setState(() {
+          _wardList = wards;
+          _wardSelected = _wardList.isNotEmpty ? _wardList[0] : null;
+        });
+      }
     } catch (e) {
       throw Exception('Error fetching provinces: $e');
     }
   }
 
   void _saveButton() async {
-    String name = nameController.text;
-    String phone = phoneController.text;
-    String province = provinceController.text;
-    String district = districtController.text;
-    String ward = wardController.text;
-    String addressDetail = addressDetailController.text;
+    String detail = addressDetailController.text;
+    String ward = _wardSelected?.wardName ?? '';
+    String city = _districtSelected?.districtName ?? '';
+    String province = _provinceSelected?.provinceName ?? '';
+    String? note = null; // Add logic to get note if needed
+    int status = 1; // Set status as needed
 
-    // if (name.isNotEmpty || phone.isNotEmpty || addressDetail.isNotEmpty) {
-    //   Navigator.of(context).pushAndRemoveUntil(
-    //     MaterialPageRoute(builder: (_) => const CompletedPage()),
-    //     (route) => false);
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('Vui lòng điền đầy đủ thông tin'),
-    //     ),
-    //   );
-    // }
+    if (detail.isNotEmpty &&
+        ward.isNotEmpty &&
+        city.isNotEmpty &&
+        province.isNotEmpty) {
+      Address newAddress = Address(
+        id: DateTime.now().millisecondsSinceEpoch, // Generate a unique ID
+        detail: detail,
+        ward: ward,
+        city: city,
+        province: province,
+        note: note,
+        status: status,
+      );
+
+      Provider.of<AddressProvider>(context, listen: false)
+          .addAddress(newAddress);
+      //  fetchAddresses();
+      Provider.of<AddressProvider>(context, listen: false).refreshAddresses();
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng điền đầy đủ thông tin'),
+        ),
+      );
+    }
   }
 
   @override
@@ -150,9 +192,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     ),
                     obscureText: false,
                   ),
-
                   const SizedBox(height: 20),
-
                   DropdownButtonFormField(
                     value: _provinceSelected,
                     items: _provinceList.map((province) {
@@ -185,9 +225,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                       labelText: 'Tỉnh/ Thành phổ',
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   DropdownButtonFormField(
                     value: _districtSelected,
                     items: _districtList.map((district) {
@@ -218,9 +256,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                       labelText: 'Quận/ Huyện',
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   DropdownButtonFormField(
                     value: _wardSelected,
                     items: _wardList.map((ward) {
@@ -229,7 +265,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                         child: Text(ward.wardName ?? ''),
                       );
                     }).toList(),
-                     onChanged: (Ward? newWard) {
+                    onChanged: (Ward? newWard) {
                       setState(() {
                         _wardSelected = newWard;
                       });
@@ -246,9 +282,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                       labelText: 'Phường/ Xã',
                     ),
                   ),
-                  
                   const SizedBox(height: 20),
-
                   TextFormField(
                     controller: addressDetailController,
                     keyboardType: TextInputType.text,
@@ -259,9 +293,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     ),
                     obscureText: false,
                   ),
-
                   const SizedBox(height: 20),
-
                   GestureDetector(
                     onTap: _saveButton,
                     child: Container(

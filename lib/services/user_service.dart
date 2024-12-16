@@ -1,9 +1,14 @@
 import 'dart:convert';
+import 'dart:developer';
+
 import 'package:http/http.dart' as http;
-import 'package:techx_app/models/user_model.dart';
-import 'package:techx_app/utils/constant.dart' as api;
 import 'package:jwt_decoder/jwt_decoder.dart'; // Thêm thư viện jwt_decoder
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:techx_app/main.dart';
+import 'package:techx_app/models/user_model.dart';
+import 'package:techx_app/providers/auth_provider.dart';
+import 'package:techx_app/utils/constant.dart' as api;
 
 class UserService {
   final baseUrl = api.Constant.api;
@@ -47,7 +52,7 @@ class UserService {
     required String password,
   }) async {
     final url = Uri.parse(api.Constant.authLogin); // Thay đổi URL nếu cần
-
+    log('url: $url');
     try {
       // Gửi yêu cầu đăng nhập
       final response = await http.post(
@@ -76,8 +81,14 @@ class UserService {
         print('role là $role');
         // Kiểm tra phân quyền và trả về thông báo
         if (role == 'ROLE_ADMIN') {
+          Provider.of<AuthProvider>(navigatorKey.currentContext!, listen: false)
+              .login(role);
+
           return 'ROLE_ADMIN'; // Trả về role admin
         } else if (role == 'ROLE_USER') {
+          Provider.of<AuthProvider>(navigatorKey.currentContext!, listen: false)
+              .login(role);
+
           return 'ROLE_USER'; // Trả về role user
         } else {
           return 'Không phân quyền hợp lệ';
@@ -106,25 +117,24 @@ class UserService {
 
   // Lấy thông tin cá nhân người dùng sau khi login
   Future<User> getUserInfo() async {
-  final url = Uri.parse('$baseUrl/users/user-info');
-  
-  final String? bearerToken = await getToken();
+    final url = Uri.parse('$baseUrl/users/user-info');
 
-  final response = await http.get(
-    url,
-    headers: {
-      'Authorization': 'Bearer $bearerToken',
-      'Content-Type': 'application/json',
-    },
-  );
+    final String? bearerToken = await getToken();
 
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> jsonData = json.decode(response.body);
-    User user = User.fromJson(jsonData);
-    return user;
-  } else {
-    throw Exception('Failed to load user info: ${response.body}');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $bearerToken',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      User user = User.fromJson(jsonData);
+      return user;
+    } else {
+      throw Exception('Failed to load user info: ${response.body}');
+    }
   }
-}
-
 }

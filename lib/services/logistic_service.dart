@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:techx_app/models/logistic/districtData_model.dart';
 import 'package:techx_app/models/logistic/district_model.dart';
 import 'package:techx_app/models/logistic/provinceData_model.dart';
@@ -14,18 +17,26 @@ class LogisticService {
 
   // Get Province
   Future<ProvinceData> fetchProvinceData() async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/province'),
-      headers: {
-        'Token': token,
-      }
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/province'),
+        headers: {
+          'Token': token,
+        }
+      );
 
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
-      return ProvinceData.fromJson(jsonResponse);
-    } else {
-      throw Exception('Failed to load province data: ${response.reasonPhrase}');
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return ProvinceData.fromJson(jsonResponse);
+      } else {
+        throw Exception('Failed to load province data: ${response.reasonPhrase}');
+      }
+    } on SocketException catch (e) {
+      throw Exception('Network error: $e');
+    } on ClientException catch (e) {
+      throw Exception('Client error: $e');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
     }
   }
 
@@ -40,18 +51,26 @@ class LogisticService {
 
   // Get District
   Future<DistrictData> fetchDistrictData(int provinceId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/district?province_id=$provinceId'),
-      headers: {
-        'Token': token,
-      }
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/district?province_id=$provinceId'),
+        headers: {
+          'Token': token,
+        }
+      );
 
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
-      return DistrictData.fromJson(jsonResponse);
-    } else {
-      throw Exception('Failed to load district data: ${response.reasonPhrase}');
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return DistrictData.fromJson(jsonResponse);
+      } else {
+        throw Exception('Failed to load district data: ${response.reasonPhrase}');
+      }
+    } on SocketException catch (e) {
+      throw Exception('Network error: $e');
+    } on ClientException catch (e) {
+      throw Exception('Client error: $e');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
     }
   }
 
@@ -66,18 +85,26 @@ class LogisticService {
 
   // Get Ward
   Future<WardData> fetchWardData(int districtId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/ward?district_id=$districtId'),
-      headers: {
-        'Token': token,
-      }
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/ward?district_id=$districtId'),
+        headers: {
+          'Token': token,
+        }
+      );
 
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
-      return WardData.fromJson(jsonResponse);
-    } else {
-      throw Exception('Failed to load district data: ${response.reasonPhrase}');
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return WardData.fromJson(jsonResponse);
+      } else {
+        throw Exception('Failed to load district data: ${response.reasonPhrase}');
+      }
+    } on SocketException catch (e) {
+      throw Exception('Network error: $e');
+    } on ClientException catch (e) {
+      throw Exception('Client error: $e');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
     }
   }
 
