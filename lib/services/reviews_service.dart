@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:techx_app/utils/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:techx_app/models/review_model.dart';
 
 class ReviewService {
   final baseUrl = Constant.api;
@@ -61,13 +62,50 @@ class ReviewService {
   }
 
   // Xóa review theo `id`.
-  Future<void> deleteReviewById(int id) async {
-    final url = Uri.parse('$baseUrl/reviews/$id');
-    final response = await http.delete(url);
+  Future<bool> deleteReview(int id) async {
+    final token = await getToken();
+    if (token == null) {
+      print("No token found!");
+      return false;
+    }
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to delete review: ${response.body}');
+    try {
+      final url = Uri.parse('$baseUrl/reviews/$id');
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print("Review deleted successfully!");
+        return true;
+      } else {
+        print("Failed to delete review: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("Error deleting review: $e");
+      return false;
     }
   }
 
+  // Lấy tất cả các review của sản phẩm
+  Future<List<Review>> getAllReviews() async {
+      try {
+        final url = Uri.parse('$baseUrl/reviews');
+        final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List;
+        return data.map((json) => Review.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load reviews: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error occurred while fetching reviews: $e');
+    }
+  }
 }
