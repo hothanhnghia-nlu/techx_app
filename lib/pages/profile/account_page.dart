@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:techx_app/pages/product/favorite_product_page.dart';
 import 'package:techx_app/pages/auth/login_page.dart';
 import 'package:techx_app/pages/order/orders_page.dart';
 import 'package:techx_app/pages/profile/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:techx_app/providers/auth_provider.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -53,8 +55,7 @@ class _AccountPageState extends State<AccountPage> {
           TextButton(
             onPressed: () async {
               // Xoá token trước khi điều hướng
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.remove('accessToken'); // Xoá token lưu trữ
+             Provider.of<AuthProvider>(context, listen: false).logout();
 
               // Điều hướng về LoginPage và xoá lịch sử trang
               Navigator.of(context).pushAndRemoveUntil(
