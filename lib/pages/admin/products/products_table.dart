@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:techx_app/utils/constant.dart';
 import 'products_detail_screen.dart';
 
 class ProductsTable extends StatefulWidget {
@@ -12,6 +13,7 @@ class ProductsTable extends StatefulWidget {
 
 class _ProductsTableState extends State<ProductsTable> {
   List<dynamic> _products = [];
+  final baseUrl = Constant.api;
 
   @override
   void initState() {
@@ -20,9 +22,8 @@ class _ProductsTableState extends State<ProductsTable> {
   }
 
   Future<void> fetchProducts() async {
-    const String apiUrl = "http://10.0.2.2:8080/api/v1/products";
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await http.get(Uri.parse('$baseUrl/products'));
       if (response.statusCode == 200) {
         setState(() {
           _products = json.decode(response.body);
@@ -92,7 +93,21 @@ class _ProductsTableState extends State<ProductsTable> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sản phẩm')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: 5,
+        shadowColor: Color(hexColor('#F0F1F0')),
+        title: const Text(
+          'Quản lý sản phẩm',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+          ),
+        ),
+      ),
       body: ListView.builder(
         itemCount: _products.length,
         itemBuilder: (context, index) {
@@ -140,4 +155,10 @@ class _ProductsTableState extends State<ProductsTable> {
       ),
     );
   }
+}
+
+int hexColor(String color) {
+  String newColor = "0xff$color";
+  newColor = newColor.replaceAll('#', '');
+  return int.parse(newColor);
 }

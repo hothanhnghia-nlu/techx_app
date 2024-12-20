@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:techx_app/utils/constant.dart';
 import 'category_detail_screen.dart';
 
 class CategoryTable extends StatefulWidget {
@@ -12,10 +13,11 @@ class CategoryTable extends StatefulWidget {
 
 class _CategoryTableState extends State<CategoryTable> {
   List<Map<String, dynamic>> categories = [];
-
+  final baseUrl = Constant.api;
+  
   // Lấy danh mục từ API
   Future<void> fetchCategories() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8080/api/v1/providers'));
+    final response = await http.get(Uri.parse('$baseUrl/providers'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -29,10 +31,8 @@ class _CategoryTableState extends State<CategoryTable> {
 
   // Xóa danh mục
   Future<void> deleteCategory(BuildContext context, int categoryId) async {
-    final String apiUrl = "http://10.0.2.2:8080/api/v1/providers/$categoryId";
-
     try {
-      final response = await http.delete(Uri.parse(apiUrl));
+      final response = await http.delete(Uri.parse('$baseUrl/providers/$categoryId'));
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         ScaffoldMessenger.of(context).showSnackBar(
