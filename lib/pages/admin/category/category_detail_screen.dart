@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:techx_app/utils/constant.dart';
 
 class CategoryDetailScreen extends StatefulWidget {
   final Map<String, dynamic>? category;
@@ -15,6 +15,7 @@ class CategoryDetailScreen extends StatefulWidget {
 
 class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   final TextEditingController nameController = TextEditingController();
+  final baseUrl = Constant.api;
   File? imageFile;
 
   @override
@@ -36,8 +37,8 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
 
   Future<void> saveCategory(BuildContext context) async {
     final String apiUrl = widget.category == null
-        ? "http://10.0.2.2:8080/api/v1/providers"
-        : "http://10.0.2.2:8080/api/v1/providers/${widget.category!['id']}";
+        ? "$baseUrl/providers"
+        : "$baseUrl/providers/${widget.category!['id']}";
 
     try {
       var request = http.MultipartRequest(
@@ -78,7 +79,12 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 5,
+        shadowColor: Color(hexColor('#F0F1F0')),
+        surfaceTintColor: Colors.white,
         title: Text(widget.category == null ? 'Tạo danh mục' : 'Chỉnh sửa danh mục'),
       ),
       body: Padding(
@@ -102,6 +108,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => saveCategory(context),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white),
               child: Text(widget.category == null ? 'Tạo mới' : 'Cập nhật'),
             ),
           ],
@@ -109,4 +116,10 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
       ),
     );
   }
+}
+
+int hexColor(String color) {
+  String newColor = "0xff$color";
+  newColor = newColor.replaceAll('#', '');
+  return int.parse(newColor);
 }

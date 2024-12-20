@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:techx_app/utils/constant.dart';
 
 class ProductsDetailScreen extends StatefulWidget {
   final Map<String, dynamic>? productData; // Null nếu tạo mới, có dữ liệu nếu chỉnh sửa
@@ -28,6 +30,8 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
   final TextEditingController batteryController = TextEditingController();
   final TextEditingController producedYearController = TextEditingController();
 
+  final baseUrl = Constant.api;
+  
   // Dropdown variables
   final List<Map<String, dynamic>> providers = [
     {"id": 1, "name": "Samsung"},
@@ -53,11 +57,11 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
       originalPriceController.text = data['originalPrice']?.toString() ?? '';
       newPriceController.text = data['newPrice']?.toString() ?? '';
       quantityController.text = data['quantity']?.toString() ?? '';
-      colorController.text = data['color'] ?? '';
-      screenController.text = data['screen'] ?? '';
+      colorController.text = decodeUtf8(data['color'] ?? '');
+      screenController.text = decodeUtf8(data['screen'] ?? '');
       osController.text = data['operatingSystem'] ?? '';
-      cameraController.text = data['camera'] ?? '';
-      cpuController.text = data['cpu'] ?? '';
+      cameraController.text = decodeUtf8(data['camera'] ?? '');
+      cpuController.text = decodeUtf8(data['cpu'] ?? '');
       ramController.text = data['ram'] ?? '';
       storageController.text = data['storage'] ?? '';
       batteryController.text = data['battery'] ?? '';
@@ -77,8 +81,8 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
 
   Future<void> saveProduct() async {
     final String apiUrl = widget.productData == null
-        ? "http://10.0.2.2:8080/api/v1/products"
-        : "http://10.0.2.2:8080/api/v1/products/${widget.productData!['id']}";
+        ? "$baseUrl/products"
+        : "$baseUrl/products/${widget.productData!['id']}";
 
     try {
       var request = http.MultipartRequest(
@@ -158,12 +162,32 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
     );
   }
 
+  // Decode UTF8
+  String decodeUtf8(String value) {
+    try {
+      return utf8.decode(value.runes.toList());
+    } catch (e) {
+      return value;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text(widget.productData == null ? "Tạo sản phẩm mới" : "Chỉnh sửa sản phẩm"),
+        surfaceTintColor: Colors.white,
+        elevation: 5,
+        shadowColor: Color(hexColor('#F0F1F0')),
+        title: Text(
+          widget.productData == null ? "Tạo sản phẩm mới" : "Chỉnh sửa sản phẩm",
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -206,4 +230,10 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
       ),
     );
   }
+}
+
+int hexColor(String color) {
+  String newColor = "0xff$color";
+  newColor = newColor.replaceAll('#', '');
+  return int.parse(newColor);
 }

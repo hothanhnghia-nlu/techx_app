@@ -25,26 +25,32 @@ class UserService {
     try {
       var request = http.MultipartRequest('POST', url);
 
+      // Thêm các trường vào request
       request.fields['fullName'] = fullName;
       request.fields['email'] = email;
       request.fields['phoneNumber'] = phoneNumber;
       request.fields['password'] = password;
-      request.fields['status'] = '1';
-      request.fields['role'] = '1';
+
+      request.headers['Content-Type'] = 'multipart/form-data';
 
       final response = await request.send();
 
       final responseBody = await response.stream.bytesToString();
 
+      // Debug thông tin response
+      print('Response status code: ${response.statusCode}');
+      print('Response body: $responseBody');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return 'Đăng ký thành công'; // Đăng ký thành công, không có lỗi
+        return 'Đăng ký thành công'; // Đăng ký thành công
       } else {
-        return 'Đăng ký thất bại. Mã lỗi: ${response.statusCode}';
+        return 'Đăng ký thất bại. Mã lỗi: ${response.statusCode}, Nội dung: $responseBody';
       }
     } catch (e) {
       return 'Lỗi kết nối hoặc server: $e';
     }
   }
+
 
   /// Đăng nhập người dùng và kiểm tra phân quyền
   Future<String?> loginUser({
