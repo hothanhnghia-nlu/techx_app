@@ -4,16 +4,16 @@ import 'package:techx_app/pages/cart/checkout_items_widget.dart';
 import 'package:techx_app/pages/home/navigation_page.dart';
 import 'package:techx_app/pages/order/orders_page.dart';
 import 'package:techx_app/pages/profile/my_addresses_page.dart';
+import 'package:techx_app/utils/currency.dart';
+
+import '../../models/cart_product_model.dart';
 
 final noteController = TextEditingController();
 
 class CheckoutPage extends StatefulWidget {
-  final int size;
+  final List<ProductCart> products;
 
-  const CheckoutPage({
-    super.key,
-    required this.size
-  });
+  const CheckoutPage({Key? key, required this.products}) : super(key: key);
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -21,12 +21,20 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   String _selectedPaymentMethod = paymentMethods[0].name;
-  late int currentSize;
+  late double totalPrice;
 
   @override
   void initState() {
     super.initState();
-    currentSize = widget.size;
+    totalPrice = calculateTotalPrice();
+  }
+
+  double calculateTotalPrice() {
+    double totalAmount = 0.0;
+    for (var product in widget.products) {
+      totalAmount += product.price * product.quantity;
+    }
+    return totalAmount;
   }
 
   @override
@@ -68,10 +76,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
-                      ),   
-               
+                      ),
                       SizedBox(width: 10),
-
                       Text(
                         '|',
                         style: TextStyle(
@@ -79,9 +85,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           color: Color(0xff9DA2A7),
                         ),
                       ),
-
                       SizedBox(width: 10),
-
                       Text(
                         'Số điện thoại',
                         style: TextStyle(
@@ -92,15 +96,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 8),
-                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.location_on_outlined, color: Color(0xff9DA2A7)),
+                          Icon(Icons.location_on_outlined,
+                              color: Color(0xff9DA2A7)),
                           SizedBox(width: 8),
                           Text(
                             'Địa chỉ chi tiết',
@@ -116,25 +119,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (_) => const MyAddressesPage()));
                         },
-                        child: const Icon(Icons.arrow_forward_ios, color: Colors.black54, size: 18),
+                        child: const Icon(Icons.arrow_forward_ios,
+                            color: Colors.black54, size: 18),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 8),
-        
             Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-              ),
-              child: CheckoutItemsWidget(size: currentSize)
-            ),
-
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: CheckoutItemsWidget(products: widget.products)),
             const SizedBox(height: 8),
-
             Container(
               padding: const EdgeInsets.all(10),
               decoration: const BoxDecoration(
@@ -158,9 +157,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                     ],
                   ),
-                                
                   const SizedBox(height: 8),
-                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -173,23 +170,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                       InkWell(
                         onTap: () async {
-                          String? selectedMethod = await showPaymentMethodDialog(context, _selectedPaymentMethod);
+                          String? selectedMethod =
+                              await showPaymentMethodDialog(
+                                  context, _selectedPaymentMethod);
                           if (selectedMethod != null) {
                             setState(() {
                               _selectedPaymentMethod = selectedMethod;
                             });
                           }
                         },
-                        child: const Icon(Icons.arrow_forward_ios, color: Colors.black54, size: 18),
+                        child: const Icon(Icons.arrow_forward_ios,
+                            color: Colors.black54, size: 18),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            
             const SizedBox(height: 8),
-
             Container(
               padding: const EdgeInsets.all(10),
               decoration: const BoxDecoration(
@@ -207,9 +205,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                                
                   const SizedBox(height: 8),
-                  
                   TextFormField(
                     controller: noteController,
                     keyboardType: TextInputType.text,
@@ -227,15 +223,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ],
               ),
             ),
-
             const SizedBox(height: 8),
-
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
                 color: Colors.white,
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -252,7 +246,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             ),
                           ),
                           Text(
-                            '0đ',
+                            formatCurrency(totalPrice),
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -314,7 +308,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             ),
                           ),
                           Text(
-                            '0đ',
+                            formatCurrency(totalPrice),
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.red,
@@ -337,8 +331,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   // Dialog Chọn Phương thức thanh toán
-Future<dynamic> showPaymentMethodDialog(BuildContext context, String currentPaymentMethod) {
-    int selectedMethodIndex = paymentMethods.indexWhere((method) => method.name == currentPaymentMethod);
+  Future<dynamic> showPaymentMethodDialog(
+      BuildContext context, String currentPaymentMethod) {
+    int selectedMethodIndex = paymentMethods
+        .indexWhere((method) => method.name == currentPaymentMethod);
 
     return showModalBottomSheet(
       backgroundColor: Colors.white,
@@ -369,7 +365,6 @@ Future<dynamic> showPaymentMethodDialog(BuildContext context, String currentPaym
                         ),
                       ],
                     ),
-                  
                     const Text(
                       'Chọn Phương thức thanh toán',
                       style: TextStyle(
@@ -377,9 +372,7 @@ Future<dynamic> showPaymentMethodDialog(BuildContext context, String currentPaym
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     Expanded(
                       child: ListView.builder(
                         itemCount: paymentMethods.length,
@@ -413,13 +406,15 @@ Future<dynamic> showPaymentMethodDialog(BuildContext context, String currentPaym
                               child: Row(
                                 children: [
                                   Image(
-                                    image: AssetImage(paymentMethods[index].iconUrl),
+                                    image: AssetImage(
+                                        paymentMethods[index].iconUrl),
                                     width: 40,
                                     height: 40,
                                   ),
                                   const SizedBox(width: 16),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         paymentMethods[index].name,
@@ -430,13 +425,15 @@ Future<dynamic> showPaymentMethodDialog(BuildContext context, String currentPaym
                                       ),
                                       Text(
                                         paymentMethods[index].description,
-                                        style: const TextStyle(color: Colors.grey),
+                                        style:
+                                            const TextStyle(color: Colors.grey),
                                       ),
                                     ],
                                   ),
                                   const Spacer(),
                                   if (selectedMethodIndex == index)
-                                    const Icon(Icons.check_circle, color: Colors.orange)
+                                    const Icon(Icons.check_circle,
+                                        color: Colors.orange)
                                   else
                                     const Icon(Icons.radio_button_unchecked),
                                 ],
@@ -446,15 +443,14 @@ Future<dynamic> showPaymentMethodDialog(BuildContext context, String currentPaym
                         },
                       ),
                     ),
-
                     const SizedBox(height: 10),
-
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                       ),
                       onPressed: () {
-                        String selectedPayment = paymentMethods[selectedMethodIndex].name;
+                        String selectedPayment =
+                            paymentMethods[selectedMethodIndex].name;
                         Navigator.pop(context, selectedPayment);
                       },
                       child: const Text(
@@ -481,11 +477,10 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     // Nút Đặt hàng
     void orderConfirmButton() {
       String note = noteController.text;
-      
+
       showCompletedDialog(context);
     }
 
@@ -496,9 +491,7 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
         onTap: orderConfirmButton,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.black, 
-            borderRadius: BorderRadius.circular(50)
-          ),
+              color: Colors.black, borderRadius: BorderRadius.circular(50)),
           child: const Center(
             child: Text(
               'Đặt hàng',
@@ -562,7 +555,8 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const MyOrdersPage()),
+                          MaterialPageRoute(
+                              builder: (_) => const MyOrdersPage()),
                           (route) => false);
                     },
                     style: ElevatedButton.styleFrom(
@@ -579,7 +573,8 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const NavigationPage()),
+                          MaterialPageRoute(
+                              builder: (_) => const NavigationPage()),
                           (route) => false);
                     },
                     style: ElevatedButton.styleFrom(
@@ -602,8 +597,6 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
     );
   }
 }
-
-
 
 int hexColor(String color) {
   String newColor = "0xff$color";

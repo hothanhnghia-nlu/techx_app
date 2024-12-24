@@ -1,38 +1,45 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
 
+import '../../models/cart_product_model.dart';
+
 class CheckoutItemsWidget extends StatelessWidget {
-  final int size;
+  final List<ProductCart> products;
 
   const CheckoutItemsWidget({
-    super.key,
-    required this.size
-  });
+    Key? key,
+    required this.products,
+  }) : super(key: key);
 
   // Định dạng đơn vị tiền tệ
   String formatCurrency(double orginalCurrency) {
     var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
     return formatter.format(orginalCurrency);
   }
-  
- @override
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 350,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 5),
-        child: ListView(
+        child: ListView.builder(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
-          children: [
-            for (int i = 1; i <= size; i++)
-            Padding(
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            final product = products[index];
+            return Padding(
               padding: const EdgeInsets.only(top: 5, left: 5, right: 5),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const ProductDetailPage(product: null,)));
+                  // Điều hướng tới trang chi tiết sản phẩm nếu cần
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  //   builder: (_) => ProductDetailPage(product: product),
+                  // ));
                 },
                 child: Card(
                   surfaceTintColor: Colors.white,
@@ -47,59 +54,69 @@ class CheckoutItemsWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    // Hiển thị thông tin sản phẩm
                     children: [
+                      // Hình ảnh sản phẩm
                       Padding(
-                        padding: const EdgeInsets.only(top: 12.0, left: 12.0, bottom: 12.0),
+                        padding: const EdgeInsets.all(12.0),
                         child: Image.network(
-                          'https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-200x200.jpg',
+                          product.imageUrl,
                           height: 75,
                           width: 75,
                           fit: BoxFit.cover,
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Tên sản phẩm',
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
+                      // Thông tin sản phẩm
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product.name,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Thông số kỹ thuật',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xff727880),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${product.ram}/ ${product.storage}/ ${decodeUtf8(product.color)}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xff727880),
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              '0đ',
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                              const SizedBox(height: 8),
+                              Text(
+                                formatCurrency(product.price),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              Text(
+                                'Số lượng: ${product.quantity}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -111,4 +128,13 @@ int hexColor(String color) {
   newColor = newColor.replaceAll('#', '');
   int finalColor = int.parse(newColor);
   return finalColor;
+}
+
+// Decode UTF8
+String decodeUtf8(String value) {
+  try {
+    return utf8.decode(value.runes.toList());
+  } catch (e) {
+    return value;
+  }
 }

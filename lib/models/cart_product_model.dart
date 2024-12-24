@@ -40,7 +40,21 @@ class ProductCart {
       productId: json['product']['id'] ?? 0,
     );
   }
-
+// Thêm phương thức toJson()
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'ram': ram,
+      'color': color,
+      'storage': storage,
+      'price': price,
+      'quantity': quantity,
+      'imageUrl': imageUrl,
+      'status': status,
+      'productId': productId,
+    };
+  }
   @override
   String toString() {
     return 'ProductCart(id: $id, name: $name, color: $color, ram: $ram, storage: $storage, price: $price, quantity: $quantity, imageUrl: $imageUrl, status: $status, productId: $productId)';
