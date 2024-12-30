@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:techx_app/models/paymentMethod.dart';
 import 'package:techx_app/pages/cart/checkout_items_widget.dart';
@@ -7,6 +9,8 @@ import 'package:techx_app/pages/profile/my_addresses_page.dart';
 import 'package:techx_app/utils/currency.dart';
 
 import '../../models/cart_product_model.dart';
+import '../../services/payment_service.dart';
+import '../payment/CardInputWidget.dart';
 
 final noteController = TextEditingController();
 
@@ -22,6 +26,9 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   String _selectedPaymentMethod = paymentMethods[0].name;
   late double totalPrice;
+  final PaymentService _paymentService = PaymentService();
+  bool _isProcessing = false;
+  Map<String, dynamic>? _paymentIntent; // Thêm biến để lưu payment intent
 
   @override
   void initState() {
@@ -35,6 +42,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
       totalAmount += product.price * product.quantity;
     }
     return totalAmount;
+  }
+
+// Hàm xử lý khi chọn phương thức thanh toán
+  Future<void> onPaymentMethodChanged(String method) async {
+    setState(() => _selectedPaymentMethod = method);
+
+    if (method == "Thẻ Tín dụng/Ghi nợ") {
+      try {
+        // Gọi API tạo payment intent
+        final result =
+            await _paymentService.createPaymentIntent(amount: totalPrice);
+        setState(() {
+          _paymentIntent = result;
+        });
+      } catch (e) {
+        print('Error creating payment intent: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Lỗi khi tạo phiên thanh toán: $e')));
+      }
+    }
   }
 
   @override
@@ -326,7 +353,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
       ),
       // Nút Đặt hàng
-      bottomNavigationBar: const OrderConfirmBtnNavBar(),
+      bottomNavigationBar: OrderConfirmBtnNavBar(
+        totalAmount: totalPrice,
+        selectedPaymentMethod: _selectedPaymentMethod,
+        paymentIntent: _paymentIntent,
+      ),
     );
   }
 
@@ -448,9 +479,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         String selectedPayment =
                             paymentMethods[selectedMethodIndex].name;
+                        // Gọi hàm onPaymentMethodChanged khi chọn phương thức
+                        await onPaymentMethodChanged(selectedPayment);
                         Navigator.pop(context, selectedPayment);
                       },
                       child: const Text(
@@ -473,7 +506,41 @@ class _CheckoutPageState extends State<CheckoutPage> {
 }
 
 class OrderConfirmBtnNavBar extends StatelessWidget {
-  const OrderConfirmBtnNavBar({super.key});
+  final double totalAmount;
+  final String selectedPaymentMethod;
+  final Map<String, dynamic>? paymentIntent;
+
+  const OrderConfirmBtnNavBar(
+      {required this.totalAmount,
+      required this.selectedPaymentMethod,
+      this.paymentIntent,
+      super.key});
+
+  Future<void> handlePayment(BuildContext context) async {
+    if (selectedPaymentMethod == 'Tiền mặt khi nhận hàng') {
+      showCompletedDialog(context);
+    } else if (selectedPaymentMethod == 'Thẻ Tín dụng/Ghi nợ') {
+      print(
+          'Payment Intent in handlePayment: $paymentIntent'); // Thêm log để debug
+
+      if (paymentIntent == null ||
+          !paymentIntent!.containsKey('paymentIntentId')) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+                'Lỗi: Không thể tạo phiên thanh toán. Vui lòng thử lại.')));
+        return;
+      }
+      // Hiển thị form nhập thẻ
+      showModalBottomSheet(
+          context: context,
+          builder: (context) => CardInputWidget(
+                paymentIntentId: paymentIntent!['paymentIntentId'],
+                clientSecret: paymentIntent!['clientSecret'],
+                // Thêm client secret
+                onPaymentSuccess: () => showCompletedDialog(context),
+              ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -481,7 +548,7 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
     void orderConfirmButton() {
       String note = noteController.text;
 
-      showCompletedDialog(context);
+      handlePayment(context);
     }
 
     return BottomAppBar(
