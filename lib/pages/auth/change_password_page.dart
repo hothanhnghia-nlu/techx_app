@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../services/user_service.dart';
+
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
 
@@ -11,28 +13,39 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final UserService _userService = UserService();
   bool _obscureText = true;
 
-  void _saveButton() {
-    String currentPassword = currentPasswordController.text;
+  Future<void> _saveButton() async {
     String newPassword = newPasswordController.text;
-    String rePassword = confirmPasswordController.text;
+    String? result = await _userService.changePassword(newPassword: newPassword);
+    if (result == 'Đổi mật khẩu thành công') {
+      // Đổi mật khẩu thành côngg
+      _showMess('Đổi mật khẩu thành công');
+      // Chờ 1 giây trước khi quay về màn hình thông tin cá nhân
+      await Future.delayed(const Duration(seconds: 1));
+      Navigator.pop(context);
+    } else {
+      // Đổi mật khẩu thất bại, hiển thị thông báo lỗi
+      _showError('$result');
+    }
+  }
 
-    // if (currentPassword.isNotEmpty && newPassword.isNotEmpty && rePassword.isNotEmpty) {
-    //   Navigator.of(context).pushReplacement(
-    //     MaterialPageRoute(builder: (_) => const ChangePasswordCompleted()),
-    //   );
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('Vui lòng điền đầy đủ thông tin'),
-    //     ),
-    //   );
-    // }
-
+  // Hàm hiển thị thông báo lỗi
+  void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Thay đổi mật khẩu'),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _showMess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
       ),
     );
   }
@@ -59,7 +72,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
             child: Form(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -77,7 +91,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           _obscureText
                               ? Icons.visibility
                               : Icons.visibility_off,
-                        color: Color(hexColor('#9DA2A7')),
+                          color: Color(hexColor('#9DA2A7')),
                         ),
                         onPressed: () {
                           setState(() {
@@ -88,10 +102,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     ),
                     obscureText: _obscureText,
                   ),
-              
-
                   const SizedBox(height: 5),
-
                   Text(
                     'Mật khẩu hiện tại đã liên kết với tài khoản của bạn',
                     style: TextStyle(
@@ -99,9 +110,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       fontSize: 13,
                     ),
                   ),
-
                   const SizedBox(height: 15),
-
                   TextFormField(
                     controller: newPasswordController,
                     decoration: InputDecoration(
@@ -114,7 +123,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           _obscureText
                               ? Icons.visibility
                               : Icons.visibility_off,
-                        color: Color(hexColor('#9DA2A7')),
+                          color: Color(hexColor('#9DA2A7')),
                         ),
                         onPressed: () {
                           setState(() {
@@ -125,10 +134,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     ),
                     obscureText: _obscureText,
                   ),
-              
-                  
                   const SizedBox(height: 5),
-
                   Text(
                     'Mật khẩu phải bao gồm:\n'
                     '  * 8-20 ký tự\n'
@@ -141,9 +147,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       fontSize: 13,
                     ),
                   ),
-
                   const SizedBox(height: 15),
-
                   TextFormField(
                     controller: confirmPasswordController,
                     decoration: InputDecoration(
@@ -156,7 +160,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           _obscureText
                               ? Icons.visibility
                               : Icons.visibility_off,
-                        color: Color(hexColor('#9DA2A7')),
+                          color: Color(hexColor('#9DA2A7')),
                         ),
                         onPressed: () {
                           setState(() {
@@ -167,9 +171,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     ),
                     obscureText: _obscureText,
                   ),
-              
                   const SizedBox(height: 25),
-                  
                   GestureDetector(
                     onTap: _saveButton,
                     child: Container(
