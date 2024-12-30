@@ -31,7 +31,7 @@ class _CardInputWidgetState extends State<CardInputWidget> {
       print("Vui lòng điền đầy đủ thông tin thẻ");
       ScaffoldMessenger.of(context)
           .showSnackBar(
-          SnackBar(content: Text('Vui lòng điền đầy đủ thông tin thẻ')));
+          SnackBar(content: Text('Vui lòng điền đầy đủ, chính xác thông tin thẻ')));
       return;
     }
     try {
