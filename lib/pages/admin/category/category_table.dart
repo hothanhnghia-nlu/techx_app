@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:techx_app/pages/admin/category/category_detail_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:techx_app/utils/constant.dart';
+import 'category_detail_screen.dart';
 
 class CategoryTable extends StatefulWidget {
   const CategoryTable({super.key});
@@ -9,12 +12,53 @@ class CategoryTable extends StatefulWidget {
 }
 
 class _CategoryTableState extends State<CategoryTable> {
+  List<Map<String, dynamic>> categories = [];
+  final baseUrl = Constant.api;
+  
+  // Lấy danh mục từ API
+  Future<void> fetchCategories() async {
+    final response = await http.get(Uri.parse('$baseUrl/providers'));
 
-  void deleteButton() {
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        categories = List<Map<String, dynamic>>.from(data);
+      });
+    } else {
+      print("Lỗi khi tải danh mục: ${response.statusCode}");
+    }
+  }
+
+  // Xóa danh mục
+  Future<void> deleteCategory(BuildContext context, int categoryId) async {
+    try {
+      final response = await http.delete(Uri.parse('$baseUrl/providers/$categoryId'));
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Xóa danh mục thành công')),
+        );
+        fetchCategories(); // Cập nhật lại danh sách danh mục
+      } else {
+        print("Lỗi xóa danh mục: ${response.statusCode}, ${response.body}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Xóa danh mục thất bại')),
+        );
+      }
+    } catch (e) {
+      print("Lỗi kết nối: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lỗi kết nối')),
+      );
+    }
+  }
+
+  // Hiển thị hộp thoại xác nhận xóa
+  void deleteButton(int categoryId) {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        backgroundColor: Colors.white, 
+        backgroundColor: Colors.white,
         title: const Text(
           'Thông báo',
           style: TextStyle(
@@ -31,51 +75,37 @@ class _CategoryTableState extends State<CategoryTable> {
           ),
         ),
         actions: [
-          // Button Cancel
           TextButton(
             onPressed: () => Navigator.pop(context, 'Hủy'),
             style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
-              foregroundColor: WidgetStateProperty.all(Colors.white),
-              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
-              shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              backgroundColor: MaterialStateProperty.all(Color(hexColor('#9DA2A7'))),
+              foregroundColor: MaterialStateProperty.all(Colors.white),
             ),
             child: const Text('Hủy'),
           ),
-
-          // Button Confirm
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Đã nhấn nút xóa'),
-                  duration: Duration(seconds: 1),
-                ),
-              );
+              deleteCategory(context, categoryId);
             },
             style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all(Colors.red),
-              foregroundColor: WidgetStateProperty.all(Colors.white),
-              padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
-              shape: WidgetStateProperty.all(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              backgroundColor: MaterialStateProperty.all(Colors.red),
+              foregroundColor: MaterialStateProperty.all(Colors.white),
             ),
-            child: const Text('Đồng ý',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                )),
+            child: const Text(
+              'Đồng ý',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCategories(); // Gọi API khi trang được tải
   }
 
   @override
@@ -96,7 +126,9 @@ class _CategoryTableState extends State<CategoryTable> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
+      body: categories.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -106,42 +138,39 @@ class _CategoryTableState extends State<CategoryTable> {
               DataColumn(label: Text('Tên danh mục')),
               DataColumn(label: Text('Chức năng')),
             ],
-            rows: [
-              DataRow(cells: [
-                const DataCell(SizedBox(
-                    width: 40,
-                    child: Text('1', overflow: TextOverflow.ellipsis))),
-                const DataCell(SizedBox(
-                  width: 120,
-                  child: Text('Vivo', overflow: TextOverflow.ellipsis),
-                )),
+            rows: categories.map((category) {
+              return DataRow(cells: [
+                DataCell(Text(category['id'].toString())),
+                DataCell(Text(category['name'])),
                 DataCell(Row(
                   children: [
                     IconButton(
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (_) => CategoryDetailScreen()),
+                            builder: (_) =>
+                                CategoryDetailScreen(category: category),
+                          ),
                         );
                       },
                       icon: const Icon(Icons.edit),
                     ),
                     IconButton(
-                      onPressed: deleteButton,
+                      onPressed: () => deleteButton(category['id']),
                       icon: const Icon(Icons.delete),
                     ),
                   ],
                 )),
-              ]),
-            ],
+              ]);
+            }).toList(),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => CategoryDetailScreen()),
-              );
+            MaterialPageRoute(builder: (_) => CategoryDetailScreen()),
+          );
         },
         backgroundColor: Colors.blue[50],
         child: const Icon(Icons.add),
@@ -153,6 +182,5 @@ class _CategoryTableState extends State<CategoryTable> {
 int hexColor(String color) {
   String newColor = "0xff$color";
   newColor = newColor.replaceAll('#', '');
-  int finalColor = int.parse(newColor);
-  return finalColor;
+  return int.parse(newColor);
 }

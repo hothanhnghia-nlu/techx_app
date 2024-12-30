@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:techx_app/pages/admin/category/category_table.dart';
 import 'package:techx_app/pages/admin/customer/customer_table.dart';
+import 'package:techx_app/pages/admin/products/products_table.dart';
+import 'package:techx_app/pages/admin/order/list_order_page.dart';
+import 'package:techx_app/pages/admin/reviews/review_management_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -24,11 +27,11 @@ class DashboardPage extends StatelessWidget {
     ];
 
     final List<Widget> pages = [
-      const CustomerTable(), // replace by CustomerTable
-      const CategoryTable(), // replace by OrderTable
+      const CustomerTable(),
+      const ListOrderPage(),
       const CategoryTable(),
-      const CategoryTable(), // replace by ProductTable
-      const CategoryTable(), // replace by ReviewTable
+      const ProductsTable(),
+      const ReviewManagementPage(),
     ];
 
     return Scaffold(
@@ -36,6 +39,7 @@ class DashboardPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
+        shadowColor: Color(hexColor('#F0F1F0')),
         centerTitle: true,
         title: const Text(
           'Bảng điều khiển',
