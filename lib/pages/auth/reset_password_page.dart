@@ -1,38 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:techx_app/pages/auth/login_page.dart';
+import 'package:techx_app/services/user_service.dart';
+
+import '../../utils/dialog_utils.dart';
 
 class ResetPasswordPage extends StatefulWidget {
-  const ResetPasswordPage({super.key});
+  final String email;
+
+  const ResetPasswordPage({Key? key, required this.email}) : super(key: key);
 
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
-  final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  UserService userService = new UserService();
   bool _obscureText = true;
 
-  void _saveButton() {
-    String newPassword = newPasswordController.text;
-    String rePassword = confirmPasswordController.text;
+  void _resetPassword() async {
+    final newPassword =
+        newPasswordController.text; // Lấy mật khẩu mới từ TextField
+    final confirmPassword = confirmPasswordController.text;
+    if(!checkPassword(newPassword, confirmPassword)){
+      DialogUtils.showErrorDialog(context: context, message: "Mật khẩu và mật khẩu nhập lại phải trùng khớp");
+      return;
+    }
+    final result = await userService.resetPassword(widget.email, newPassword);
+    if (result == 'Mật khẩu đã được cập nhật thành công!') {
+      // Quay lại màn hình đăng nhập
+      DialogUtils.showSuccessDialog(context: context, message: "Đặt lại mật khẩu thành công, quay lại trang đăng nhập");
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+              (route) => false,
+        );
+      });
+    } else {
+      // Hiển thị lỗi
+      DialogUtils.showErrorDialog(context: context, message: "Không thể thay đổi mật khẩu, vui lòng thử lại sau");
+    }
+  }
 
-    // if (newPassword.isNotEmpty && rePassword.isNotEmpty) {
-    //   Navigator.of(context).pushReplacement(
-    //     MaterialPageRoute(builder: (_) => const ChangePasswordCompleted()),
-    //   );
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('Vui lòng điền đầy đủ thông tin'),
-    //     ),
-    //   );
-    // }
-    
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-        (route) => false);
+  bool checkPassword(String? newPass, String? comfirmPass) {
+    if (newPass == comfirmPass) {
+      return true;
+    }
+    return false;
   }
 
   @override
@@ -42,7 +58,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         centerTitle: true,
         title: Text(
           'Đặt lại mật khẩu',
@@ -56,7 +72,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             child: Form(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -74,7 +91,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           _obscureText
                               ? Icons.visibility
                               : Icons.visibility_off,
-                        color: Color(hexColor('#9DA2A7')),
+                          color: Color(hexColor('#9DA2A7')),
                         ),
                         onPressed: () {
                           setState(() {
@@ -85,9 +102,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     ),
                     obscureText: _obscureText,
                   ),
-                  
                   const SizedBox(height: 5),
-
                   Text(
                     'Mật khẩu phải bao gồm:\n'
                     '  * 8-20 ký tự\n'
@@ -100,9 +115,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       fontSize: 13,
                     ),
                   ),
-
                   const SizedBox(height: 15),
-
                   TextFormField(
                     controller: confirmPasswordController,
                     decoration: InputDecoration(
@@ -115,7 +128,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           _obscureText
                               ? Icons.visibility
                               : Icons.visibility_off,
-                        color: Color(hexColor('#9DA2A7')),
+                          color: Color(hexColor('#9DA2A7')),
                         ),
                         onPressed: () {
                           setState(() {
@@ -126,11 +139,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     ),
                     obscureText: _obscureText,
                   ),
-
                   const SizedBox(height: 25),
-                  
                   GestureDetector(
-                    onTap: _saveButton,
+                    onTap: _resetPassword,
                     child: Container(
                       height: 40,
                       decoration: BoxDecoration(

@@ -63,6 +63,49 @@ class _CheckoutPageState extends State<CheckoutPage> {
       }
     }
   }
+  Future<dynamic> showAlertDialog() {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) =>
+          AlertDialog(
+            backgroundColor: Colors.white,
+            title: const Text(
+              'Thông báo',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: const Text(
+              'Chức năng đang phát triển, vui lòng quay lại sau',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Đóng'),
+                style: ButtonStyle(
+                  backgroundColor:
+                  WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
+                  foregroundColor: WidgetStateProperty.all(Colors.white),
+                  padding: WidgetStateProperty.all(
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+                child: const Text('Đóng'),
+              ),
+            ],
+          ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
