@@ -51,7 +51,6 @@ class UserService {
     }
   }
 
-
   /// Đăng nhập người dùng và kiểm tra phân quyền
   Future<String?> loginUser({
     required String email,
@@ -181,4 +180,63 @@ class UserService {
       return 'Lỗi khi gọi API: $e';
     }
   }
+
+  /// Gửi OTP đến email
+  Future<String?> sendOtpToEmail(String email) async {
+    final url =
+        Uri.parse('$baseUrl/users/fotgot-password/send-otp?email=$email'); // Đường dẫn API gửi OTP
+
+    try {
+      final response = await http.get(
+        url
+      );
+
+      if (response.statusCode == 200) {
+        return 'OTP đã được gửi thành công!';
+      } else {
+        return 'Gửi OTP thất bại. Mã lỗi: ${response.statusCode}, Nội dung: ${response.body}';
+      }
+    } catch (e) {
+      return 'Lỗi khi gửi OTP: $e';
+    }
+  }
+  /// Xác minh OTP
+  Future<String?> verifyOtp(String email, String otp) async {
+    final url = Uri.parse('$baseUrl/users/forgot-password/verify-otp?email=$email&otp=$otp'); // Đường dẫn API xác minh OTP
+
+    try {
+      final response = await http.get(
+        url
+      );
+
+      if (response.statusCode == 200) {
+        return 'Mã OTP hợp lệ!';
+      } else {
+        return 'Mã OTP không hợp lệ. Mã lỗi: ${response.statusCode}, Nội dung: ${response.body}';
+      }
+    } catch (e) {
+      return 'Lỗi khi xác minh OTP: $e';
+    }
+  }
+  /// Đặt lại mật khẩu
+  Future<String?> resetPassword(String email, String newPassword) async {
+    final url = Uri.parse('$baseUrl/users/forgot-password/reset-password'); // Đường dẫn API đặt lại mật khẩu
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'newPassword': newPassword}),
+      );
+
+      if (response.statusCode == 200) {
+        return 'Mật khẩu đã được cập nhật thành công!';
+      } else {
+        return 'Đặt lại mật khẩu thất bại. Mã lỗi: ${response.statusCode}, Nội dung: ${response.body}';
+      }
+    } catch (e) {
+      return 'Lỗi khi đặt lại mật khẩu: $e';
+    }
+  }
+
 }

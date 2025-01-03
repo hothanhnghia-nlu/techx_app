@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import '../../services/payment_service.dart';
+import '../admin/category/category_detail_screen.dart';
 
 class CardInputWidget extends StatefulWidget {
   final String paymentIntentId;
@@ -29,9 +30,7 @@ class _CardInputWidgetState extends State<CardInputWidget> {
   Future<void> _handlePayment() async {
     if (!_controller.details.complete) {
       print("Vui lòng điền đầy đủ thông tin thẻ");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-          SnackBar(content: Text('Vui lòng điền đầy đủ, chính xác thông tin thẻ')));
+      showAlertDialog('Vui lòng điền đầy đủ, chính xác thông tin thẻ');
       return;
     }
     try {
@@ -62,11 +61,53 @@ class _CardInputWidgetState extends State<CardInputWidget> {
       }
     } catch (e) {
       print('Lỗi thanh toán: $e');
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Lỗi thanh toán: $e')));
+      showAlertDialog('Lỗi thanh toán: $e');
     } finally {
       setState(() => _isProcessing = false);
     }
+  }
+  Future<dynamic> showAlertDialog(String text) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) =>
+          AlertDialog(
+            backgroundColor: Colors.white,
+            title: const Text(
+              'Thông báo',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content:  Text(
+             text ,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Đóng'),
+                style: ButtonStyle(
+                  backgroundColor:
+                  WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
+                  foregroundColor: WidgetStateProperty.all(Colors.white),
+                  padding: WidgetStateProperty.all(
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+                child: const Text('Đóng'),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
