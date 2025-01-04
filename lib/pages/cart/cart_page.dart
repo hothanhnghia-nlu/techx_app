@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:techx_app/pages/cart/checkout_page.dart';
 import 'package:techx_app/pages/cart/cart_items_widget.dart';
 import 'package:techx_app/services/cart_service.dart';
-import '../../models/cart_product_model.dart'; 
+import '../../models/cart_product_model.dart';
 import 'package:techx_app/utils/currency.dart';
 
 class ShoppingCartPage extends StatefulWidget {
-  
+
   const ShoppingCartPage({super.key})  ;
 
   @override
@@ -14,11 +14,11 @@ class ShoppingCartPage extends StatefulWidget {
 }
 
 class _ShoppingCartPageState extends State<ShoppingCartPage> {
-    CartService cartService = CartService();
-    double total = 0.0;
-  
-   late  List<ProductCart> productsCart = [];
-  
+  CartService cartService = CartService();
+  double total = 0.0;
+
+  late  List<ProductCart> productsCart = [];
+
   // Nút Xóa Giỏ hàng
   void _deleteCartButton() {
     showDialog(
@@ -46,7 +46,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
             onPressed: () => Navigator.pop(context, 'Hủy'),
             style: ButtonStyle(
               backgroundColor:
-                  WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
+              WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
               foregroundColor: WidgetStateProperty.all(Colors.white),
               padding: WidgetStateProperty.all(
                   const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
@@ -93,14 +93,14 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   }
 
   // Nút Thanh toán
-  void paymentButton(int size) {
+  void paymentButton() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => CheckoutPage(size: size)),
+      MaterialPageRoute(builder: (_) => CheckoutPage(products: productsCart)),
     );
   }
- 
- // Hàm tính tổng tiền cần thanh toán
-double calculateTotalPrice() {
+
+  // Hàm tính tổng tiền cần thanh toán
+  double calculateTotalPrice() {
     double totalAmount = 0.0;
     for (var product in productsCart) {
       totalAmount += product.price * product.quantity;
@@ -113,33 +113,33 @@ double calculateTotalPrice() {
   // Hàm xóa toàn bộ sản phẩm
   void clearAllProducts() async {
     try{
-    await cartService.removeProductAll();
-    setState(() {
-      productsCart.clear();
-      total = 0.0;
-    });
-  } catch(e){
-    throw Exception('Failed to remove product'); 
-  }
+      await cartService.removeProductAll();
+      setState(() {
+        productsCart.clear();
+        total = 0.0;
+      });
+    } catch(e){
+      throw Exception('Failed to remove product');
+    }
 
   }
 
   void loadData() async {
-  try {
-    final List<dynamic> jsonData = await cartService.getCartsByUser();
-    final List<ProductCart> parsedCarts = parseProductsCart(jsonData);
+    try {
+      final List<dynamic> jsonData = await cartService.getCartsByUser();
+      final List<ProductCart> parsedCarts = parseProductsCart(jsonData);
 
-    setState(() {
-      productsCart = parsedCarts; // Cập nhật danh sách sản phẩm
-      total = calculateTotalPrice();
-    });
+      setState(() {
+        productsCart = parsedCarts; // Cập nhật danh sách sản phẩm
+        total = calculateTotalPrice();
+      });
 
-    print('productsCart: $productsCart');
-  } catch (e) {
-    print('Error loading data: $e');
+      print('productsCart: $productsCart');
+    } catch (e) {
+      print('Error loading data: $e');
+    }
   }
-}
-  
+
 // Hàm cập nhật tổng tiền từ CartItemsWidget
   void updateTotal() {
     setState(() {
@@ -208,25 +208,25 @@ double calculateTotalPrice() {
                         return value == 0
                             ? const SizedBox.shrink() // Nếu không có sản phẩm, không hiển thị gì
                             : Row(
-                                children: [
-                                  const Text(
-                                    'Tất cả ',
-                                  ),
-                                  Text(
-                                    '$value',  // Hiển thị số lượng sản phẩm từ ValueNotifier
-                                  ),
-                                  const Text(
-                                    ' sản phẩm',
-                                  ),
-                                ],
-                              );
+                          children: [
+                            const Text(
+                              'Tất cả ',
+                            ),
+                            Text(
+                              '$value',  // Hiển thị số lượng sản phẩm từ ValueNotifier
+                            ),
+                            const Text(
+                              ' sản phẩm',
+                            ),
+                          ],
+                        );
                       },
                     ),
                   ),
                   CartItemsWidget(
                     products: productsCart,
                     onTotalChanged: updateTotal,),
-                ],
+                ]
               ),
             ),
           ),
@@ -236,10 +236,10 @@ double calculateTotalPrice() {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                 Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                   const Text(
+                    const Text(
                       'Tổng cộng:',
                       style: TextStyle(
                         fontSize: 16,
@@ -247,7 +247,7 @@ double calculateTotalPrice() {
                         color: Colors.black,
                       ),
                     ),
-                     Text(     
+                    Text(
                       formatCurrency(total),
                       style: const TextStyle(
                         fontSize: 20,
@@ -258,32 +258,30 @@ double calculateTotalPrice() {
                   ],
                 ),
                 const SizedBox(height: 20),
-                  ValueListenableBuilder<int>(
-                    valueListenable: cartService.cartItemSize,  // Lắng nghe sự thay đổi của cartItemSize
-                    builder: (context, value, child) {
-                      return GestureDetector(
-                        onTap: value == 0
-                            ? null
-                            : () => paymentButton(value),  // Truyền giá trị cartItemSize vào paymentButton
-                        child: Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                              color: value == 0 ? Colors.grey : Colors.black,
-                              borderRadius: BorderRadius.circular(50)),
-                          child: const Center(
-                            child: Text(
-                              'Thanh toán',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                ValueListenableBuilder<int>(
+                  valueListenable: cartService.cartItemSize,  // Lắng nghe sự thay đổi của cartItemSize
+                  builder: (context, value, child) {
+                    return GestureDetector(
+                      onTap: productsCart.isEmpty ? null : paymentButton,
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                            color: value == 0 ? Colors.grey : Colors.black,
+                            borderRadius: BorderRadius.circular(50)),
+                        child: const Center(
+                          child: Text(
+                            'Thanh toán',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                      );
-                    },
-                  )
+                      ),
+                    );
+                  },
+                )
               ],
             ),
           ),
