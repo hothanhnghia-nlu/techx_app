@@ -211,16 +211,6 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
                   ),
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Đã nhấn nút Thêm vào yêu thích'),
-                    ),
-                  );
-                },
-                child: const Icon(Icons.favorite_border, color: Colors.red),
-              ),
             ],
           ),
           Container(

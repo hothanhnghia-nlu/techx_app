@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:techx_app/pages/auth/login_page.dart';
 import 'package:techx_app/pages/product/product_reviews_widget.dart';
 import 'package:techx_app/services/cart_service.dart';
 import 'package:techx_app/services/reviews_service.dart';
@@ -18,6 +20,7 @@ class ProductDetailPage extends StatefulWidget {
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
   bool isPressed = false;
+  bool isLoggedIn = false;
   final ReviewService reviewService = ReviewService();
   List<Map<String, dynamic>> reviews = [];
 
@@ -33,9 +36,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+    setState(() {
+      isLoggedIn = token != null;
+    });
+  }
+  
   @override
   void initState() {
     super.initState();
+    _checkLoginStatus();
     fetchReviews(7);
   }
 
@@ -75,25 +87,33 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   // Nút Thêm vào Yêu thích
   void _addToFavoriteButton() {
-    setState(() {
-      isPressed = !isPressed;
-    });
+    if (isLoggedIn) {
+      setState(() {
+        isPressed = !isPressed;
+      });
 
-    if (isPressed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã nhấn nút Thêm vào yêu thích'),
-          duration: Duration(seconds: 1),
-        ),
-      );
+      if (isPressed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã nhấn nút Thêm vào yêu thích'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã nhấn nút Xóa khỏi yêu thích'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã nhấn nút Xóa khỏi yêu thích'),
-          duration: Duration(seconds: 1),
-        ),
-      );
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+              (route) => false,
+        );
     }
+    
   }
 
   @override
@@ -608,6 +628,21 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   final ReviewService reviewService = ReviewService();
   String message = "";
   double rateCount = 0;
+  bool isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+    setState(() {
+      isLoggedIn = token != null; 
+    });
+  }
 
   void createReview(int productId, double rating, String comment) async {
     final reviewData = {
@@ -627,25 +662,32 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   }
 
   void sendButton() {
-    setState(() {
-      String content = contentController.text;
+    if (isLoggedIn) {
+      setState(() {
+        String content = contentController.text;
 
-      if (rateCount == 0) {
-        message = "Vui lòng chọn đánh giá!";
-      } else if (content.isEmpty) {
-        message = "Vui lòng nhập nội dung đánh giá!";
-      } else {
-        createReview(widget.productId, rateCount, content);
-        Navigator.pop(context);
+        if (rateCount == 0) {
+          message = "Vui lòng chọn đánh giá!";
+        } else if (content.isEmpty) {
+          message = "Vui lòng nhập nội dung đánh giá!";
+        } else {
+          createReview(widget.productId, rateCount, content);
+          Navigator.pop(context);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cảm ơn bạn đã đánh giá sản phẩm!'),
-            duration: Duration(seconds: 1),
-          ),
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Cảm ơn bạn đã đánh giá sản phẩm!'),
+              duration: Duration(seconds: 1),
+            ),
+          );
+        }
+      });
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+              (route) => false,
         );
-      }
-    });
+    }
   }
 
   // Hàm chuyển đổi rating thành text
@@ -794,38 +836,64 @@ class ButtonBottomNav extends StatelessWidget {
 
   const ButtonBottomNav({super.key, required this.product}); // Pass product to the constructor
 
+  Future<bool> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+    return token != null; 
+  }
+
   @override
   Widget build(BuildContext context) {
     CartService cartService = CartService();
 
     // Nút Thêm vào Giỏ hàng
     void addToCartButton(int productId) async {
-      try {
-        await cartService.addProductCart(productId);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sản phẩm đã được thêm vào giỏ hàng!'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Không thể thêm sản phẩm vào giỏ hàng. Lỗi: $e'),
-            duration: const Duration(seconds: 3),
-          ),
+      final isLoggedIn = await _checkLoginStatus();
+      if (isLoggedIn) {
+        // Nếu đã đăng nhập
+        try {
+          await cartService.addProductCart(productId);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sản phẩm đã được thêm vào giỏ hàng!'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Không thể thêm sản phẩm vào giỏ hàng. Lỗi: $e'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        // Nếu chưa đăng nhập
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+              (route) => false,
         );
       }
     }
 
     // Nút Mua ngay
-    void buyNowButton() {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã nhấn nút Mua ngay'),
-          duration: Duration(seconds: 1),
-        ),
-      );
+    void buyNowButton() async {
+      final isLoggedIn = await _checkLoginStatus();
+      if (isLoggedIn) {
+        // Nếu đã đăng nhập
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã nhấn nút Mua ngay'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      } else {
+        // Nếu chưa đăng nhập
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+              (route) => false,
+        );
+      }
     }
 
     return BottomAppBar(

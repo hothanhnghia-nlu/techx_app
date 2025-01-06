@@ -251,13 +251,6 @@ class _NewProductsWidgetState extends State<NewProductsWidget> {
                     ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: _addToFavoriteButton,
-                  child: Icon(
-                    isPressed ? Icons.favorite : Icons.favorite_border,
-                    color: isPressed ? Colors.red : Colors.black,
-                  ),
-                ),
               ],
             ),
           ),
