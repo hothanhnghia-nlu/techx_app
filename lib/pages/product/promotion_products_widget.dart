@@ -236,23 +236,16 @@ class _PromotionProductsWidgetState extends State<PromotionProductsWidget> {
                     borderRadius: BorderRadius.circular(50),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.all(5.0),
                     child: Text(
                       '${discountPercentage(originalPrice, newPrice)}%',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: _addToFavoriteButton,
-                  child: Icon(
-                    isPressed ? Icons.favorite : Icons.favorite_border,
-                    color: isPressed ? Colors.red : Colors.black,
                   ),
                 ),
               ],
@@ -271,30 +264,30 @@ class _PromotionProductsWidgetState extends State<PromotionProductsWidget> {
           const SizedBox(height: 8),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     product['name'],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     product['ram'] + '/ ' + product['storage'] + '/ ' + decodeUtf8(product['color']),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       color: Color(0xff727880),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     formatCurrency(newPrice),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       color: Colors.red,
                       fontWeight: FontWeight.bold,

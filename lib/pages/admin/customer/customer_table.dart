@@ -188,18 +188,20 @@ class _CustomerTableState extends State<CustomerTable> {
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columns: const [
-                    DataColumn(label: Text('ID')),
+                    DataColumn(label: Text('STT')),
                     DataColumn(label: Text('Tên khách hàng')),
                     DataColumn(label: Text('Số điện thoại')),
                     DataColumn(label: Text('Email')),
                     DataColumn(label: Text('Trạng thái')),
                     DataColumn(label: Text('Chức năng')),
                   ],
-                  rows: _users.map((user) {
+                  rows: _users.asMap().entries.map((entry) {
+                    int index = entry.key + 1;
+                    var user = entry.value;
                     return DataRow(cells: [
                       DataCell(SizedBox(
                           width: 40,
-                          child: Text('${user['id']}',
+                          child: Text('$index',
                               overflow: TextOverflow.ellipsis))),
                       DataCell(SizedBox(
                         width: 150,

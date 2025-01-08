@@ -15,11 +15,37 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+  bool _isLoading = true; // Trạng thái đang kiểm tra token
+  bool _hasToken = false; // Trạng thái có token hay không
+
+  @override
+  void initState() {
+    super.initState();
+    _checkToken();
+  }
+
+  Future<void> _checkToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("accessToken");
+    setState(() {
+      _hasToken = token != null; // Kiểm tra token có tồn tại không
+      _isLoading = false; // Dừng trạng thái loading sau khi kiểm tra xong
+    });
+
+    if (!_hasToken) {
+      // Nếu không có token, chuyển hướng về LoginPage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  }
+
   void _logoutButton() {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        backgroundColor: Colors.white, 
+        backgroundColor: Colors.white,
         title: const Text(
           'Thông báo',
           style: TextStyle(
@@ -36,45 +62,42 @@ class _AccountPageState extends State<AccountPage> {
           ),
         ),
         actions: [
-          // Button Cancel
           TextButton(
             onPressed: () => Navigator.pop(context, 'Đóng'),
             style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
-              foregroundColor: WidgetStateProperty.all(Colors.white),
-              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
-              shape: WidgetStateProperty.all(RoundedRectangleBorder(
+              backgroundColor: MaterialStateProperty.all(
+                  Color(hexColor('#9DA2A7'))),
+              foregroundColor: MaterialStateProperty.all(Colors.white),
+              padding: MaterialStateProperty.all(
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
+              shape: MaterialStateProperty.all(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              )),
             ),
             child: const Text('Đóng'),
           ),
-
-          // Button Confirm
           TextButton(
             onPressed: () async {
-              // Xoá token trước khi điều hướng
-             Provider.of<AuthProvider>(context, listen: false).logout();
-
-              // Điều hướng về LoginPage và xoá lịch sử trang
+              Provider.of<AuthProvider>(context, listen: false).logout();
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginPage()), (route) => false);
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+                (route) => false,
+              );
             },
             style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all(Colors.red),
-              foregroundColor: WidgetStateProperty.all(Colors.white),
-              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
-              shape: WidgetStateProperty.all(RoundedRectangleBorder(
+              backgroundColor: MaterialStateProperty.all(Colors.red),
+              foregroundColor: MaterialStateProperty.all(Colors.white),
+              padding: MaterialStateProperty.all(
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
+              shape: MaterialStateProperty.all(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              )),
             ),
             child: const Text(
               'Đồng ý',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-              )
+              ),
             ),
           ),
         ],
@@ -84,6 +107,15 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      // Hiển thị loading trong khi kiểm tra token
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -110,7 +142,8 @@ class _AccountPageState extends State<AccountPage> {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ProfilePage()));
+                    MaterialPageRoute(builder: (_) => const ProfilePage()),
+                  );
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -129,11 +162,8 @@ class _AccountPageState extends State<AccountPage> {
                         ),
                       ),
                     ),
-                        
                     const SizedBox(width: 16),
-                        
                     const Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -143,9 +173,7 @@ class _AccountPageState extends State<AccountPage> {
                             color: Colors.black,
                           ),
                         ),
-                        
                         SizedBox(height: 4),
-                        
                         Text(
                           'Thay đổi Mật khẩu, Cập nhật thông tin',
                           style: TextStyle(
@@ -157,7 +185,7 @@ class _AccountPageState extends State<AccountPage> {
                   ],
                 ),
               ),
-        
+
               const SizedBox(height: 12),
         
               const Divider(color: Color(0xffF6F6F6)),
