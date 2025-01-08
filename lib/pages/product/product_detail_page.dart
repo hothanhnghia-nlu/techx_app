@@ -8,6 +8,9 @@ import 'package:techx_app/pages/auth/login_page.dart';
 import 'package:techx_app/pages/product/product_reviews_widget.dart';
 import 'package:techx_app/services/cart_service.dart';
 import 'package:techx_app/services/reviews_service.dart';
+import 'package:techx_app/pages/cart/checkout_page.dart';
+
+import '../../models/cart_product_model.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final dynamic product;
@@ -881,12 +884,27 @@ class ButtonBottomNav extends StatelessWidget {
       final isLoggedIn = await _checkLoginStatus();
       if (isLoggedIn) {
         // Nếu đã đăng nhập
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã nhấn nút Mua ngay'),
-            duration: Duration(seconds: 1),
+        // Sản phẩm mua ngay
+       final productBuy = ProductCart(
+          id: product['id'] ?? 0,
+          name: product['name'] ?? 'Unknown Product',
+          ram: product['ram'] ?? 'N/A',
+          color: product['color'] ?? 'N/A',
+          storage: product['storage'] ?? 'N/A',
+          price: (product['price'] ?? 0.0).toDouble(),
+          quantity: product['quantity'] ?? 0,
+          imageUrl: product['imageUrl'] ?? 'Not find URL',
+          status: product['status'] ?? 0,
+          productId: product['productId'] ?? 0,
+        );
+    // Điều hướng đến CheckoutPage với danh sách chứa sản phẩm
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CheckoutPage(products: [productBuy]),
           ),
         );
+
       } else {
         // Nếu chưa đăng nhập
         Navigator.of(context).pushAndRemoveUntil(
