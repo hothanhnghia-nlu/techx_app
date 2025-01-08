@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
@@ -31,6 +31,29 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         reviews = data;
       });
       print('Reviews: $reviews');
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+  Future<void> addToFavorite(int productId, String token) async {
+    var uri = Uri.parse('http://10.0.2.2:8080/api/v1/favorites');
+
+    // Tạo yêu cầu multipart
+    var request = http.MultipartRequest('POST', uri)
+      ..headers['Authorization'] = 'Bearer $token'
+      ..fields['productId'] = productId.toString(); // Gửi productId dưới dạng field
+
+    try {
+      // Gửi yêu cầu
+      var response = await request.send();
+
+      // Kiểm tra mã trạng thái phản hồi
+      if (response.statusCode == 200) {
+        print('Product added to favorites');
+      } else {
+        print('Failed to add product to favorites');
+        print('Response status: ${response.statusCode}');
+      }
     } catch (e) {
       print('Error: $e');
     }
@@ -86,35 +109,44 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   // Nút Thêm vào Yêu thích
-  void _addToFavoriteButton() {
+  void _addToFavoriteButton() async {
     if (isLoggedIn) {
       setState(() {
         isPressed = !isPressed;
       });
 
-      if (isPressed) {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken');
+
+      if (token != null) {
+        await addToFavorite(widget.product['id'], token);  // Gửi productId từ widget.product
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Đã nhấn nút Thêm vào yêu thích'),
+            content: Text('Sản phẩm đã được thêm vào yêu thích'),
             duration: Duration(seconds: 1),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Đã nhấn nút Xóa khỏi yêu thích'),
+            content: Text('Vui lòng đăng nhập để thực hiện hành động này'),
             duration: Duration(seconds: 1),
           ),
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+              (route) => false,
         );
       }
     } else {
       Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-              (route) => false,
-        );
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+            (route) => false,
+      );
     }
-    
   }
+
+
 
   @override
   Widget build(BuildContext context) {

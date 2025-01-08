@@ -4,7 +4,9 @@ import 'package:shimmer/shimmer.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
 
 class ProductFavoriteWidget extends StatefulWidget {
-  const ProductFavoriteWidget({super.key});
+  final List<Map<String, dynamic>> favoriteProducts;
+
+  const ProductFavoriteWidget({super.key, required this.favoriteProducts});
 
   @override
   State<ProductFavoriteWidget> createState() => _ProductFavoriteWidgetState();
@@ -17,6 +19,7 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
   @override
   void initState() {
     super.initState();
+    // Giả lập delay dữ liệu tải
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         _isLoading = false;
@@ -25,49 +28,53 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
   }
 
   // Định dạng đơn vị tiền tệ
-  String formatCurrency(double orginalCurrency) {
+  String formatCurrency(double originalCurrency) {
     var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
-    return formatter.format(orginalCurrency);
+    return formatter.format(originalCurrency);
   }
 
   // Nút Xóa khỏi Yêu thích
-  void _removeFavoriteButton() {
+  void _removeFavoriteButton(int productId) {
     setState(() {
-      isPressed = !isPressed;
+      widget.favoriteProducts.removeWhere((product) =>
+      product['product']['id'] == productId); // Xóa sản phẩm yêu thích
     });
 
-    if (!isPressed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã nhấn nút Xóa khỏi yêu thích'),
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Đã nhấn nút Xóa khỏi yêu thích'),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    int size = 3;
-    return GridView.count(
-      childAspectRatio: 0.54,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
+    return GridView.builder(
+      itemCount: widget.favoriteProducts.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.54,
+      ),
       shrinkWrap: true,
-      children: [
-        for (int i = 1; i <= size; i++)
-        GestureDetector(
+      itemBuilder: (context, index) {
+        final product = widget.favoriteProducts[index];
+        return GestureDetector(
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ProductDetailPage(product: null,)));
+              MaterialPageRoute(
+                builder: (_) => ProductDetailPage(product: product['product']),
+              ),
+            );
           },
           child: _isLoading
               ? buildShimmerPlaceholder()
-              : buildProductContainer(),
-        )
-      ],
+              : buildProductContainer(product),
+        );
+      },
     );
   }
 
+  // Shimmer Placeholder khi đang tải dữ liệu
   Widget buildShimmerPlaceholder() {
     return Container(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
@@ -120,6 +127,7 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
     );
   }
 
+  // Xây dựng shimmer cho title
   Widget buildShimmerTitle() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
@@ -135,6 +143,7 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
     );
   }
 
+  // Xây dựng shimmer cho hình ảnh
   Widget buildShimmerImage() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
@@ -150,6 +159,7 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
     );
   }
 
+  // Xây dựng shimmer cho dòng text
   Widget buildShimmerTextLine(double width, double height) {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
@@ -162,9 +172,9 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
     );
   }
 
-
-  // Container Sau khi dữ liệu đã được tải
-  Widget buildProductContainer() {
+  // Container sau khi dữ liệu đã được tải
+  // Container sau khi dữ liệu đã được tải
+  Widget buildProductContainer(Map<String, dynamic> product) {
     return Container(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -205,7 +215,9 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
                 ),
               ),
               GestureDetector(
-                onTap: _removeFavoriteButton,
+                onTap: () {
+                  _removeFavoriteButton(product['product']['id']);
+                },
                 child: Icon(
                   isPressed ? Icons.favorite : Icons.favorite_border,
                   color: isPressed ? Colors.red : Colors.black,
@@ -216,17 +228,23 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
           Container(
             margin: const EdgeInsets.all(10),
             child: Image.network(
-              'https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-200x200.jpg',
-              height: 120,
-              width: 120,
+              product['product']['images'] != null && product['product']['images'].isNotEmpty
+                  ? product['product']['images'][0]['url'] ?? ''
+                  : '', // Kiểm tra null cho hình ảnh
+              height: 150, // Đặt chiều cao lớn hơn để hình ảnh to hơn
+              width: double.infinity, // Đặt chiều rộng bằng với chiều rộng của container
+              fit: BoxFit.cover, // Đảm bảo hình ảnh phủ kín container mà không bị méo
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.error, size: 150); // Hiển thị lỗi nếu không tải được hình
+              },
             ),
           ),
           Container(
             padding: const EdgeInsets.only(bottom: 8),
             alignment: Alignment.centerLeft,
-            child: const Text(
-              'Tên sản phẩm',
-              style: TextStyle(
+            child: Text(
+              product['product']['name'] ?? 'Tên sản phẩm chưa có', // Kiểm tra null cho tên sản phẩm
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -236,9 +254,9 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
           Container(
             padding: const EdgeInsets.only(bottom: 8),
             alignment: Alignment.centerLeft,
-            child: const Text(
-              'Thông số kỹ thuật',
-              style: TextStyle(
+            child: Text(
+              product['product']['ram'] ?? 'Thông số kỹ thuật chưa có', // Kiểm tra null cho ram
+              style: const TextStyle(
                 fontSize: 12,
                 color: Color(0xff727880),
               ),
@@ -246,9 +264,9 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
           ),
           Container(
             alignment: Alignment.centerLeft,
-            child: const Text(
-              '0đ',
-              style: TextStyle(
+            child: Text(
+              formatCurrency(product['product']['newPrice'] ?? 0.0), // Kiểm tra null cho giá
+              style: const TextStyle(
                 fontSize: 18,
                 color: Colors.red,
                 fontWeight: FontWeight.bold,
@@ -261,6 +279,7 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
   }
 }
 
+// Hàm chuyển đổi màu hex
 int hexColor(String color) {
   String newColor = "0xff$color";
   newColor = newColor.replaceAll('#', '');

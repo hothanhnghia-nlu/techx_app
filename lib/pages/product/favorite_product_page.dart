@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:techx_app/pages/product/product_fvr_widget.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'product_fvr_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoriteProductPage extends StatefulWidget {
   const FavoriteProductPage({super.key});
@@ -9,6 +12,85 @@ class FavoriteProductPage extends StatefulWidget {
 }
 
 class _FavoriteProductPageState extends State<FavoriteProductPage> {
+  List<Map<String, dynamic>> favoriteProducts = [];
+  bool _isLoading = true;
+  bool isLoggedIn = false;
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+
+    if (token != null) {
+      setState(() {
+        isLoggedIn = true;
+      });
+      _fetchUserId(token);
+    } else {
+      setState(() {
+        isLoggedIn = false;
+      });
+      // Nếu không đăng nhập, yêu cầu đăng nhập lại
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+
+  Future<void> _fetchUserId(String token) async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8080/api/v1/users/user-info'), // API lấy thông tin người dùng
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final user = json.decode(response.body); // Giả sử lấy thông tin người dùng
+      setState(() {
+        userId = user['id'].toString();
+      });
+      // Sau khi lấy userId, gọi hàm fetchFavoriteProducts
+      _fetchFavoriteProducts();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể lấy thông tin người dùng')),
+      );
+    }
+  }
+
+  Future<void> _fetchFavoriteProducts() async {
+    if (userId == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8080/api/v1/favorites/by-user'), // Đảm bảo URL API chính xác
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        favoriteProducts = List<Map<String, dynamic>>.from(json.decode(response.body));
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải danh sách yêu thích')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,9 +110,9 @@ class _FavoriteProductPageState extends State<FavoriteProductPage> {
         ),
         centerTitle: true,
       ),
-      body: const SingleChildScrollView(
-        child: ProductFavoriteWidget(),
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ProductFavoriteWidget(favoriteProducts: favoriteProducts),
     );
   }
 }
