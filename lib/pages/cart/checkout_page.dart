@@ -7,6 +7,7 @@ import 'package:techx_app/pages/home/navigation_page.dart';
 import 'package:techx_app/pages/order/orders_page.dart';
 import 'package:techx_app/pages/profile/my_addresses_page.dart';
 import 'package:techx_app/utils/currency.dart';
+import 'package:techx_app/utils/dialog_utils.dart';
 
 import '../../models/cart_product_model.dart';
 import '../../services/payment_service.dart';
@@ -15,7 +16,7 @@ import '../payment/CardInputWidget.dart';
 final noteController = TextEditingController();
 
 class CheckoutPage extends StatefulWidget {
-  final List<ProductCart> products;
+  final List<dynamic> products;
 
   const CheckoutPage({Key? key, required this.products}) : super(key: key);
 
@@ -62,49 +63,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
             SnackBar(content: Text('Lỗi khi tạo phiên thanh toán: $e')));
       }
     }
-  }
-  Future<dynamic> showAlertDialog() {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) =>
-          AlertDialog(
-            backgroundColor: Colors.white,
-            title: const Text(
-              'Thông báo',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: const Text(
-              'Chức năng đang phát triển, vui lòng quay lại sau',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, 'Đóng'),
-                style: ButtonStyle(
-                  backgroundColor:
-                  WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
-                  padding: WidgetStateProperty.all(
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
-                  shape: WidgetStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                ),
-                child: const Text('Đóng'),
-              ),
-            ],
-          ),
-    );
   }
 
   @override
@@ -568,9 +526,9 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
 
       if (paymentIntent == null ||
           !paymentIntent!.containsKey('paymentIntentId')) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                'Lỗi: Không thể tạo phiên thanh toán. Vui lòng thử lại.')));
+        DialogUtils.showErrorDialog(
+            context: context,
+            message: 'Lỗi: Không thể tạo phiên thanh toán. Vui lòng thử lại.');
         return;
       }
       // Hiển thị form nhập thẻ

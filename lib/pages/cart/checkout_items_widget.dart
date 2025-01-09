@@ -7,7 +7,7 @@ import 'package:techx_app/pages/product/product_detail_page.dart';
 import '../../models/cart_product_model.dart';
 
 class CheckoutItemsWidget extends StatelessWidget {
-  final List<ProductCart> products;
+  final List<dynamic> products;
 
   const CheckoutItemsWidget({
     Key? key,

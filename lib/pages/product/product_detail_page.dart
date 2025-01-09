@@ -923,12 +923,13 @@ class ButtonBottomNav extends StatelessWidget {
           ram: product['ram'] ?? 'N/A',
           color: product['color'] ?? 'N/A',
           storage: product['storage'] ?? 'N/A',
-          price: (product['price'] ?? 0.0).toDouble(),
+          price: (product['newPrice'] ?? 0.0).toDouble(),
           quantity: product['quantity'] ?? 0,
-          imageUrl: product['imageUrl'] ?? 'Not find URL',
+          imageUrl: product['images'][0]['url'] ?? 'Not find URL',
           status: product['status'] ?? 0,
           productId: product['productId'] ?? 0,
         );
+       print(productBuy.toString());
     // Điều hướng đến CheckoutPage với danh sách chứa sản phẩm
         Navigator.push(
           context,
