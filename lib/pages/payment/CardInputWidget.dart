@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
+import 'package:techx_app/utils/dialog_utils.dart';
 import '../../services/payment_service.dart';
 import '../admin/category/category_detail_screen.dart';
 
@@ -30,7 +31,7 @@ class _CardInputWidgetState extends State<CardInputWidget> {
   Future<void> _handlePayment() async {
     if (!_controller.details.complete) {
       print("Vui lòng điền đầy đủ thông tin thẻ");
-      showAlertDialog('Vui lòng điền đầy đủ, chính xác thông tin thẻ');
+      DialogUtils.showErrorDialog(context: context, message: "Vui lòng điền đầy đủ thông tin thẻ");
       return;
     }
     try {
@@ -61,53 +62,11 @@ class _CardInputWidgetState extends State<CardInputWidget> {
       }
     } catch (e) {
       print('Lỗi thanh toán: $e');
-      showAlertDialog('Lỗi thanh toán: $e');
+      DialogUtils.showErrorDialog(
+          context: context, message: 'Lỗi thanh toán: $e');
     } finally {
       setState(() => _isProcessing = false);
     }
-  }
-  Future<dynamic> showAlertDialog(String text) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) =>
-          AlertDialog(
-            backgroundColor: Colors.white,
-            title: const Text(
-              'Thông báo',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content:  Text(
-             text ,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, 'Đóng'),
-                style: ButtonStyle(
-                  backgroundColor:
-                  WidgetStateProperty.all(Color(hexColor('#9DA2A7'))),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
-                  padding: WidgetStateProperty.all(
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
-                  shape: WidgetStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                ),
-                child: const Text('Đóng'),
-              ),
-            ],
-          ),
-    );
   }
 
   @override
@@ -119,9 +78,11 @@ class _CardInputWidgetState extends State<CardInputWidget> {
       backgroundColor: Colors.grey.shade200,
       body: SafeArea(
         child: Center(
-          child: SingleChildScrollView( // Bọc toàn bộ nội dung trong SingleChildScrollView
+          child: SingleChildScrollView(
+            // Bọc toàn bộ nội dung trong SingleChildScrollView
             child: Container(
-              height: screenHeight * 0.9, // Giới hạn chiều cao container
+              height: screenHeight * 0.9,
+              // Giới hạn chiều cao container
               width: screenWidth * 0.9,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -176,14 +137,16 @@ class _CardInputWidgetState extends State<CardInputWidget> {
                       onPressed: _isProcessing ? null : _handlePayment,
                       child: _isProcessing
                           ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(color: Colors.white),
-                      )
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white),
+                            )
                           : const Text(
-                        'Xác nhận thanh toán',
-                        style: TextStyle(color: Colors.white, fontSize: 14),
-                      ),
+                              'Xác nhận thanh toán',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
+                            ),
                     ),
                   ),
 
