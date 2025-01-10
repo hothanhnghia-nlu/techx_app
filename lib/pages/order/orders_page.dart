@@ -3,8 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:techx_app/pages/order/order_items_widget.dart';
 import 'package:techx_app/providers/order_provider.dart';
 
+import '../home/navigation_page.dart';
+import '../profile/account_page.dart';
+
 class MyOrdersPage extends StatefulWidget {
-  const MyOrdersPage({super.key});
+  final String previousPage; // Tham số để xác định nguồn điều hướng
+
+  const MyOrdersPage({Key? key, required this.previousPage}) : super(key: key);
 
   @override
   State<MyOrdersPage> createState() => _MyOrdersPageState();
@@ -44,6 +49,24 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
               ),
             ),
             centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () {
+                if (widget.previousPage == 'CheckoutPage') {
+                  // Nếu đến từ CheckoutPage, quay lại Trang chủ
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const NavigationPage(initialTabIndex: 1)),
+                        (route) => false,
+                  );
+                } else if (widget.previousPage == 'AccountPage') {
+                  // Nếu đến từ AccountPage, quay lại AccountPage
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const NavigationPage(initialTabIndex: 2)),
+                        (route) => false,
+                  );
+                }
+              },
+            ),
           ),
           body: Column(
             mainAxisAlignment: MainAxisAlignment.start,

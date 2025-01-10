@@ -55,8 +55,12 @@ class ProductCart {
       'productId': productId,
     };
   }
+  int getProductId() {
+    return productId;
+  }
   @override
   String toString() {
     return 'ProductCart(id: $id, name: $name, color: $color, ram: $ram, storage: $storage, price: $price, quantity: $quantity, imageUrl: $imageUrl, status: $status, productId: $productId)';
   }
+
 }

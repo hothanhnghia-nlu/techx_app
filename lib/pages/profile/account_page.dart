@@ -195,7 +195,7 @@ class _AccountPageState extends State<AccountPage> {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const MyOrdersPage()));
+                      MaterialPageRoute(builder: (_) => const MyOrdersPage(previousPage: 'AccountPage')));
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,

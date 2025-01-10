@@ -927,14 +927,14 @@ class ButtonBottomNav extends StatelessWidget {
           quantity: product['quantity'] ?? 0,
           imageUrl: product['images'][0]['url'] ?? 'Not find URL',
           status: product['status'] ?? 0,
-          productId: product['productId'] ?? 0,
+          productId: product['id'] ?? 0,
         );
        print(productBuy.toString());
     // Điều hướng đến CheckoutPage với danh sách chứa sản phẩm
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CheckoutPage(products: [productBuy]),
+            builder: (context) => CheckoutPage(products: [productBuy], from: 'productDetail',),
           ),
         );
 

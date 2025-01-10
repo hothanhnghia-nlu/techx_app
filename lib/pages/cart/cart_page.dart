@@ -96,7 +96,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   void paymentButton() {
     print(productsCart.toString());
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => CheckoutPage(products: productsCart)),
+      MaterialPageRoute(builder: (_) => CheckoutPage(products: productsCart, from: 'cart',)),
     );
   }
 
