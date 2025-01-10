@@ -6,6 +6,7 @@ import 'package:techx_app/pages/cart/checkout_items_widget.dart';
 import 'package:techx_app/pages/home/navigation_page.dart';
 import 'package:techx_app/pages/order/orders_page.dart';
 import 'package:techx_app/pages/profile/my_addresses_page.dart';
+import 'package:techx_app/services/order_service.dart';
 import 'package:techx_app/utils/currency.dart';
 import 'package:techx_app/utils/dialog_utils.dart';
 
@@ -16,9 +17,11 @@ import '../payment/CardInputWidget.dart';
 final noteController = TextEditingController();
 
 class CheckoutPage extends StatefulWidget {
+  final String from;
   final List<dynamic> products;
 
-  const CheckoutPage({Key? key, required this.products}) : super(key: key);
+  const CheckoutPage({Key? key, required this.products, required this.from})
+      : super(key: key);
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -355,10 +358,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
       // Nút Đặt hàng
       bottomNavigationBar: OrderConfirmBtnNavBar(
-        totalAmount: totalPrice,
-        selectedPaymentMethod: _selectedPaymentMethod,
-        paymentIntent: _paymentIntent,
-      ),
+          totalAmount: totalPrice,
+          selectedPaymentMethod: _selectedPaymentMethod,
+          paymentIntent: _paymentIntent,
+          product: widget.products,
+          from: widget.from),
     );
   }
 
@@ -510,16 +514,28 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
   final double totalAmount;
   final String selectedPaymentMethod;
   final Map<String, dynamic>? paymentIntent;
+  final List<dynamic> product;
+  final String from;
+  OrderService orderService = new OrderService();
 
-  const OrderConfirmBtnNavBar(
+  OrderConfirmBtnNavBar(
       {required this.totalAmount,
       required this.selectedPaymentMethod,
       this.paymentIntent,
-      super.key});
+      required this.product,
+      super.key,
+      required this.from});
 
   Future<void> handlePayment(BuildContext context) async {
     if (selectedPaymentMethod == 'Tiền mặt khi nhận hàng') {
-      showCompletedDialog(context);
+      bool result =
+          await handleOrder(product, from); // Chờ kết quả từ handleOrder()
+      if (result == true) {
+        print('Dat hang thanh cong');
+        showCompletedDialog(context);
+      } else {
+        print('Dat hang that bai');
+      }
     } else if (selectedPaymentMethod == 'Thẻ Tín dụng/Ghi nợ') {
       print(
           'Payment Intent in handlePayment: $paymentIntent'); // Thêm log để debug
@@ -533,14 +549,46 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
       }
       // Hiển thị form nhập thẻ
       showModalBottomSheet(
-          context: context,
-          builder: (context) => CardInputWidget(
-                paymentIntentId: paymentIntent!['paymentIntentId'],
-                clientSecret: paymentIntent!['clientSecret'],
-                // Thêm client secret
-                onPaymentSuccess: () => showCompletedDialog(context),
-              ));
+        context: context,
+        builder: (context) => CardInputWidget(
+          paymentIntentId: paymentIntent!['paymentIntentId'],
+          clientSecret: paymentIntent!['clientSecret'],
+          // Thêm client secret
+          onPaymentSuccess: () async {
+            // Gọi handleOrder và chờ hoàn thành
+            bool result = await handleOrder(product,from);
+
+            if (result) {
+              // Nếu đặt hàng thành công, hiển thị dialog
+              await showCompletedDialog(context);
+            } else {
+              // Nếu đặt hàng thất bại, hiển thị thông báo lỗi
+              DialogUtils.showErrorDialog(
+                context: context,
+                message: 'Đặt hàng thất bại. Khoản tiền tạm giữ sẽ được hoàn lại.',
+              );
+            }
+          },
+        ),
+      );
     }
+  }
+
+  Future<bool> handleOrder(List<dynamic> product, String from) async {
+    int productID = 0;
+    if (from == 'productDetail') {
+      print('productDetail');
+      productID = product[0].id;
+    }
+    String? result = await orderService.createOrfer(
+        idAddress: 1,
+        totalAmount: totalAmount,
+        paymentMethod: selectedPaymentMethod,
+        productID: productID);
+    if (result == "Dặt hàng thành công") {
+      return true;
+    }
+    return false;
   }
 
   @override
@@ -624,7 +672,8 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                              builder: (_) => const MyOrdersPage()),
+                              builder: (_) => const MyOrdersPage(
+                                  previousPage: 'CheckoutPage')),
                           (route) => false);
                     },
                     style: ElevatedButton.styleFrom(

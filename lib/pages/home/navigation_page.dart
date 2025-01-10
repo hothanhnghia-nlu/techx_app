@@ -5,14 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class NavigationPage extends StatefulWidget {
-  const NavigationPage({super.key});
+  final int initialTabIndex; // Tham số để chọn tab ban đầu
+  const NavigationPage({super.key, this.initialTabIndex = 1}); // Giá trị mặc định là tab "Trang chủ"
 
   @override
   State<NavigationPage> createState() => _NavigationPageState();
 }
 
 class _NavigationPageState extends State<NavigationPage> {
-  int _selectedIndex = 1;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialTabIndex; // Gán tab ban đầu từ tham số
+  }
 
   @override
   Widget build(BuildContext context) {

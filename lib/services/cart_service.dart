@@ -45,6 +45,7 @@ Future<dynamic> getCartsByUser() async {
   }
 
 Future<void> updateCart(var cartProduct) async {
+  print(cartProduct.toString());
   try {
      final token = await getToken();
         if (token == null) {
