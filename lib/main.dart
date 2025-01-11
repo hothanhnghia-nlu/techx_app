@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:techx_app/pages/home/splash_screen.dart';
 import 'package:techx_app/providers/address_provider.dart';
 import 'package:techx_app/providers/auth_provider.dart';
 import 'package:techx_app/providers/order_provider.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+
 void main() async  {
   WidgetsFlutterBinding.ensureInitialized();
 

@@ -9,7 +9,7 @@ class Order {
   final String paymentMethod;
   final String note;
   final DateTime orderDate;
-  final DateTime paymentDate;
+  final DateTime? paymentDate;
   final int status;
   final List<OrderDetail> orderDetails;
 
@@ -35,7 +35,9 @@ class Order {
       paymentMethod: json['paymentMethod'],
       note: json['note'],
       orderDate: DateTime.parse(json['orderDate']),
-      paymentDate: DateTime.parse(json['paymentDate']),
+      paymentDate: json['paymentDate'] != null
+          ? DateTime.parse(json['paymentDate'])
+          : null,
       status: json['status'],
       orderDetails: (json['orderDetails'] as List)
           .map((detail) => OrderDetail.fromJson(detail))
@@ -69,7 +71,6 @@ class Order {
     );
   }
 }
-
 
 class OrderDetail {
   final int id;

@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../utils/constant.dart';
 
 class OrderService {
@@ -19,7 +20,7 @@ class OrderService {
       required String paymentMethod,
       required  int productID
       }) async {
-    final url = Uri.parse('$baseUrl/orders'); // Thay đổi URL nếu cần
+    final url = Uri.parse('$baseUrl/orders?addressId=1'); // Thay đổi URL nếu cần
     final token = await getToken();
     try {
 // Gửi yêu cầu đăng nhập

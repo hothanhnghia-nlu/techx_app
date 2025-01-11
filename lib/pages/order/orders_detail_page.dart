@@ -44,7 +44,7 @@ class OrderDetailPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(Icons.fire_truck_outlined),
                       SizedBox(width: 8),
@@ -58,11 +58,11 @@ class OrderDetailPage extends StatelessWidget {
                       )
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Mã đơn hàng',
                         style: TextStyle(
                           fontSize: 13,
@@ -71,7 +71,7 @@ class OrderDetailPage extends StatelessWidget {
                       ),
                       Text(
                         order.id.toString(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -79,11 +79,11 @@ class OrderDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Thời gian đặt hàng',
                         style: TextStyle(
                           fontSize: 13,
@@ -92,18 +92,18 @@ class OrderDetailPage extends StatelessWidget {
                       ),
                       Text(
                         formatDateTime(order.orderDate.toString()),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Thời gian thanh toán',
                         style: TextStyle(
                           fontSize: 13,
@@ -111,19 +111,23 @@ class OrderDetailPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        formatDateTime(order.paymentDate.toIso8601String()),
-                        style: TextStyle(
+                        formatDateTime(
+                          order.paymentDate == null
+                              ? DateTime.now().toString()
+                              : order.paymentDate.toString(),
+                        ),
+                        style: const TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Trạng thái đơn hàng',
                         style: TextStyle(
                           fontSize: 13,
@@ -141,7 +145,7 @@ class OrderDetailPage extends StatelessWidget {
                                     : order.status.toString() == "3"
                                         ? 'Giao hàng thành công'
                                         : 'Đã hủy',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),
                         ),
@@ -161,7 +165,7 @@ class OrderDetailPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(Icons.location_on_outlined),
                       SizedBox(width: 8),
@@ -175,20 +179,20 @@ class OrderDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         'Họ tên người nhận',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         order.user.fullName,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -196,20 +200,20 @@ class OrderDetailPage extends StatelessWidget {
                       )
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         'Số điện thoại',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         order.user.phoneNumber,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -217,29 +221,27 @@ class OrderDetailPage extends StatelessWidget {
                       )
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         'Địa chỉ chi tiết',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),
                         ),
                       ),
-                      SizedBox(width: 8),
-                      Text(
-                        order.address.detail +
-                            ", " +
-                            order.address.ward +
-                            ", " +
-                            order.address.city +
-                            ", " +
-                            order.address.province,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "${order.address.detail}, ${order.address.ward}, ${order.address.city}, ${order.address.province}",
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       )
                     ],
@@ -326,7 +328,7 @@ class OrderDetailPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(Icons.payment, color: Colors.red),
                       SizedBox(width: 8),
@@ -340,10 +342,10 @@ class OrderDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     order.paymentMethod,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       color: Color(0xff9DA2A7),
                     ),
@@ -364,7 +366,7 @@ class OrderDetailPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Tạm tính',
                         style: TextStyle(
                           fontSize: 14,
@@ -373,15 +375,15 @@ class OrderDetailPage extends StatelessWidget {
                       ),
                       Text(
                         formatCurrency(order.total),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
-                  Row(
+                  const SizedBox(height: 8),
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
@@ -400,11 +402,11 @@ class OrderDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Thành tiền',
                         style: TextStyle(
                           fontSize: 14,
@@ -413,7 +415,7 @@ class OrderDetailPage extends StatelessWidget {
                       ),
                       Text(
                         formatCurrency(order.total),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           color: Colors.red,
                           fontWeight: FontWeight.bold,

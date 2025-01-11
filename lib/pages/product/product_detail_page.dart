@@ -1,14 +1,15 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:techx_app/pages/auth/login_page.dart';
+import 'package:techx_app/pages/cart/checkout_page.dart';
 import 'package:techx_app/pages/product/product_reviews_widget.dart';
 import 'package:techx_app/services/cart_service.dart';
 import 'package:techx_app/services/reviews_service.dart';
-import 'package:techx_app/pages/cart/checkout_page.dart';
 
 import '../../models/cart_product_model.dart';
 
@@ -39,7 +40,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
   Future<void> addToFavorite(int productId, String token) async {
-    var uri = Uri.parse('http://10.0.2.2:8080/api/v1/favorites');
+    var uri = Uri.parse('http://192.168.1.14:8080/api/v1/favorites');
 
     // Tạo yêu cầu multipart
     var request = http.MultipartRequest('POST', uri)
