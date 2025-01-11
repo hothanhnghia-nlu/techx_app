@@ -19,14 +19,14 @@ class _ListAddressPageState extends State<ListAddressPage> {
     Provider.of<AddressProvider>(context, listen: false).refreshAddresses();
   }
 
-  void _navigateToMyAddressPage() async {
+  void _navigateToMyAddressPage({Address? address}) async {
     await Navigator.push(
       context,
       CupertinoPageRoute(
-        builder: (context) => MyAddressesPage(),
+        builder: (context) => MyAddressesPage(address: address),
       ),
     );
-    Provider.of<AddressProvider>(context, listen: false).refreshAddresses();
+   await Provider.of<AddressProvider>(context, listen: false).refreshAddresses();
   }
 
   void _deleteAddress(Address address) {
@@ -68,16 +68,17 @@ class _ListAddressPageState extends State<ListAddressPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () => _navigateToMyAddressPage(),
+            onPressed: () =>
+                _navigateToMyAddressPage(), // Thêm mới (không truyền địa chỉ)
           ),
         ],
       ),
       body: Consumer<AddressProvider>(
-        builder: (context, orderProvider, child) {
+        builder: (context, addressProvider, child) {
           return ListView.builder(
-            itemCount: orderProvider.addresses.length,
+            itemCount: addressProvider.addresses.length,
             itemBuilder: (context, index) {
-              Address address = orderProvider.addresses[index];
+              Address address = addressProvider.addresses[index];
               return Card(
                 margin:
                     const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -90,7 +91,8 @@ class _ListAddressPageState extends State<ListAddressPage> {
                   ),
                   subtitle: Text('Tap to view details'),
                   trailing: Icon(Icons.arrow_forward_ios),
-                  onTap: () => _navigateToMyAddressPage(),
+                  onTap: () => _navigateToMyAddressPage(address: address),
+                  // Truyền địa chỉ khi nhấn
                   onLongPress: () => _confirmDeleteAddress(address),
                 ),
               );

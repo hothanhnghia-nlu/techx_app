@@ -16,9 +16,17 @@ class AddressController {
 
   Future<List<Address>> getAddresses() async {
     try {
-      final response = await _dio.get('/addresses/all-addresses');
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken') ?? '';
+      final response = await _dio.get('/addresses/by-user',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token'
+            },
+          ));
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
+        print(data);
         return data.map((address) => Address.fromJson(address)).toList();
       } else {
         return [];
@@ -37,6 +45,8 @@ class AddressController {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('accessToken') ?? '';
       FormData formData = FormData.fromMap({
+        'fullName': address.fullName,
+        'phone': address.phoneNumber,
         'detail': address.detail,
         'province': address.province,
         'city': address.city,
@@ -49,6 +59,35 @@ class AddressController {
           options: Options(
             headers: {
               'Content-Type': 'multipart/form-data',
+              'Authorization': 'Bearer $token'
+            },
+          ));
+      if (response.statusCode == 403) {
+        print(
+            'Error: Forbidden - You do not have permission to add this address.');
+        const SnackBar(
+            content: Text('Failed to add address: Permission denied'));
+      }
+    } on DioException catch (dioError) {
+      print('Dio error: ${dioError.message}');
+      const SnackBar(
+          content: Text('Failed to add address due to network error'));
+    } catch (e) {
+      print('Unexpected error: $e');
+      const SnackBar(content: Text('Failed to add address'));
+    }
+  }
+
+  Future<void> updateAddress(Address address) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken') ?? '';
+    // Tạo dữ liệu JSON
+    final data = address.toJson();
+      final response = await _dio.put('/addresses',
+          data: data,
+          options: Options(
+            headers: {
               'Authorization': 'Bearer $token'
             },
           ));

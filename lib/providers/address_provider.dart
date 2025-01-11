@@ -10,13 +10,17 @@ class AddressProvider with ChangeNotifier {
     return [..._addresses];
   }
 
-  void addAddress(Address address) async {
+  Future<void> addAddress(Address address) async {
     final addressController = AddressController();
     addressController.addAddress(address);
      notifyListeners();
   }
-
-  void removeAddress(Address address) async {
+  Future<void> updateAddress(Address address) async {
+    final addressController = AddressController();
+    addressController.updateAddress(address);
+    notifyListeners();
+  }
+  Future<void> removeAddress(Address address) async {
     final addressController = AddressController();
     await addressController.removeAddress(address.id);
     _addresses.remove(address);
