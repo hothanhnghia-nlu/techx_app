@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:techx_app/models/paymentMethod.dart';
 import 'package:techx_app/pages/cart/checkout_items_widget.dart';
@@ -42,6 +43,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   void initState() {
     super.initState();
+    print('product'+ widget.products.toString());
     totalPrice = calculateTotalPrice();
     _loadAddress();
   }
@@ -49,16 +51,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Future<void> _loadAddress() async {
     // Gọi API để lấy addressDefault
     final addressProvider =
-    Provider.of<AddressProvider>(context, listen: false);
+        Provider.of<AddressProvider>(context, listen: false);
     await addressProvider.refreshAddressesDefault();
     // Cập nhật dữ liệu và trạng thái
     setState(() {
       receiverName = addressProvider.addressDefault?.fullName;
       receiverPhone = addressProvider.addressDefault?.phoneNumber;
       receiverAddress =
-      '${addressProvider.addressDefault?.detail}, ${addressProvider
-          .addressDefault?.ward}, ${addressProvider.addressDefault
-          ?.city}, ${addressProvider.addressDefault?.province}';
+          '${addressProvider.addressDefault?.detail}, ${addressProvider.addressDefault?.ward}, ${addressProvider.addressDefault?.city}, ${addressProvider.addressDefault?.province}';
       isLoading = false; // Dữ liệu đã tải xong
     });
   }
@@ -79,7 +79,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       try {
         // Gọi API tạo payment intent
         final result =
-        await _paymentService.createPaymentIntent(amount: totalPrice);
+            await _paymentService.createPaymentIntent(amount: totalPrice);
         setState(() {
           _paymentIntent = result;
         });
@@ -183,10 +183,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               context,
                               listen: false);
                           await Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) =>
-                                  MyAddressesPage(
-                                      address: addressProvider
-                                          .addressDefault)));
+                              builder: (_) => MyAddressesPage(
+                                  address: addressProvider.addressDefault)));
                           // Làm mới địa chỉ sau khi quay lại
                           await addressProvider
                               .refreshAddressesDefault(); // Làm mới dữ liệu trong AddressProvider
@@ -244,8 +242,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       InkWell(
                         onTap: () async {
                           String? selectedMethod =
-                          await showPaymentMethodDialog(
-                              context, _selectedPaymentMethod);
+                              await showPaymentMethodDialog(
+                                  context, _selectedPaymentMethod);
                           if (selectedMethod != null) {
                             setState(() {
                               _selectedPaymentMethod = selectedMethod;
@@ -409,8 +407,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   // Dialog Chọn Phương thức thanh toán
-  Future<dynamic> showPaymentMethodDialog(BuildContext context,
-      String currentPaymentMethod) {
+  Future<dynamic> showPaymentMethodDialog(
+      BuildContext context, String currentPaymentMethod) {
     int selectedMethodIndex = paymentMethods
         .indexWhere((method) => method.name == currentPaymentMethod);
 
@@ -492,7 +490,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   const SizedBox(width: 16),
                                   Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         paymentMethods[index].name,
@@ -504,7 +502,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       Text(
                                         paymentMethods[index].description,
                                         style:
-                                        const TextStyle(color: Colors.grey),
+                                            const TextStyle(color: Colors.grey),
                                       ),
                                     ],
                                   ),
@@ -560,23 +558,26 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
   final String from;
   OrderService orderService = new OrderService();
 
-  OrderConfirmBtnNavBar({required this.totalAmount,
-    required this.selectedPaymentMethod,
-    this.paymentIntent,
-    required this.product,
-    super.key,
-    required this.from});
+  OrderConfirmBtnNavBar(
+      {required this.totalAmount,
+      required this.selectedPaymentMethod,
+      this.paymentIntent,
+      required this.product,
+      super.key,
+      required this.from});
 
   Future<void> handlePayment(BuildContext context) async {
     if (selectedPaymentMethod == 'Tiền mặt khi nhận hàng') {
-      bool result =
-      await handleOrder(context, product, from); // Chờ kết quả từ handleOrder()
+      bool result = await handleOrder(
+          context, product, from); // Chờ kết quả từ handleOrder()
       if (result == true) {
         print('Dat hang thanh cong');
         showCompletedDialog(context);
       } else {
         print('Đặt hàng không thành công, vui lòng thử lại');
-        DialogUtils.showErrorDialog(context: context, message: "Đặt hàng không thành công, vui lòng thử lại");
+        DialogUtils.showErrorDialog(
+            context: context,
+            message: "Đặt hàng không thành công, vui lòng thử lại");
       }
     } else if (selectedPaymentMethod == 'Thẻ Tín dụng/Ghi nợ') {
       print(
@@ -592,52 +593,50 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
       // Hiển thị form nhập thẻ
       showModalBottomSheet(
         context: context,
-        builder: (context) =>
-            CardInputWidget(
-              paymentIntentId: paymentIntent!['paymentIntentId'],
-              clientSecret: paymentIntent!['clientSecret'],
-              // Thêm client secret
-              onPaymentSuccess: () async {
-                // Gọi handleOrder và chờ hoàn thành
-                bool result = await handleOrder(context, product, from);
+        builder: (context) => CardInputWidget(
+          paymentIntentId: paymentIntent!['paymentIntentId'],
+          clientSecret: paymentIntent!['clientSecret'],
+          // Thêm client secret
+          onPaymentSuccess: () async {
+            // Gọi handleOrder và chờ hoàn thành
+            bool result = await handleOrder(context, product, from);
 
-                if (result) {
-                  // Nếu đặt hàng thành công, hiển thị dialog
-                  await showCompletedDialog(context);
-                } else {
-                  // Nếu đặt hàng thất bại, hiển thị thông báo lỗi
-                  DialogUtils.showErrorDialog(
-                    context: context,
-                    message:
+            if (result) {
+              // Nếu đặt hàng thành công, hiển thị dialog
+              // await showCompletedDialog(context);
+              await showPaymentSuccessDialog(context);
+            } else {
+              // Nếu đặt hàng thất bại, hiển thị thông báo lỗi
+              DialogUtils.showErrorDialog(
+                context: context,
+                message:
                     'Đặt hàng thất bại. Khoản tiền tạm giữ sẽ được hoàn lại.',
-                  );
-                }
-              },
-            ),
+              );
+            }
+          },
+        ),
       );
     }
   }
 
-  Future<bool> handleOrder(BuildContext context, List<dynamic> product,
-      String from) async {
+  Future<bool> handleOrder(
+      BuildContext context, List<dynamic> product, String from) async {
     int productID = 0;
     if (from == 'productDetail') {
       print('productDetail');
       productID = product[0].id;
     }
 // Lấy ID của addressDefault từ AddressProvider
-    final int? idAddress = Provider
-        .of<AddressProvider>(context, listen: false)
-        .addressDefault
-        ?.id;
+    final int? idAddress =
+        Provider.of<AddressProvider>(context, listen: false).addressDefault?.id;
     print(idAddress);
 // Nếu idAddress là null, hiển thị thông báo lỗi
     if (idAddress == null) {
-      DialogUtils.showErrorDialog(context: context,
+      DialogUtils.showErrorDialog(
+          context: context,
           message: "Vui lòng thêm địa chỉ nhân trước khi đặt hàng.");
       return false;
     }
-
 
     String? result = await orderService.createOrfer(
         idAddress: idAddress,
@@ -731,10 +730,9 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                              builder: (_) =>
-                              const MyOrdersPage(
+                              builder: (_) => const MyOrdersPage(
                                   previousPage: 'CheckoutPage')),
-                              (route) => false);
+                          (route) => false);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
@@ -752,7 +750,7 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (_) => const NavigationPage()),
-                              (route) => false);
+                          (route) => false);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(hexColor('#F0F1F0')),
@@ -767,6 +765,111 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> showPaymentSuccessDialog(BuildContext context) async {
+    return showModalBottomSheet(
+      backgroundColor: Colors.white,
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.75,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Animation Lottie
+                Lottie.asset(
+                  'assets/payment_success.json', // Đường dẫn đến file JSON
+                  height: 200,
+                  width: 200,
+                  fit: BoxFit.cover,
+                  repeat: false, // Animation chỉ chạy một lần
+                ),
+                const SizedBox(height: 20),
+                // Tiêu đề
+                const Text(
+                  'Thanh toán thành công!',
+                  style: TextStyle(
+                    fontSize: 26,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                // Nội dung mô tả
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    'Cảm ơn bạn đã thanh toán. Đơn hàng của bạn đang được xử lý và sẽ sớm được giao đến bạn!',
+                    style: TextStyle(fontSize: 17, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Nút điều hướng "Xem đơn hàng của tôi"
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const MyOrdersPage(previousPage: 'CheckoutPage'),
+                      ),
+                      (route) => false,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 40),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Xem đơn hàng của tôi',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Nút điều hướng "Về trang chủ"
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const NavigationPage()),
+                      (route) => false,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[200],
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 40),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Về trang chủ',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         );
