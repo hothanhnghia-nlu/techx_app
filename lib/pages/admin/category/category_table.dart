@@ -14,7 +14,7 @@ class CategoryTable extends StatefulWidget {
 class _CategoryTableState extends State<CategoryTable> {
   List<Map<String, dynamic>> categories = [];
   final baseUrl = Constant.api;
-  
+
   // Lấy danh mục từ API
   Future<void> fetchCategories() async {
     final response = await http.get(Uri.parse('$baseUrl/providers'));
@@ -32,7 +32,8 @@ class _CategoryTableState extends State<CategoryTable> {
   // Xóa danh mục
   Future<void> deleteCategory(BuildContext context, int categoryId) async {
     try {
-      final response = await http.delete(Uri.parse('$baseUrl/providers/$categoryId'));
+      final response =
+          await http.delete(Uri.parse('$baseUrl/providers/$categoryId'));
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -78,7 +79,8 @@ class _CategoryTableState extends State<CategoryTable> {
           TextButton(
             onPressed: () => Navigator.pop(context, 'Hủy'),
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Color(hexColor('#9DA2A7'))),
+              backgroundColor:
+                  MaterialStateProperty.all(Color(hexColor('#9DA2A7'))),
               foregroundColor: MaterialStateProperty.all(Colors.white),
             ),
             child: const Text('Hủy'),
@@ -129,43 +131,48 @@ class _CategoryTableState extends State<CategoryTable> {
       body: categories.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text('ID')),
-              DataColumn(label: Text('Tên danh mục')),
-              DataColumn(label: Text('Chức năng')),
-            ],
-            rows: categories.map((category) {
-              return DataRow(cells: [
-                DataCell(Text(category['id'].toString())),
-                DataCell(Text(category['name'])),
-                DataCell(Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                CategoryDetailScreen(category: category),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.edit),
-                    ),
-                    IconButton(
-                      onPressed: () => deleteButton(category['id']),
-                      icon: const Icon(Icons.delete),
-                    ),
+              scrollDirection: Axis.vertical,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('STT')),
+                    DataColumn(label: Text('Tên danh mục')),
+                    DataColumn(label: Text('Chức năng')),
                   ],
-                )),
-              ]);
-            }).toList(),
-          ),
-        ),
-      ),
+                  rows: categories.asMap().entries.map((entry) {
+                    int index = entry.key + 1;
+                    var category = entry.value;
+                    return DataRow(cells: [
+                      DataCell(SizedBox(
+                          width: 40,
+                          child:
+                              Text('$index', overflow: TextOverflow.ellipsis))),
+                      DataCell(Text(category['name'])),
+                      DataCell(Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      CategoryDetailScreen(category: category),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.edit),
+                          ),
+                          IconButton(
+                            onPressed: () => deleteButton(category['id']),
+                            icon: const Icon(Icons.delete),
+                          ),
+                        ],
+                      )),
+                    ]);
+                  }).toList(),
+                ),
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(

@@ -925,7 +925,7 @@ class ButtonBottomNav extends StatelessWidget {
           color: product['color'] ?? 'N/A',
           storage: product['storage'] ?? 'N/A',
           price: (product['newPrice'] ?? 0.0).toDouble(),
-          quantity: product['quantity'] ?? 0,
+          quantity: 1,
           imageUrl: product['images'][0]['url'] ?? 'Not find URL',
           status: product['status'] ?? 0,
           productId: product['id'] ?? 0,

@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:techx_app/utils/constant.dart';
+import 'dart:convert';
+import 'product_fvr_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'product_fvr_widget.dart';
@@ -17,6 +20,7 @@ class _FavoriteProductPageState extends State<FavoriteProductPage> {
   List<Map<String, dynamic>> favoriteProducts = [];
   bool _isLoading = true;
   bool isLoggedIn = false;
+  final baseUrl = Constant.api;
   String? userId;
 
   @override
@@ -45,7 +49,7 @@ class _FavoriteProductPageState extends State<FavoriteProductPage> {
 
   Future<void> _fetchUserId(String token) async {
     final response = await http.get(
-      Uri.parse('http://192.168.1.14:8080/api/v1/users/user-info'), // API lấy thông tin người dùng
+      Uri.parse('$baseUrl/users/user-info'), // API lấy thông tin người dùng
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -72,7 +76,7 @@ class _FavoriteProductPageState extends State<FavoriteProductPage> {
     final token = prefs.getString('accessToken');
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.14:8080/api/v1/favorites/by-user'), // Đảm bảo URL API chính xác
+      Uri.parse('$baseUrl/favorites/by-user'), // Đảm bảo URL API chính xác
       headers: {
         'Authorization': 'Bearer $token',
       },
