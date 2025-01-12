@@ -18,6 +18,7 @@ class OrderProvider extends ChangeNotifier {
   Future<void> _fetchOrdersByUser() async {
     final orderController = OrderController();
     _orders = await orderController.getOrdersByUser();
+    log("orders: $_orders");
     notifyListeners();
   }
 

@@ -1,8 +1,9 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 class PaymentService {
-  static const String baseUrl = 'http://10.0.2.2:8080/api/v1/payment';
+  static const String baseUrl = 'http://192.168.1.14:8080/api/v1/payment';
 
   // Tạo Payment Intent
   Future<Map<String, dynamic>> createPaymentIntent({

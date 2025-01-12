@@ -30,7 +30,7 @@ class Address {
       ward: json['ward'],
       city: json['city'],
       province: json['province'],
-      note: json['note'],
+      note: json['note'] ?? '',
       status: json['status'],
 
     );
