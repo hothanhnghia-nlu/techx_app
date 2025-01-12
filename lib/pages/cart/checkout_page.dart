@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:techx_app/models/paymentMethod.dart';
 import 'package:techx_app/pages/cart/checkout_items_widget.dart';
 import 'package:techx_app/pages/home/navigation_page.dart';
@@ -11,6 +12,7 @@ import 'package:techx_app/utils/currency.dart';
 import 'package:techx_app/utils/dialog_utils.dart';
 
 import '../../models/cart_product_model.dart';
+import '../../providers/address_provider.dart';
 import '../../services/payment_service.dart';
 import '../payment/CardInputWidget.dart';
 
@@ -31,13 +33,34 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _selectedPaymentMethod = paymentMethods[0].name;
   late double totalPrice;
   final PaymentService _paymentService = PaymentService();
-  bool _isProcessing = false;
+  bool isLoading = true; // Trạng thái loading
   Map<String, dynamic>? _paymentIntent; // Thêm biến để lưu payment intent
+  String? receiverName;
+  String? receiverPhone;
+  String? receiverAddress;
 
   @override
   void initState() {
     super.initState();
     totalPrice = calculateTotalPrice();
+    _loadAddress();
+  }
+
+  Future<void> _loadAddress() async {
+    // Gọi API để lấy addressDefault
+    final addressProvider =
+    Provider.of<AddressProvider>(context, listen: false);
+    await addressProvider.refreshAddressesDefault();
+    // Cập nhật dữ liệu và trạng thái
+    setState(() {
+      receiverName = addressProvider.addressDefault?.fullName;
+      receiverPhone = addressProvider.addressDefault?.phoneNumber;
+      receiverAddress =
+      '${addressProvider.addressDefault?.detail}, ${addressProvider
+          .addressDefault?.ward}, ${addressProvider.addressDefault
+          ?.city}, ${addressProvider.addressDefault?.province}';
+      isLoading = false; // Dữ liệu đã tải xong
+    });
   }
 
   double calculateTotalPrice() {
@@ -56,7 +79,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       try {
         // Gọi API tạo payment intent
         final result =
-            await _paymentService.createPaymentIntent(amount: totalPrice);
+        await _paymentService.createPaymentIntent(amount: totalPrice);
         setState(() {
           _paymentIntent = result;
         });
@@ -98,27 +121,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
                       Text(
-                        'Họ tên người nhận',
-                        style: TextStyle(
+                        receiverName ?? 'Họ và tên',
+                        // Nếu null thì hiển thị giá trị mặc định,
+                        style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(width: 10),
-                      Text(
+                      const SizedBox(width: 10),
+                      const Text(
                         '|',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xff9DA2A7),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Text(
-                        'Số điện thoại',
+                        receiverPhone ?? 'Số điện thoại',
+                        // Nếu null thì hiển thị giá trị mặc định,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.black,
@@ -131,24 +156,41 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.location_on_outlined,
-                              color: Color(0xff9DA2A7)),
-                          SizedBox(width: 8),
-                          Text(
-                            'Địa chỉ chi tiết',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xff9DA2A7),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(Icons.location_on_outlined,
+                                color: Color(0xff9DA2A7)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                receiverAddress ?? 'Chưa có thông tin',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xff9DA2A7),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                // Cắt bớt nội dung nếu quá dài
+                                maxLines: 2, // Giới hạn số dòng hiển thị
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => const MyAddressesPage()));
+                        onTap: () async {
+                          final addressProvider = Provider.of<AddressProvider>(
+                              context,
+                              listen: false);
+                          await Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) =>
+                                  MyAddressesPage(
+                                      address: addressProvider
+                                          .addressDefault)));
+                          // Làm mới địa chỉ sau khi quay lại
+                          await addressProvider
+                              .refreshAddressesDefault(); // Làm mới dữ liệu trong AddressProvider
+                          _loadAddress(); // Cập nhật lại thông tin hiển thị
                         },
                         child: const Icon(Icons.arrow_forward_ios,
                             color: Colors.black54, size: 18),
@@ -202,8 +244,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       InkWell(
                         onTap: () async {
                           String? selectedMethod =
-                              await showPaymentMethodDialog(
-                                  context, _selectedPaymentMethod);
+                          await showPaymentMethodDialog(
+                              context, _selectedPaymentMethod);
                           if (selectedMethod != null) {
                             setState(() {
                               _selectedPaymentMethod = selectedMethod;
@@ -367,8 +409,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   // Dialog Chọn Phương thức thanh toán
-  Future<dynamic> showPaymentMethodDialog(
-      BuildContext context, String currentPaymentMethod) {
+  Future<dynamic> showPaymentMethodDialog(BuildContext context,
+      String currentPaymentMethod) {
     int selectedMethodIndex = paymentMethods
         .indexWhere((method) => method.name == currentPaymentMethod);
 
@@ -450,7 +492,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   const SizedBox(width: 16),
                                   Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         paymentMethods[index].name,
@@ -462,7 +504,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       Text(
                                         paymentMethods[index].description,
                                         style:
-                                            const TextStyle(color: Colors.grey),
+                                        const TextStyle(color: Colors.grey),
                                       ),
                                     ],
                                   ),
@@ -518,23 +560,23 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
   final String from;
   OrderService orderService = new OrderService();
 
-  OrderConfirmBtnNavBar(
-      {required this.totalAmount,
-      required this.selectedPaymentMethod,
-      this.paymentIntent,
-      required this.product,
-      super.key,
-      required this.from});
+  OrderConfirmBtnNavBar({required this.totalAmount,
+    required this.selectedPaymentMethod,
+    this.paymentIntent,
+    required this.product,
+    super.key,
+    required this.from});
 
   Future<void> handlePayment(BuildContext context) async {
     if (selectedPaymentMethod == 'Tiền mặt khi nhận hàng') {
       bool result =
-          await handleOrder(product, from); // Chờ kết quả từ handleOrder()
+      await handleOrder(context, product, from); // Chờ kết quả từ handleOrder()
       if (result == true) {
         print('Dat hang thanh cong');
         showCompletedDialog(context);
       } else {
-        print('Dat hang that bai');
+        print('Đặt hàng không thành công, vui lòng thử lại');
+        DialogUtils.showErrorDialog(context: context, message: "Đặt hàng không thành công, vui lòng thử lại");
       }
     } else if (selectedPaymentMethod == 'Thẻ Tín dụng/Ghi nợ') {
       print(
@@ -550,38 +592,55 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
       // Hiển thị form nhập thẻ
       showModalBottomSheet(
         context: context,
-        builder: (context) => CardInputWidget(
-          paymentIntentId: paymentIntent!['paymentIntentId'],
-          clientSecret: paymentIntent!['clientSecret'],
-          // Thêm client secret
-          onPaymentSuccess: () async {
-            // Gọi handleOrder và chờ hoàn thành
-            bool result = await handleOrder(product,from);
+        builder: (context) =>
+            CardInputWidget(
+              paymentIntentId: paymentIntent!['paymentIntentId'],
+              clientSecret: paymentIntent!['clientSecret'],
+              // Thêm client secret
+              onPaymentSuccess: () async {
+                // Gọi handleOrder và chờ hoàn thành
+                bool result = await handleOrder(context, product, from);
 
-            if (result) {
-              // Nếu đặt hàng thành công, hiển thị dialog
-              await showCompletedDialog(context);
-            } else {
-              // Nếu đặt hàng thất bại, hiển thị thông báo lỗi
-              DialogUtils.showErrorDialog(
-                context: context,
-                message: 'Đặt hàng thất bại. Khoản tiền tạm giữ sẽ được hoàn lại.',
-              );
-            }
-          },
-        ),
+                if (result) {
+                  // Nếu đặt hàng thành công, hiển thị dialog
+                  await showCompletedDialog(context);
+                } else {
+                  // Nếu đặt hàng thất bại, hiển thị thông báo lỗi
+                  DialogUtils.showErrorDialog(
+                    context: context,
+                    message:
+                    'Đặt hàng thất bại. Khoản tiền tạm giữ sẽ được hoàn lại.',
+                  );
+                }
+              },
+            ),
       );
     }
   }
 
-  Future<bool> handleOrder(List<dynamic> product, String from) async {
+  Future<bool> handleOrder(BuildContext context, List<dynamic> product,
+      String from) async {
     int productID = 0;
     if (from == 'productDetail') {
       print('productDetail');
       productID = product[0].id;
     }
+// Lấy ID của addressDefault từ AddressProvider
+    final int? idAddress = Provider
+        .of<AddressProvider>(context, listen: false)
+        .addressDefault
+        ?.id;
+    print(idAddress);
+// Nếu idAddress là null, hiển thị thông báo lỗi
+    if (idAddress == null) {
+      DialogUtils.showErrorDialog(context: context,
+          message: "Vui lòng thêm địa chỉ nhân trước khi đặt hàng.");
+      return false;
+    }
+
+
     String? result = await orderService.createOrfer(
-        idAddress: 1,
+        idAddress: idAddress,
         totalAmount: totalAmount,
         paymentMethod: selectedPaymentMethod,
         productID: productID);
@@ -672,9 +731,10 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                              builder: (_) => const MyOrdersPage(
+                              builder: (_) =>
+                              const MyOrdersPage(
                                   previousPage: 'CheckoutPage')),
-                          (route) => false);
+                              (route) => false);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
@@ -692,7 +752,7 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (_) => const NavigationPage()),
-                          (route) => false);
+                              (route) => false);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(hexColor('#F0F1F0')),

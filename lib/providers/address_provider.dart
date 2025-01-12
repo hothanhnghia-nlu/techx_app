@@ -5,21 +5,28 @@ import '../models/address_model.dart';
 
 class AddressProvider with ChangeNotifier {
   List<Address> _addresses = [];
+  Address? _addressDefault;
 
   List<Address> get addresses {
     return [..._addresses];
   }
 
+  Address? get addressDefault {
+    return _addressDefault;
+  }
+
   Future<void> addAddress(Address address) async {
     final addressController = AddressController();
     addressController.addAddress(address);
-     notifyListeners();
+    notifyListeners();
   }
+
   Future<void> updateAddress(Address address) async {
     final addressController = AddressController();
     addressController.updateAddress(address);
     notifyListeners();
   }
+
   Future<void> removeAddress(Address address) async {
     final addressController = AddressController();
     await addressController.removeAddress(address.id);
@@ -33,7 +40,17 @@ class AddressProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _fetchAddressesDefault() async {
+    final addressController = AddressController();
+    _addressDefault = await addressController.getAddressesDefault();
+    notifyListeners();
+  }
+
   Future<void> refreshAddresses() async {
     await _fetchAddresses();
+  }
+
+  Future<void> refreshAddressesDefault() async {
+    await _fetchAddressesDefault();
   }
 }

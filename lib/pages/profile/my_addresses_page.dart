@@ -27,6 +27,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
   final wardController = TextEditingController();
   final addressDetailController = TextEditingController();
   final FocusNode _addressFocusNode = FocusNode();
+  bool isDefaultAddress = false; // Mặc định là không tích
   LogisticService service = LogisticService();
 
   // Province? _provinceSelected;
@@ -66,6 +67,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
       provinceController.text = widget.address!.province;
       districtController.text = widget.address!.city;
       wardController.text = widget.address!.ward;
+      isDefaultAddress = widget.address!.status == 0 ? true : false;
     }
   }
 
@@ -213,7 +215,8 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
           city: district,
           ward: ward,
           note: null,
-          status: 1,
+          status:
+              isDefaultAddress ? 0 : 1, // Nếu checkbox được tích, status = 0
         );
         await Provider.of<AddressProvider>(context, listen: false)
             .addAddress(newAddress);
@@ -246,6 +249,8 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
     widget.address?.province = province;
     widget.address?.city = district;
     widget.address?.ward = ward;
+    widget.address?.status =
+        isDefaultAddress ? 0 : 1; // Nếu checkbox được tích, status = 0
     await Provider.of<AddressProvider>(context, listen: false)
         .updateAddress(widget.address!);
     await Provider.of<AddressProvider>(context, listen: false)
@@ -307,7 +312,8 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     children: [
                       TextFormField(
                         controller: addressDetailController,
-                        focusNode: _addressFocusNode, // Gắn FocusNode
+                        focusNode: _addressFocusNode,
+                        // Gắn FocusNode
                         keyboardType: TextInputType.text,
                         onChanged: (value) {
                           if (value.length >= 3) {
@@ -415,7 +421,22 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     labelText: 'Phường/ Xã',
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 0),
+                CheckboxListTile(
+                  title: const Text(
+                    'Đặt làm địa chỉ mặc định',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  value: isDefaultAddress,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      isDefaultAddress =
+                          value ?? false; // Cập nhật trạng thái checkbox
+                    });
+                  },
+                  controlAffinity: ListTileControlAffinity
+                      .leading, // Hiển thị checkbox bên trái
+                ),
                 GestureDetector(
                   onTap: _saveButton,
                   child: Container(
@@ -435,7 +456,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                // const SizedBox(height: 40),
               ],
             ),
           ),
