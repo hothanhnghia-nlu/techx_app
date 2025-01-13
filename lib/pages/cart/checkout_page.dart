@@ -43,7 +43,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   void initState() {
     super.initState();
-    print('product'+ widget.products.toString());
+    print('product' + widget.products.toString());
     totalPrice = calculateTotalPrice();
     _loadAddress();
   }
@@ -688,26 +688,30 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       isDismissible: false,
+      // Không cho phép nhấn bên ngoài để đóng
       enableDrag: false,
+      // Không cho phép vuốt xuống để đóng
       builder: (context) {
-        // ignore: deprecated_member_use
         return WillPopScope(
-          onWillPop: () async {
-            return false;
-          },
+          onWillPop: () async => false, // Chặn nút Back
           child: FractionallySizedBox(
             heightFactor: 0.75,
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset(
-                    'assets/img_completed.png',
-                    height: 200,
-                    width: 200,
+                  // Animation Lottie
+                  FractionallySizedBox(
+                    widthFactor: 0.45,
+                    child: Lottie.asset(
+                      'assets/order_success.json',
+                      fit: BoxFit.contain,
+                      repeat: false,
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
+                  // Tiêu đề
                   const Text(
                     'Đặt hàng thành công!',
                     style: TextStyle(
@@ -715,45 +719,63 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 10),
+                  // Nội dung mô tả
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       'Cảm ơn bạn đã mua hàng của chúng tôi! Hãy theo dõi đơn hàng thường xuyên nhé!',
-                      style: TextStyle(fontSize: 17),
+                      style: TextStyle(fontSize: 17, color: Colors.grey),
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
+                  // Nút điều hướng "Xem đơn hàng của tôi"
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (_) => const MyOrdersPage(
-                                  previousPage: 'CheckoutPage')),
-                          (route) => false);
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const MyOrdersPage(previousPage: 'CheckoutPage'),
+                        ),
+                        (route) => false,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: const Text(
-                      'Đơn hàng của tôi',
+                      'Xem đơn hàng của tôi',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
                       ),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  // Nút điều hướng "Về trang chủ"
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (_) => const NavigationPage()),
-                          (route) => false);
+                        MaterialPageRoute(
+                            builder: (_) => const NavigationPage()),
+                        (route) => false,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(hexColor('#F0F1F0')),
+                      backgroundColor: Colors.grey[200],
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: const Text(
                       'Về trang chủ',
@@ -778,98 +800,105 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       isDismissible: false,
+      // Không cho phép nhấn bên ngoài để đóng
       enableDrag: false,
+      // Không cho phép vuốt xuống để đóng
       builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.75,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Animation Lottie
-                Lottie.asset(
-                  'assets/payment_success.json', // Đường dẫn đến file JSON
-                  height: 200,
-                  width: 200,
-                  fit: BoxFit.cover,
-                  repeat: false, // Animation chỉ chạy một lần
-                ),
-                const SizedBox(height: 20),
-                // Tiêu đề
-                const Text(
-                  'Thanh toán thành công!',
-                  style: TextStyle(
-                    fontSize: 26,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
+        return WillPopScope(
+          onWillPop: () async => false, // Chặn nút Back
+          child: FractionallySizedBox(
+            heightFactor: 0.75,
+            child: Padding(
+              padding: const EdgeInsets.all(0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Animation Lottie
+                  FractionallySizedBox(
+                    widthFactor: 1.1,
+                    child: Lottie.asset(
+                      'assets/payment_success.json',
+                      fit: BoxFit.contain,
+                      repeat: false,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                // Nội dung mô tả
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Cảm ơn bạn đã thanh toán. Đơn hàng của bạn đang được xử lý và sẽ sớm được giao đến bạn!',
-                    style: TextStyle(fontSize: 17, color: Colors.grey),
+                  const SizedBox(height: 20),
+                  // Tiêu đề
+                  const Text(
+                    'Thanh toán thành công!',
+                    style: TextStyle(
+                      fontSize: 26,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 20),
-                // Nút điều hướng "Xem đơn hàng của tôi"
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            const MyOrdersPage(previousPage: 'CheckoutPage'),
+                  const SizedBox(height: 10),
+                  // Nội dung mô tả
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      'Cảm ơn bạn đã thanh toán. Đơn hàng của bạn đang được xử lý và sẽ sớm được giao đến bạn!',
+                      style: TextStyle(fontSize: 17, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Nút điều hướng "Xem đơn hàng của tôi"
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const MyOrdersPage(previousPage: 'CheckoutPage'),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      (route) => false,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 40),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'Xem đơn hàng của tôi',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Xem đơn hàng của tôi',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
+                  const SizedBox(height: 10),
+                  // Nút điều hướng "Về trang chủ"
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (_) => const NavigationPage()),
+                        (route) => false,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[200],
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Về trang chủ',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                // Nút điều hướng "Về trang chủ"
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const NavigationPage()),
-                      (route) => false,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[200],
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 40),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    'Về trang chủ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
