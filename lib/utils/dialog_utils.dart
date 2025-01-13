@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class DialogUtils {
   // Hàm tĩnh để hiển thị AlertDialog
@@ -109,6 +110,82 @@ class DialogUtils {
           ),
         ),
       ),
+    );
+  }
+  static void showErrorPaymentDialog({required BuildContext context, required String message}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Ngăn người dùng thoát khỏi dialog bằng cách nhấn bên ngoài
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12), // Bo góc dialog
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white, // Màu nền dialog
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Hiệu ứng animation Lottie
+                Lottie.asset(
+                  'assets/card_declined.json', // Đường dẫn đến file Lottie animation
+                  width: 120,
+                  height: 120,
+                  repeat: false,
+                ),
+                const SizedBox(height: 16),
+
+                // Tiêu đề lỗi
+                Text(
+                  'Lỗi thanh toán',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Nội dung lỗi
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+
+                // Nút đóng
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Đóng dialog
+                    },
+                    child: const Text(
+                      'Đóng',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
