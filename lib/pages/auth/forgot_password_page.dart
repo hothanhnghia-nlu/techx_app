@@ -22,7 +22,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   void _sendOtp() async {
-    String email = emailController.text;
+    String email = emailController.text.trim();
     if (email.isEmpty) {
       DialogUtils.showErrorDialog(
           context: context, message: 'Vui lòng nhập email');
@@ -38,7 +38,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       isLoading = true; // Hiển thị trạng thái loading
     });
     try {
+      DialogUtils.showLoadingDialog(context);
       final result = await userService.sendOtpToEmail(email);
+      Navigator.pop(context); // Đóng dialog loading
       setState(() {
         isLoading = false; // Tắt trạng thái loading
       });
@@ -54,6 +56,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             context: context, message: 'Không thể gửi OTP. Vui lòng thử lại.');
       }
     } catch (e) {
+      Navigator.pop(context); // Đóng dialog loading
       setState(() {
         isLoading = false; // Tắt trạng thái loading
       });
@@ -131,13 +134,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               decoration: BoxDecoration(
                                 color: isLoading
                                     ? Colors.grey // Màu xám khi loading
-                                    : Colors.black,
+                                    : Colors.black, // Màu đen khi sẵn sàng
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: Center(
                                 child: isLoading
-                                    ? const CircularProgressIndicator(
-                                  color: Colors.white,
+                                    ? const Text(
+                                  'Đang gửi yêu cầu...',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 )
                                     : const Text(
                                   'Gửi OTP',
