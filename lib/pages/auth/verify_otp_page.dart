@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:techx_app/pages/auth/reset_password_page.dart';
 import 'package:techx_app/services/user_service.dart';
 
@@ -21,7 +22,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
   int _remainingSeconds = 120; // 2 phút = 120 giây
   bool _canResendOTP = false; // Không cho phép gửi lại mã OTP ngay từ đầu
   UserService userService = new UserService();
-
+  bool isLoading = false; // Trạng thái loading
   @override
   void initState() {
     super.initState();
@@ -69,6 +70,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
   }
 
   void _resendOTP() {
+    _sendOtp();
     // Logic gửi lại mã OTP
     setState(() {
       _remainingSeconds = 120; // Đặt lại thời gian đếm ngược
@@ -82,7 +84,35 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
     final remainingSeconds = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
+  void _sendOtp() async {
 
+    setState(() {
+      isLoading = true; // Hiển thị trạng thái loading
+    });
+    try {
+      DialogUtils.showLoadingDialog(context);
+      final result = await userService.sendOtpToEmail(widget.email);
+      Navigator.pop(context); // Đóng dialog loading
+      setState(() {
+        isLoading = false; // Tắt trạng thái loading
+      });
+
+      if (result == 'OTP đã được gửi thành công!') {
+        return;
+      } else {
+        // Hiển thị lỗi
+        DialogUtils.showErrorDialog(
+            context: context, message: 'Không thể gửi OTP. Vui lòng thử lại.');
+      }
+    } catch (e) {
+      Navigator.pop(context); // Đóng dialog loading
+      setState(() {
+        isLoading = false; // Tắt trạng thái loading
+      });
+      DialogUtils.showErrorDialog(
+          context: context, message: 'Đã xảy ra lỗi. Vui lòng thử lại.');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,12 +130,15 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               // Khoảng cách từ trên xuống
-              Image.asset(
-                'assets/otp_verify_img.jpg',
-                height: 250, // Giảm chiều cao ảnh
-                width: 250, // Giảm chiều rộng ảnh
+              FractionallySizedBox(
+                widthFactor: 0.75,
+                child: Lottie.asset(
+                  'assets/very_otp.json',
+                  fit: BoxFit.contain,
+                  repeat: true,
+                ),
               ),
               const SizedBox(height: 30),
               // Khoảng cách giữa ảnh và text
@@ -117,7 +150,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
                   color: Color(0xff9DA2A7),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 0),
               // Khoảng cách giữa các đoạn text
               Text(
                 widget.email,
@@ -128,7 +161,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               // Khoảng cách giữa email và ô nhập OTP
               TextFormField(
                 controller: otpController,
@@ -144,7 +177,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
                       vertical: 15, horizontal: 10), // Padding trong ô nhập
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               // Khoảng cách giữa ô nhập OTP và nút xác nhận
               GestureDetector(
                 onTap: _verifyOtp,
@@ -167,7 +200,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 5),
               // Khoảng cách giữa nút xác nhận và dòng text cuối
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -200,6 +233,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
                   ),
                 ],
               ),
+
             ],
           ),
         ),

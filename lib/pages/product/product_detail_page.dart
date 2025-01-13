@@ -43,7 +43,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
   Future<void> addToFavorite(int productId, String token) async {
     var uri = Uri.parse('$baseUrl/favorites');
-
     // Tạo yêu cầu multipart
     var request = http.MultipartRequest('POST', uri)
       ..headers['Authorization'] = 'Bearer $token'
