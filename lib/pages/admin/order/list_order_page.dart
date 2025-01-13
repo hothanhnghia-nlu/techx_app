@@ -20,8 +20,20 @@ class _ListOrderPageState extends State<ListOrderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Order Management'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: 5,
+        shadowColor: Color(hexColor('#F0F1F0')),
+        title: const Text(
+          'Quản lý đơn hàng',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+          ),
+        ),
       ),
       body: Consumer<OrderProvider>(
         builder: (context, orderProvider, child) {
@@ -29,12 +41,12 @@ class _ListOrderPageState extends State<ListOrderPage> {
             scrollDirection: Axis.horizontal,
             child: DataTable(
               columns: const [
-                DataColumn(label: Text('ID')),
-                DataColumn(label: Text('User')),
-                DataColumn(label: Text('Total')),
-                DataColumn(label: Text('Payment Method')),
-                DataColumn(label: Text('Order Date')),
-                DataColumn(label: Text('Status')),
+                DataColumn(label: Text('STT')),
+                DataColumn(label: Text('Tên khách hàng')),
+                DataColumn(label: Text('Thành tiền')),
+                DataColumn(label: Text('Phương thức thanh toán')),
+                DataColumn(label: Text('Ngày đặt hàng')),
+                DataColumn(label: Text('Trạng thái')),
               ],
               rows: orderProvider.orders.map((order) {
                 return DataRow(cells: [
@@ -74,4 +86,10 @@ class _ListOrderPageState extends State<ListOrderPage> {
       ),
     );
   }
+}
+
+int hexColor(String color) {
+  String newColor = "0xff$color";
+  newColor = newColor.replaceAll('#', '');
+  return int.parse(newColor);
 }

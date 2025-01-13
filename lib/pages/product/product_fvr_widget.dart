@@ -60,11 +60,11 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
         final product = widget.favoriteProducts[index];
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ProductDetailPage(product: product['product']),
-              ),
-            );
+            // Navigator.of(context).push(
+            //   MaterialPageRoute(
+            //     builder: (_) => ProductDetailPage(product: product['product']),
+            //   ),
+            // );
           },
           child: _isLoading
               ? buildShimmerPlaceholder()
