@@ -40,7 +40,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
   Future<void> addToFavorite(int productId, String token) async {
-    var uri = Uri.parse('http://192.168.1.14:8080/api/v1/favorites');
+    var uri = Uri.parse('http://10.0.2.2:8080/api/v1/favorites');
 
     // Tạo yêu cầu multipart
     var request = http.MultipartRequest('POST', uri)

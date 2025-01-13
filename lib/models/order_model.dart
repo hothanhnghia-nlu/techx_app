@@ -43,6 +43,7 @@ class Order {
           .map((detail) => OrderDetail.fromJson(detail))
           .toList(),
     );
+
   }
   // copyWith method
   Order copyWith({
@@ -69,6 +70,11 @@ class Order {
       status: status ?? this.status,
       orderDetails: orderDetails ?? this.orderDetails,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Order{id: $id, user: $user, address: $address, total: $total, paymentMethod: $paymentMethod, note: $note, orderDate: $orderDate, paymentDate: $paymentDate, status: $status, orderDetails: $orderDetails}';
   }
 }
 

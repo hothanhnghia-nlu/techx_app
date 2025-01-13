@@ -9,6 +9,8 @@ import 'package:techx_app/pages/home/banners_widget.dart';
 import 'package:techx_app/pages/product/new_products_widget.dart';
 import 'package:techx_app/services/cart_service.dart';
 
+import '../product/all_products_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -145,7 +147,16 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => AllProductsPage(
+                                productKey: 'new-product', // Key cho sản phẩm mới
+                                title: 'Sản phẩm mới',
+                              ),
+                            ),
+                          );
+                        },
                         child: const Text(
                           'Xem tất cả',
                           style: TextStyle(
@@ -181,7 +192,16 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => AllProductsPage(
+                                productKey: 'new-product', // Key cho sản phẩm mới
+                                title: 'Sản phẩm mới',
+                              ),
+                            ),
+                          );
+                        },
                         child: const Text(
                           'Xem tất cả',
                           style: TextStyle(
@@ -217,7 +237,16 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => AllProductsPage(
+                                productKey: 'promotion-product', // Key cho sản phẩm khuyến mãi
+                                title: 'Sản phẩm khuyến mãi',
+                              ),
+                            ),
+                          );
+                        },
                         child: const Text(
                           'Xem tất cả',
                           style: TextStyle(
@@ -226,6 +255,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
+
                     ],
                   ),
         
