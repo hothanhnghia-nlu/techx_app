@@ -38,17 +38,17 @@ class _ListAddressPageState extends State<ListAddressPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete this address?'),
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to delete this address?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete'),
+              child: const Text('Delete'),
               onPressed: () {
                 _deleteAddress(address);
                 Navigator.of(context).pop();
@@ -63,11 +63,24 @@ class _ListAddressPageState extends State<ListAddressPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('List of Addresses'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: 5,
+        shadowColor: Color(hexColor('#F0F1F0')),
+        centerTitle: true,
+        title: const Text(
+          'Danh sách địa chỉ',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 18.0,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () =>
                 _navigateToMyAddressPage(), // Thêm mới (không truyền địa chỉ)
           ),
@@ -87,10 +100,10 @@ class _ListAddressPageState extends State<ListAddressPage> {
                       color: Theme.of(context).primaryColor),
                   title: Text(
                     '${address.detail}, ${address.ward}, ${address.city}, ${address.province}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text('Tap to view details'),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                  subtitle: const Text('Tap to view details'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () => _navigateToMyAddressPage(address: address),
                   // Truyền địa chỉ khi nhấn
                   onLongPress: () => _confirmDeleteAddress(address),
