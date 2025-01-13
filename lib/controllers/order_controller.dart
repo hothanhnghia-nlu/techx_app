@@ -14,28 +14,46 @@ class OrderController {
       receiveTimeout: const Duration(seconds: 3),
     ),
   );
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("accessToken");
+  }
 
   Future<List<Order>> getOrdersByUser() async {
     try {
-      final response = await _dio.get('/orders/by-user');
+      final token = await getToken();
+
+      final response = await _dio.get('/orders/by-user',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json'
+            },
+          ));
+
+      log("ress.toString()");
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
-        return data.map((order) => Order.fromJson(order)).toList();
+        final ress = data.map((order) => Order.fromJson(order)).toList();
+        return ress;
       } else {
         return [];
       }
     } catch (e) {
+      log(e.toString());
       return [];
     }
   }
 
   Future<List<Order>> getOrders() async {
     try {
-      log('getOrders');
       final response = await _dio.get('/orders/all-orders');
       if (response.statusCode == 200) {
-        List<dynamic> data = response.data;
-        return data.map((order) => Order.fromJson(order)).toList();
+        final res = (response.data as List)
+            .map((order) => Order.fromJson(order))
+            .toList();
+        log("res.toString()");
+        return res;
       } else {
         return [];
       }

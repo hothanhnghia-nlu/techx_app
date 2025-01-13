@@ -25,7 +25,6 @@ class _ListOrderPageState extends State<ListOrderPage> {
       ),
       body: Consumer<OrderProvider>(
         builder: (context, orderProvider, child) {
-          print(orderProvider.orders);
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
