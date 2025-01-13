@@ -10,6 +10,7 @@ import 'package:techx_app/pages/cart/checkout_page.dart';
 import 'package:techx_app/pages/product/product_reviews_widget.dart';
 import 'package:techx_app/services/cart_service.dart';
 import 'package:techx_app/services/reviews_service.dart';
+import 'package:techx_app/utils/constant.dart';
 
 import '../../models/cart_product_model.dart';
 
@@ -23,6 +24,7 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
+  final baseUrl = Constant.api;
   bool isPressed = false;
   bool isLoggedIn = false;
   final ReviewService reviewService = ReviewService();
@@ -40,7 +42,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
   Future<void> addToFavorite(int productId, String token) async {
-    var uri = Uri.parse('http://192.168.1.14:8080/api/v1/favorites');
+    var uri = Uri.parse('$baseUrl/favorites');
 
     // Tạo yêu cầu multipart
     var request = http.MultipartRequest('POST', uri)
