@@ -73,20 +73,45 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
 // Hàm xử lý khi chọn phương thức thanh toán
   Future<void> onPaymentMethodChanged(String method) async {
-    setState(() => _selectedPaymentMethod = method);
+    setState(() {
+      _selectedPaymentMethod = method;
+    });
 
     if (method == "Thẻ Tín dụng/Ghi nợ") {
+      // Hiển thị trạng thái loading
+      DialogUtils.showLoadingDialog(context);
+
       try {
         // Gọi API tạo payment intent
         final result =
             await _paymentService.createPaymentIntent(amount: totalPrice);
-        setState(() {
-          _paymentIntent = result;
-        });
+
+        if (result.containsKey('paymentIntentId') &&
+            result.containsKey('clientSecret')) {
+          setState(() {
+            _paymentIntent = result;
+          });
+        } else {
+          throw Exception("Dữ liệu không hợp lệ từ API");
+        }
       } catch (e) {
-        print('Error creating payment intent: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lỗi khi tạo phiên thanh toán: $e')));
+        // Hiển thị lỗi dưới dạng dialog
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Lỗi'),
+            content: Text('Lỗi khi tạo phiên thanh toán: $e'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Đóng'),
+              ),
+            ],
+          ),
+        );
+      } finally {
+        // Đóng dialog loading
+        Navigator.pop(context);
       }
     }
   }

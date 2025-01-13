@@ -80,4 +80,35 @@ class DialogUtils {
       buttonColor: Colors.green, // Nút màu xanh
     );
   }
+  static Future<dynamic> showLoadingDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false, // Ngăn người dùng thoát khỏi dialog
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent, // Làm nền dialog trong suốt
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white, // Nền trắng cho hộp loading
+            borderRadius: BorderRadius.circular(15), // Bo góc hộp
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Kích thước tối thiểu
+            children: [
+              const CircularProgressIndicator(), // Vòng tròn loading
+              const SizedBox(height: 15), // Khoảng cách giữa loading và text
+              const Text(
+                'Đang xử lý...',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
