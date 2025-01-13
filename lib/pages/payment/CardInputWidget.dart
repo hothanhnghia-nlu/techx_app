@@ -62,8 +62,7 @@ class _CardInputWidgetState extends State<CardInputWidget> {
       }
     } catch (e) {
       print('Lỗi thanh toán: $e');
-      DialogUtils.showErrorDialog(
-          context: context, message: 'Lỗi thanh toán: $e');
+      DialogUtils.showErrorPaymentDialog(context: context, message: "Thanh toán không thành công vui lòng thử lại hoặc sử dụng phương thức thanh toán khác.");
     } finally {
       setState(() => _isProcessing = false);
     }
