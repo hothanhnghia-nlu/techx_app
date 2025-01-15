@@ -22,6 +22,7 @@ class OrderController {
   Future<List<Order>> getOrdersByUser() async {
     try {
       final token = await getToken();
+      log(token.toString());
 
       final response = await _dio.get('/orders/by-user',
           options: Options(
@@ -31,10 +32,11 @@ class OrderController {
             },
           ));
 
-      log("ress.toString()");
+    
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
-        final ress = data.map((order) => Order.fromJson(order)).toList();
+        log(data.toString())
+;        final ress = data.map((order) => Order.fromJson(order)).toList();
         return ress;
       } else {
         return [];

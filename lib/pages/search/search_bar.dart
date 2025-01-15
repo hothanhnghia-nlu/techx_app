@@ -16,8 +16,7 @@ class MySearchBar extends StatefulWidget {
 
 class _MySearchBarState extends State<MySearchBar> {
   final baseUrl = Constant.api;
-  List<dynamic> _products = [];
-  List<dynamic> displayList = [];
+  List<dynamic> products = [];
 
   @override
   void initState() {
@@ -32,8 +31,7 @@ class _MySearchBarState extends State<MySearchBar> {
       if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
         setState(() {
-          _products = jsonData.map((item) => Product.fromJson(item)).toList();
-          displayList = List.from(_products);
+          products = jsonData.map((item) => Product.fromJson(item)).toList();
         });
       } else {
         throw Exception("Failed to load products");
@@ -45,7 +43,7 @@ class _MySearchBarState extends State<MySearchBar> {
 
   void updateList(String value) {
     setState(() {
-      displayList = _products
+      products
           .where((product) =>
               product.name!.toLowerCase().contains(value.toLowerCase()))
           .toList();
@@ -56,6 +54,15 @@ class _MySearchBarState extends State<MySearchBar> {
   String formatCurrency(double orginalCurrency) {
     var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
     return formatter.format(orginalCurrency);
+  }
+
+  // Decode UTF8
+  String decodeUtf8(String value) {
+    try {
+      return utf8.decode(value.runes.toList());
+    } catch (e) {
+      return value;
+    }
   }
 
   @override
@@ -90,22 +97,22 @@ class _MySearchBarState extends State<MySearchBar> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
-        child: displayList.isEmpty
+        child: products.isEmpty
             ? Center(
                 child: Text('Không tìm thấy kết quả',
                     style: TextStyle(
                         color: Color(hexColor('#9DA2A7')), fontSize: 18)))
             :
         ListView.builder(
-          itemCount: displayList.length,
+          itemCount: products.length,
           itemBuilder: (context, index) => InkWell(
-            onTap: () {
-              // Navigator.of(context).push(MaterialPageRoute(
-              //   builder: (_) => ProductDetailPage(product: displayList[index])));
-            },
+            // onTap: () {
+            //   Navigator.of(context).push(MaterialPageRoute(
+            //     builder: (_) => ProductDetailPage(product: products[index])));
+            // },
             child: ListTile(
               title: Text(
-                displayList[index].name!,
+                decodeUtf8(products[index].name!),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
@@ -114,14 +121,14 @@ class _MySearchBarState extends State<MySearchBar> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${displayList[index].ram!}/ ${displayList[index].storage!}/ ${displayList[index].color!}',
+                    products[index].ram! + "/ " + products[index].storage! + "/ " + decodeUtf8(products[index].color!),
                     style: const TextStyle(
                       fontSize: 13,
                       color: Color(0xff727880),
                     ),
                   ),
                   Text(
-                    formatCurrency(displayList[index].newPrice!),
+                    formatCurrency(products[index].newPrice!),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -139,7 +146,7 @@ class _MySearchBarState extends State<MySearchBar> {
                   )
                 ),
                 child: Image.network(
-                  displayList[index].imageUrl!,
+                  products[index].imageUrl!,
                   height: 80,
                   width: 60,
                 )

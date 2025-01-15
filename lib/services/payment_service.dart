@@ -2,15 +2,17 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../utils/constant.dart';
+
 class PaymentService {
-  static const String baseUrl = 'http://10.0.2.2:8080/api/v1/payment';
+  static const String baseUrl = Constant.api;
 
   // Tạo Payment Intent
   Future<Map<String, dynamic>> createPaymentIntent({
     required double amount,
   }) async {
     try {
-      final response = await http.post(Uri.parse('$baseUrl/create-payment'),
+      final response = await http.post(Uri.parse('$baseUrl/payment/create-payment'),
           headers: {
             'Content-Type': 'application/json',
             // Thêm token nếu cần
@@ -35,7 +37,7 @@ class PaymentService {
       {required String paymentIntentId,
       required String paymentMethodId}) async {
     try {
-      final response = await http.post(Uri.parse('$baseUrl/confirm'),
+      final response = await http.post(Uri.parse('$baseUrl/payment/confirm'),
           headers: {
             'Content-Type': 'application/json',
             // Thêm token nếu cần
