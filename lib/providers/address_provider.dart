@@ -17,7 +17,7 @@ class AddressProvider with ChangeNotifier {
 
   Future<void> addAddress(Address address) async {
     final addressController = AddressController();
-    addressController.addAddress(address);
+    await addressController.addAddress(address);
     notifyListeners();
   }
 
@@ -31,12 +31,14 @@ class AddressProvider with ChangeNotifier {
     final addressController = AddressController();
     await addressController.removeAddress(address.id);
     _addresses.remove(address);
+    print("removeresses"+ _addresses.toString());
     notifyListeners();
   }
 
   Future<void> _fetchAddresses() async {
     final addressController = AddressController();
     _addresses = await addressController.getAddresses();
+    print("__fetchresses"+ _addresses.toString());
     notifyListeners();
   }
 

@@ -26,7 +26,6 @@ class _ListAddressPageState extends State<ListAddressPage> {
         builder: (context) => MyAddressesPage(address: address),
       ),
     );
-   await Provider.of<AddressProvider>(context, listen: false).refreshAddresses();
   }
 
   void _deleteAddress(Address address) {

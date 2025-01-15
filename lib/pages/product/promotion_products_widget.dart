@@ -90,10 +90,10 @@ class _PromotionProductsWidgetState extends State<PromotionProductsWidget> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
-                // onTap: () {
-                //   Navigator.of(context).push(MaterialPageRoute(
-                //       builder: (_) => ProductDetailPage(product: _products[i])));
-                // },
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => ProductDetailPage(product: _products[i])));
+                },
                 child: _isLoading
                     ? buildShimmerPlaceholder()
                     : buildProductContainer(_products[i]),
