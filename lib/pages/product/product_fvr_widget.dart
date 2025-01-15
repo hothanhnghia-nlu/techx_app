@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:techx_app/pages/product/product_detail_page.dart';
+import 'package:http/http.dart' as http;
+
+import '../../utils/constant.dart';
 
 class ProductFavoriteWidget extends StatefulWidget {
   final List<Map<String, dynamic>> favoriteProducts;
@@ -34,18 +38,47 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
   }
 
   // Nút Xóa khỏi Yêu thích
-  void _removeFavoriteButton(int productId) {
-    setState(() {
-      widget.favoriteProducts.removeWhere((product) =>
-      product['product']['id'] == productId); // Xóa sản phẩm yêu thích
-    });
+  void _removeFavoriteButton(int favoriteId) async {
+    final url = '${Constant.api}/favorites/$favoriteId'; // API xóa yêu thích
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã nhấn nút Xóa khỏi yêu thích'),
-      ),
-    );
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng đăng nhập để thực hiện thao tác này')),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          widget.favoriteProducts.removeWhere((product) =>
+          product['id'] == favoriteId); // Dùng ID mục yêu thích
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sản phẩm đã được xóa khỏi yêu thích')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể xóa sản phẩm khỏi yêu thích')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Có lỗi xảy ra khi xóa sản phẩm')),
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -216,13 +249,14 @@ class _ProductFavoriteWidgetState extends State<ProductFavoriteWidget> {
               ),
               GestureDetector(
                 onTap: () {
-                  _removeFavoriteButton(product['product']['id']);
+                  _removeFavoriteButton(product['id']); // Truyền ID của mục yêu thích
                 },
                 child: Icon(
                   isPressed ? Icons.favorite : Icons.favorite_border,
                   color: isPressed ? Colors.red : Colors.black,
                 ),
               ),
+
             ],
           ),
           Container(
