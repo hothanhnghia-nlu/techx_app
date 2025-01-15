@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:techx_app/utils/date_format.dart';
 
 import '../../../providers/order_provider.dart';
 
@@ -17,6 +19,12 @@ class _ListOrderPageState extends State<ListOrderPage> {
     super.initState();
   }
 
+  // Định dạng đơn vị tiền tệ
+  String formatCurrency(double orginalCurrency) {
+    var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
+    return formatter.format(orginalCurrency);
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,9 +60,9 @@ class _ListOrderPageState extends State<ListOrderPage> {
                 return DataRow(cells: [
                   DataCell(Text(order.id.toString())),
                   DataCell(Text(order.user.fullName)),
-                  DataCell(Text(order.total.toString())),
+                  DataCell(Text(formatCurrency(order.total))),
                   DataCell(Text(order.paymentMethod)),
-                  DataCell(Text(order.orderDate.toString())),
+                  DataCell(Text(formatDateTime(order.orderDate.toString()))),
                   DataCell(
                     DropdownButton<int>(
                       value: order.status,

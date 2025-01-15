@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:techx_app/utils/date_format .dart';
+import 'package:techx_app/utils/date_format.dart';
 
 class ProductReviewWidget extends StatelessWidget {
   final List<Map<String, dynamic>> reviews;

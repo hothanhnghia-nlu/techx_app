@@ -36,13 +36,12 @@ class AdminHomePage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-          
               const SizedBox(height: 8),
-          
-              OverviewWidget(),
-          
+              SizedBox(
+                height: 350, // Kích thước cụ thể
+                child: OverviewWidget(),
+              ),
               const SizedBox(height: 20),
-          
               const Text(
                 'Đơn hàng gần đây',
                 style: TextStyle(
@@ -51,10 +50,11 @@ class AdminHomePage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-          
               const SizedBox(height: 8),
-
-              const RecentOrderWidget(),
+              SizedBox(
+                height: 400, // Kích thước cụ thể
+                child: const RecentOrderWidget(),
+              ),
             ],
           ),
         ),

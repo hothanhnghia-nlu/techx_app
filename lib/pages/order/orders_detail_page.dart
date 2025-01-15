@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:techx_app/models/order_model.dart';
-import 'package:techx_app/utils/date_format%20.dart';
+import 'package:techx_app/utils/date_format.dart';
 
 class OrderDetailPage extends StatelessWidget {
   final Order order;
