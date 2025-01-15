@@ -7,6 +7,8 @@ import 'package:techx_app/pages/profile/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:techx_app/providers/auth_provider.dart';
 
+import '../../models/store.dart';
+import '../googlemap/store_locations_page.dart';
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
 
@@ -65,8 +67,8 @@ class _AccountPageState extends State<AccountPage> {
           TextButton(
             onPressed: () => Navigator.pop(context, 'Đóng'),
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(
-                  Color(hexColor('#9DA2A7'))),
+              backgroundColor:
+                  MaterialStateProperty.all(Color(hexColor('#9DA2A7'))),
               foregroundColor: MaterialStateProperty.all(Colors.white),
               padding: MaterialStateProperty.all(
                   const EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
@@ -187,15 +189,16 @@ class _AccountPageState extends State<AccountPage> {
               ),
 
               const SizedBox(height: 12),
-        
+
               const Divider(color: Color(0xffF6F6F6)),
-        
+
               const SizedBox(height: 12),
-        
+
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const MyOrdersPage(previousPage: 'AccountPage')));
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) =>
+                          const MyOrdersPage(previousPage: 'AccountPage')));
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -214,9 +217,7 @@ class _AccountPageState extends State<AccountPage> {
                         ),
                       ),
                     ),
-                        
                     const SizedBox(width: 16),
-                        
                     const Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,9 +229,7 @@ class _AccountPageState extends State<AccountPage> {
                             color: Colors.black,
                           ),
                         ),
-                        
                         SizedBox(height: 4),
-                        
                         Text(
                           'Đơn mua, chi tiết đơn hàng của tôi',
                           style: TextStyle(
@@ -242,17 +241,17 @@ class _AccountPageState extends State<AccountPage> {
                   ],
                 ),
               ),
-        
+
               const SizedBox(height: 12),
-        
+
               const Divider(color: Color(0xffF6F6F6)),
-        
+
               const SizedBox(height: 12),
-        
+
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const FavoriteProductPage()));
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const FavoriteProductPage()));
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -271,9 +270,7 @@ class _AccountPageState extends State<AccountPage> {
                         ),
                       ),
                     ),
-                        
                     const SizedBox(width: 16),
-                        
                     const Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,9 +282,7 @@ class _AccountPageState extends State<AccountPage> {
                             color: Colors.black,
                           ),
                         ),
-                        
                         SizedBox(height: 4),
-                        
                         Text(
                           'Sản phẩm yêu thích của tôi',
                           style: TextStyle(
@@ -299,13 +294,64 @@ class _AccountPageState extends State<AccountPage> {
                   ],
                 ),
               ),
-        
+
               const SizedBox(height: 12),
-        
+
               const Divider(color: Color(0xffF6F6F6)),
-        
+
               const SizedBox(height: 12),
-        
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const StoreLocationsPage()),
+                  );
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Color(hexColor('#F6F6F6')),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Icon(
+                          Icons.location_on_outlined,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+
+                    const Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Vị trí cửa hàng',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
+
+                        SizedBox(height: 4),
+
+                        Text(
+                          'Xem địa chỉ các cửa hàng trên bản đồ',
+                          style: TextStyle(
+                            color: Color(0xFF9DA2A7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
               const Padding(
                 padding: EdgeInsets.only(top: 12),
                 child: Column(
@@ -323,7 +369,6 @@ class _AccountPageState extends State<AccountPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        
                         Icon(
                           Icons.arrow_forward_ios,
                           color: Colors.black45,
@@ -334,21 +379,19 @@ class _AccountPageState extends State<AccountPage> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 12),
-        
+
               const Divider(color: Color(0xffF6F6F6)),
-        
+
               const SizedBox(height: 5),
-        
+
               Center(
                 child: TextButton(
                   onPressed: _logoutButton,
                   child: const Text(
                     'Đăng xuất',
-                    style: TextStyle(
-                      color: Color(0xffDD5D65)
-                    ),
+                    style: TextStyle(color: Color(0xffDD5D65)),
                   ),
                 ),
               ),
