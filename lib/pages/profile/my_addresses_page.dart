@@ -61,8 +61,8 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
   void _initializeAddressFields() {
     if (widget.address != null) {
       // Nếu có địa chỉ được truyền vào, gán dữ liệu vào các TextEditingController
-      nameController.text = widget.address!.fullName;
-      phoneController.text = widget.address!.phoneNumber;
+      nameController.text = widget.address!.fullName!;
+      phoneController.text = widget.address!.phoneNumber!;
       addressDetailController.text = widget.address!.detail;
       provinceController.text = widget.address!.province;
       districtController.text = widget.address!.city;

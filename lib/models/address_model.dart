@@ -1,7 +1,7 @@
 class Address {
   final int id;
-  late String fullName;
-  late String phoneNumber;
+   String? fullName;
+   String? phoneNumber;
   late String detail;
   late String ward;
   late String city;
@@ -24,8 +24,12 @@ class Address {
   factory Address.fromJson(Map<String, dynamic> json) {
     return Address(
       id: json['id'],
-      fullName: json['fullName'],
-      phoneNumber: json['phone'],
+      fullName: json['fulllName'] != null
+          ?json['fulllName']
+          : "",
+      phoneNumber: json['phone'] != null
+          ?json['phone']
+          : "",
       detail: json['detail'],
       ward: json['ward'],
       city: json['city'],
