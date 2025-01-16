@@ -81,7 +81,12 @@ class _ProductCatPageState extends State<ProductCatPage> {
                 ],
               ),
             ),
-            ProductCatWidget(providerId: widget.providerId), // Truyền ID hãng
+            ProductCatWidget(
+              providerId: widget.providerId,
+              sortOption: dropdownValue, // Đảm bảo giá trị mặc định của dropdownValue được truyền vào
+            ),
+
+
           ],
         ),
       ),
