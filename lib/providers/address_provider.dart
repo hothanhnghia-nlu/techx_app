@@ -12,6 +12,7 @@ class AddressProvider with ChangeNotifier {
   }
 
   Address? get addressDefault {
+    print("addressDefault"+_addressDefault.toString());
     return _addressDefault;
   }
 

@@ -24,8 +24,8 @@ class Address {
   factory Address.fromJson(Map<String, dynamic> json) {
     return Address(
       id: json['id'],
-      fullName: json['fulllName'] != null
-          ?json['fulllName']
+      fullName: json['fullName'] != null
+          ?json['fullName']
           : "",
       phoneNumber: json['phone'] != null
           ?json['phone']
