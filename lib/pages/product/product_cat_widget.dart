@@ -7,26 +7,42 @@ import 'package:techx_app/pages/product/product_detail_page.dart';
 import 'package:techx_app/utils/constant.dart';
 
 class ProductCatWidget extends StatefulWidget {
-  const ProductCatWidget({super.key, required this.providerId});
-  final int providerId; // Nhận ID từ ProductCatPage
+  const ProductCatWidget({super.key, required this.providerId, required this.sortOption});
+  final int providerId;
+  final String sortOption; // Nhận sortOption từ ProductCatPage
 
   @override
   State<ProductCatWidget> createState() => _ProductCatWidgetState();
 }
 
-
 class _ProductCatWidgetState extends State<ProductCatWidget> {
   bool _isLoading = true;
   final baseUrl = Constant.api;
   List<dynamic> _products = [];
-
+  @override
+  void didUpdateWidget(covariant ProductCatWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.sortOption != widget.sortOption) {
+      sortProducts(widget.sortOption); // Gọi hàm sắp xếp khi sortOption thay đổi
+    }
+  }
   @override
   void initState() {
     super.initState();
     fetchProducts();
   }
+// Sắp xếp sản phẩm theo giá
+  void sortProducts(String sortOption) {
+    setState(() {
+      if (sortOption == 'Giá Thấp - Cao') {
+        _products.sort((a, b) => a['newPrice'].compareTo(b['newPrice']));
+      } else if (sortOption == 'Giá Cao - Thấp') {
+        _products.sort((a, b) => b['newPrice'].compareTo(a['newPrice']));
+      }
+    });
+  }
 
-  // Fetch data from API
+  // Hàm fetch dữ liệu
   Future<void> fetchProducts() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/products'));
@@ -36,6 +52,7 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
           _products = allProducts.where((product) {
             return product['provider']['id'] == widget.providerId;
           }).toList();
+          sortProducts(widget.sortOption); // Sắp xếp theo giá mặc định mà widget cha truyền vào
           _isLoading = false;
         });
       } else {
@@ -45,6 +62,7 @@ class _ProductCatWidgetState extends State<ProductCatWidget> {
       print('Error fetching products: $e');
     }
   }
+
 
   // Decode UTF8
   String decodeUtf8(String value) {
