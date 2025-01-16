@@ -74,7 +74,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   void initState() {
     super.initState();
     _checkLoginStatus();
-    fetchReviews(7);
+    fetchReviews(widget.product['id']);
   }
 
   // Tính trung bình sao đánh giá
@@ -606,7 +606,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      showEvaluationDialog(context,7);
+                      showEvaluationDialog(context,product['id']);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
