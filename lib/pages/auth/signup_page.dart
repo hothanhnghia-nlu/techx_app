@@ -97,7 +97,7 @@ class _SignupPageState extends State<SignupPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
