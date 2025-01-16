@@ -113,7 +113,7 @@ class OrderDetailPage extends StatelessWidget {
                       Text(
                         formatDateTime(
                           order.paymentDate == null
-                              ? DateTime.now().toString()
+                              ? ''
                               : order.paymentDate.toString(),
                         ),
                         style: const TextStyle(

@@ -7,6 +7,6 @@ String formatDateTime(String isoString) {
     
     return formattedDate;
   } catch (e) {
-    return 'Invalid date';
+    return '';
   }
 }
