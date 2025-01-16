@@ -619,27 +619,27 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
       // Hiển thị form nhập thẻ
       showModalBottomSheet(
         context: context,
-        builder: (context) => CardInputWidget(
-          paymentIntentId: paymentIntent!['paymentIntentId'],
-          clientSecret: paymentIntent!['clientSecret'],
-          // Thêm client secret
-          onPaymentSuccess: () async {
-            // Gọi handleOrder và chờ hoàn thành
-            bool result = await handleOrder(context, product, from);
+        isScrollControlled: true, // Cho phép kiểm soát chiều cao
+        builder: (context) => FractionallySizedBox(
+          heightFactor: 0.70,
+          // Điều chỉnh chiều cao theo tỷ lệ màn hình (95%)
+          child: CardInputWidget(
+            paymentIntentId: paymentIntent!['paymentIntentId'],
+            clientSecret: paymentIntent!['clientSecret'],
+            onPaymentSuccess: () async {
+              bool result = await handleOrder(context, product, from);
 
-            if (result) {
-              // Nếu đặt hàng thành công, hiển thị dialog
-              // await showCompletedDialog(context);
-              await showPaymentSuccessDialog(context);
-            } else {
-              // Nếu đặt hàng thất bại, hiển thị thông báo lỗi
-              DialogUtils.showErrorDialog(
-                context: context,
-                message:
-                    'Đặt hàng thất bại. Khoản tiền tạm giữ sẽ được hoàn lại.',
-              );
-            }
-          },
+              if (result) {
+                await showPaymentSuccessDialog(context);
+              } else {
+                DialogUtils.showErrorDialog(
+                  context: context,
+                  message:
+                      'Đặt hàng thất bại. Khoản tiền tạm giữ sẽ được hoàn lại.',
+                );
+              }
+            },
+          ),
         ),
       );
     }
@@ -663,12 +663,16 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
           message: "Vui lòng thêm địa chỉ nhân trước khi đặt hàng.");
       return false;
     }
-    String formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(DateTime.now());
+    String formattedDate =
+        DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(DateTime.now());
     String? result = await orderService.createOrder(
         idAddress: idAddress,
         totalAmount: totalAmount,
         paymentMethod: selectedPaymentMethod,
-        paymentDate: selectedPaymentMethod == "Thẻ Tín dụng/Ghi nợ" ? formattedDate : null, // Kiểm tra phương thức thanh toán
+        paymentDate: selectedPaymentMethod == "Thẻ Tín dụng/Ghi nợ"
+            ? formattedDate
+            : null,
+        // Kiểm tra phương thức thanh toán
         productID: productID);
     if (result == "Dặt hàng thành công") {
       return true;
