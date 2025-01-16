@@ -31,16 +31,9 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
   final TextEditingController producedYearController = TextEditingController();
 
   final baseUrl = Constant.api;
-  
-  // Dropdown variables
-  final List<Map<String, dynamic>> providers = [
-    {"id": 1, "name": "Samsung"},
-    {"id": 2, "name": "Apple"},
-    {"id": 3, "name": "OPPO"},
-    {"id": 4, "name": "Xiaomi"},
-    {"id": 5, "name": "Vivo"},
-    {"id": 6, "name": "Realme"},
-  ];
+
+  // List of providers (will be updated from API)
+  List<Map<String, dynamic>> providers = [];
   int? selectedProviderId;
 
   File? _selectedImage;
@@ -49,8 +42,7 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Nếu chỉnh sửa sản phẩm, điền dữ liệu vào các trường
+    // Nếu có dữ liệu sản phẩm, điền vào các trường
     if (widget.productData != null) {
       final data = widget.productData!;
       nameController.text = data['name'] ?? '';
@@ -67,6 +59,31 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
       batteryController.text = data['battery'] ?? '';
       producedYearController.text = data['producedYear']?.toString() ?? '';
       selectedProviderId = data['providerId'];
+    }
+
+    // Tải danh sách providers từ API
+    _loadProviders();
+  }
+
+  // Hàm tải danh sách providers từ API
+  Future<void> _loadProviders() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/providers'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          providers = data.map((provider) {
+            return {
+              "id": provider['id'],
+              "name": provider['name'],
+            };
+          }).toList();
+        });
+      } else {
+        print("Lỗi khi tải danh sách nhà cung cấp: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Lỗi kết nối: $e");
     }
   }
 
@@ -143,7 +160,9 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: DropdownButtonFormField<int>(
         value: selectedProviderId,
-        items: providers.map((provider) {
+        items: providers.isEmpty
+            ? [DropdownMenuItem(child: Text('Đang tải...'))] // Hiển thị khi đang tải
+            : providers.map((provider) {
           return DropdownMenuItem<int>(
             value: provider['id'],
             child: Text(provider['name']),
