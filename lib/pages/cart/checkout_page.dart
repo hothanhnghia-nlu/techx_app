@@ -593,11 +593,12 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
 
   Future<void> handlePayment(BuildContext context) async {
     if (selectedPaymentMethod == 'Tiền mặt khi nhận hàng') {
-      bool result = await handleOrder(
+      dynamic result = await handleOrder(
           context, product, from); // Chờ kết quả từ handleOrder()
       if (result == true) {
         print('Dat hang thanh cong');
         showCompletedDialog(context);
+        return ;
       }
       if (result == "Vui lòng thêm địa chỉ nhân trước khi đặt hàng.") {
         return;

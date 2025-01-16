@@ -111,12 +111,14 @@ class _CardInputWidgetState extends State<CardInputWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Tiêu đề
-                    Text(
-                      'Thông tin thanh toán',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                    Center(
+                      child: Text(
+                        'Thông tin thanh toán',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
