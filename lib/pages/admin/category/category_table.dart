@@ -152,11 +152,13 @@ class _CategoryTableState extends State<CategoryTable> {
                       DataCell(Row(
                         children: [
                           IconButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
+                            onPressed: () async {
+                              await Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      CategoryDetailScreen(category: category),
+                                  builder: (_) => CategoryDetailScreen(
+                                    category: category,
+                                    onSave: fetchCategories, // Truyền callback
+                                  ),
                                 ),
                               );
                             },
@@ -174,9 +176,13 @@ class _CategoryTableState extends State<CategoryTable> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => CategoryDetailScreen()),
+        onPressed: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => CategoryDetailScreen(
+                onSave: fetchCategories, // Truyền callback
+              ),
+            ),
           );
         },
         backgroundColor: Colors.blue[50],

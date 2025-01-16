@@ -6,12 +6,14 @@ import 'package:techx_app/utils/constant.dart';
 
 class CategoryDetailScreen extends StatefulWidget {
   final Map<String, dynamic>? category;
+  final Function? onSave; // Thêm callback onSave
 
-  const CategoryDetailScreen({super.key, this.category});
+  const CategoryDetailScreen({super.key, this.category, this.onSave});
 
   @override
   State<CategoryDetailScreen> createState() => _CategoryDetailScreenState();
 }
+
 
 class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   final TextEditingController nameController = TextEditingController();
@@ -56,10 +58,17 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
 
       final response = await request.send();
 
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Cập nhật danh mục thành công')),
         );
+
+        // Gọi callback onSave nếu có
+        if (widget.onSave != null) {
+          widget.onSave!();
+        }
+
         Navigator.pop(context);
       } else {
         final responseBody = await response.stream.bytesToString();
@@ -68,6 +77,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
           const SnackBar(content: Text('Cập nhật danh mục thất bại')),
         );
       }
+
     } catch (e) {
       print("Lỗi kết nối: $e");
       ScaffoldMessenger.of(context).showSnackBar(
