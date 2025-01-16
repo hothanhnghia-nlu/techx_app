@@ -58,8 +58,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() {
       receiverName = addressProvider.addressDefault?.fullName;
       receiverPhone = addressProvider.addressDefault?.phoneNumber;
-      receiverAddress =
-          '${addressProvider.addressDefault?.detail}, ${addressProvider.addressDefault?.ward}, ${addressProvider.addressDefault?.city}, ${addressProvider.addressDefault?.province}';
+      receiverAddress = addressProvider.addressDefault?.detail;
       isLoading = false; // Dữ liệu đã tải xong
     });
   }
@@ -599,6 +598,9 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
       if (result == true) {
         print('Dat hang thanh cong');
         showCompletedDialog(context);
+      }
+      if (result == "Vui lòng thêm địa chỉ nhân trước khi đặt hàng.") {
+        return;
       } else {
         print('Đặt hàng không thành công, vui lòng thử lại');
         DialogUtils.showErrorDialog(
@@ -645,7 +647,7 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
     }
   }
 
-  Future<bool> handleOrder(
+  Future<dynamic> handleOrder(
       BuildContext context, List<dynamic> product, String from) async {
     int productID = 0;
     if (from == 'productDetail') {
@@ -661,7 +663,7 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
       DialogUtils.showErrorDialog(
           context: context,
           message: "Vui lòng thêm địa chỉ nhân trước khi đặt hàng.");
-      return false;
+      return "Vui lòng thêm địa chỉ nhân trước khi đặt hàng.";
     }
     String formattedDate =
         DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(DateTime.now());

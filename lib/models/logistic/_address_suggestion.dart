@@ -16,7 +16,7 @@ class AddressSuggestion {
   factory AddressSuggestion.fromJson(Map<String, dynamic> json) {
     final compound = json['compound'] ?? {};
     final description = json['description'] ?? '';
-    final detailAddress = _extractDetailAddress(description, compound);
+    final detailAddress = json['description'] ?? '';
 
     return AddressSuggestion(
       description: description,
