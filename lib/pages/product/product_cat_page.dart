@@ -3,13 +3,21 @@ import 'package:techx_app/pages/product/product_cat_widget.dart';
 
 List<String> list = <String>['Giá Cao - Thấp', 'Giá Thấp - Cao'];
 
+
 class ProductCatPage extends StatefulWidget {
-  const ProductCatPage({Key? key, required this.providerId}) : super(key: key);
+  const ProductCatPage({
+    Key? key,
+    required this.providerId,
+    required this.providerName, // Nhận tên của hãng
+  }) : super(key: key);
+
   final int providerId; // Nhận ID của hãng
+  final String providerName; // Nhận tên của hãng
 
   @override
   State<ProductCatPage> createState() => _ProductCatPageState();
 }
+
 
 class _ProductCatPageState extends State<ProductCatPage> {
   String dropdownValue = list.first;
@@ -23,9 +31,9 @@ class _ProductCatPageState extends State<ProductCatPage> {
         surfaceTintColor: Colors.white,
         elevation: 5,
         shadowColor: Color(hexColor('#F0F1F0')),
-        title: const Text(
-          'Tên danh mục', // Có thể thay đổi theo tên của provider nếu cần
-          style: TextStyle(
+        title: Text(
+          widget.providerName, // Sử dụng tên hãng từ widget
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 18,
