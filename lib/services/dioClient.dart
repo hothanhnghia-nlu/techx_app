@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/constant.dart';
+
 class DioClient {
   late Dio _dio;
-
+  final baseUrl = Constant.api;
   DioClient() {
     _dio = Dio(
       BaseOptions(

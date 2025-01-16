@@ -57,7 +57,7 @@ class _ProductsTableState extends State<ProductsTable> {
               Navigator.pop(context); // Đóng hộp thoại sau khi xác nhận
               try {
                 // Gửi yêu cầu xóa sản phẩm từ API
-                final response = await http.delete(Uri.parse('http://192.168.0.106:8080/api/v1/products/$id'));
+                final response = await http.delete(Uri.parse('$baseUrl/products/$id'));
 
                 if (response.statusCode == 200) {
                   // Nếu xóa thành công, cập nhật danh sách sản phẩm
