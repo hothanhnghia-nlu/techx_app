@@ -142,7 +142,10 @@ Future<void> addProductCart(int productId) async {
         'Content-Type': 'application/json'  // Đảm bảo Content-Type là application/json
       },
     );
-    
+    if (response.statusCode == 200) {
+          print('Sản phẩm đã cập nhật: $cartItemSize');
+          return;
+    }
     if (response.statusCode == 201) {
       // Cập nhật số lượng sản phẩm trong giỏ hàng ở giao diện home_page
       cartItemSize.value += 1;
