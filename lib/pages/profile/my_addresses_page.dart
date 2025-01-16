@@ -233,7 +233,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
       }
       return;
     }
-    _update();
+     _update();
   }
 
   void _update() async {

@@ -23,7 +23,7 @@ class AddressProvider with ChangeNotifier {
 
   Future<void> updateAddress(Address address) async {
     final addressController = AddressController();
-    addressController.updateAddress(address);
+    await addressController.updateAddress(address);
     notifyListeners();
   }
 
