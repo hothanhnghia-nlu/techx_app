@@ -14,13 +14,14 @@ class OrderService {
   }
 
   /// Đăng nhập người dùng và kiểm tra phân quyền
-  Future<String?> createOrfer(
+  Future<String?> createOrder(
       {required int idAddress,
       required double totalAmount,
       required String paymentMethod,
-      required  int productID
-      }) async {
-    final url = Uri.parse('$baseUrl/orders?addressId=1'); // Thay đổi URL nếu cần
+      required String? paymentDate,
+      required int productID}) async {
+    final url =
+        Uri.parse('$baseUrl/orders?addressId=1'); // Thay đổi URL nếu cần
     final token = await getToken();
     try {
 // Gửi yêu cầu đăng nhập
@@ -34,7 +35,8 @@ class OrderService {
           'idAddress': idAddress,
           'totalAmount': totalAmount,
           'paymentMethod': paymentMethod,
-          'productID':productID,
+          'paymentDate': paymentDate,
+          'productID': productID,
         }),
       );
 

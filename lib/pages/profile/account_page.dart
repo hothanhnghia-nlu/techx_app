@@ -7,7 +7,7 @@ import 'package:techx_app/pages/profile/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:techx_app/providers/auth_provider.dart';
 
-import '../../models/store.dart';
+import '../googlemap/store_list_page.dart';
 import '../googlemap/store_locations_page.dart';
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -303,7 +303,7 @@ class _AccountPageState extends State<AccountPage> {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const StoreLocationsPage()),
+                    MaterialPageRoute(builder: (_) => const StoreListPage()),
                   );
                 },
                 child: Row(

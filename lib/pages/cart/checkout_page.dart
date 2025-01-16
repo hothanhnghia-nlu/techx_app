@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:techx_app/models/paymentMethod.dart';
@@ -662,11 +663,12 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
           message: "Vui lòng thêm địa chỉ nhân trước khi đặt hàng.");
       return false;
     }
-
-    String? result = await orderService.createOrfer(
+    String formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(DateTime.now());
+    String? result = await orderService.createOrder(
         idAddress: idAddress,
         totalAmount: totalAmount,
         paymentMethod: selectedPaymentMethod,
+        paymentDate: selectedPaymentMethod == "Thẻ Tín dụng/Ghi nợ" ? formattedDate : null, // Kiểm tra phương thức thanh toán
         productID: productID);
     if (result == "Dặt hàng thành công") {
       return true;
@@ -820,9 +822,10 @@ class OrderConfirmBtnNavBar extends StatelessWidget {
   }
 
   Future<void> showPaymentSuccessDialog(BuildContext context) async {
+    if (!context.mounted) return; // Đảm bảo context còn tồn tại
     return showModalBottomSheet(
       backgroundColor: Colors.white,
-      context: context,
+      context: Navigator.of(context).context,
       isScrollControlled: true,
       isDismissible: false,
       // Không cho phép nhấn bên ngoài để đóng
