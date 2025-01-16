@@ -29,6 +29,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   bool isLoggedIn = false;
   final ReviewService reviewService = ReviewService();
   List<Map<String, dynamic>> reviews = [];
+  List<dynamic> favoriteProducts = [];  // Thêm biến này để lưu danh sách sản phẩm yêu thích
 
   void fetchReviews(int productId) async {
     try {
@@ -36,11 +37,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       setState(() {
         reviews = data;
       });
-      print('Reviews: $reviews');
+      print('Đánh giá: $reviews');
     } catch (e) {
-      print('Error: $e');
+      print('Lỗi: $e');
     }
   }
+
   Future<void> addToFavorite(int productId, String token) async {
     var uri = Uri.parse('$baseUrl/favorites');
     // Tạo yêu cầu multipart
@@ -54,80 +56,56 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
       // Kiểm tra mã trạng thái phản hồi
       if (response.statusCode == 200) {
-        print('Product added to favorites');
+        print('Sản phẩm đã được thêm vào yêu thích');
+        _fetchFavoriteProducts();  // Lấy lại danh sách yêu thích
       } else {
-        print('Failed to add product to favorites');
-        print('Response status: ${response.statusCode}');
+        print('Thêm sản phẩm vào yêu thích thất bại');
+        print('Mã trạng thái phản hồi: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error: $e');
+      print('Lỗi: $e');
     }
   }
 
-  Future<void> _checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('accessToken');
-    setState(() {
-      isLoggedIn = token != null;
-    });
-  }
-  
-  @override
-  void initState() {
-    super.initState();
-    _checkLoginStatus();
-    fetchReviews(widget.product['id']);
-  }
+  Future<void> removeFromFavorite(int productId, String token) async {
+    var uri = Uri.parse('$baseUrl/favorites/product/$productId');
+    var headers = {
+      'Authorization': 'Bearer $token',
+    };
 
-  // Tính trung bình sao đánh giá
-  double calculateAverageRating(List<Map<String, dynamic>> reviews) {
-    if (reviews.isEmpty) {
-      return 0.0; // Trả về 0 nếu không có đánh giá
-    }
-
-    double totalRating =
-    reviews.fold(0, (sum, review) => sum + (review['rating'] ?? 0));
-    double average = totalRating / reviews.length;
-
-    return double.parse(average.toStringAsFixed(1));
-  }
-
-  // Decode UTF8
-  String decodeUtf8(String value) {
     try {
-      return utf8.decode(value.runes.toList());
+      var response = await http.delete(uri, headers: headers);
+
+      if (response.statusCode == 200) {
+        print('Sản phẩm đã được xóa khỏi yêu thích');
+        await _fetchFavoriteProducts(); // Gọi lại danh sách yêu thích
+      } else {
+        print('Xóa sản phẩm khỏi yêu thích thất bại');
+        print('Mã trạng thái phản hồi: ${response.statusCode}');
+        print('Nội dung phản hồi: ${response.body}');
+
+      }
     } catch (e) {
-      return value;
+      print('Lỗi khi gửi yêu cầu: $e');
     }
   }
 
-  // Format currency
-  String formatCurrency(double originalCurrency) {
-    var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
-    return formatter.format(originalCurrency);
-  }
-
-  // Calculate discount percentage
-  String discountPercentage(double originalPrice, double newPrice) {
-    double discount = ((originalPrice - newPrice) / originalPrice) * 100;
-    return discount.round().toString();
-  }
-
-  // Nút Thêm vào Yêu thích
-  void _addToFavoriteButton() async {
+// Nút Xóa khỏi Yêu thích
+  void _removeFromFavoriteButton() async {
     if (isLoggedIn) {
       setState(() {
-        isPressed = !isPressed;
+        isPressed = !isPressed;  // Đổi trạng thái yêu thích
       });
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('accessToken');
 
       if (token != null) {
-        await addToFavorite(widget.product['id'], token);  // Gửi productId từ widget.product
+        // Nếu không yêu thích, gọi API để xóa khỏi yêu thích
+        await removeFromFavorite(widget.product['id'], token);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Sản phẩm đã được thêm vào yêu thích'),
+            content: Text('Sản phẩm đã được xóa khỏi yêu thích'),
             duration: Duration(seconds: 1),
           ),
         );
@@ -150,6 +128,136 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       );
     }
   }
+
+  Future<void> _fetchFavoriteProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+
+    if (token == null) {
+      return;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/favorites'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          favoriteProducts = data;
+        });
+      } else {
+        print('Không thể lấy danh sách yêu thích');
+        print('Mã trạng thái phản hồi: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Lỗi: $e');
+    }
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+    setState(() {
+      isLoggedIn = token != null;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+    fetchReviews(widget.product['id']);
+    _fetchFavoriteProducts();  // Lấy danh sách yêu thích khi bắt đầu
+  }
+
+  // Tính trung bình sao đánh giá
+  double calculateAverageRating(List<Map<String, dynamic>> reviews) {
+    if (reviews.isEmpty) {
+      return 0.0; // Trả về 0 nếu không có đánh giá
+    }
+
+    double totalRating =
+    reviews.fold(0, (sum, review) => sum + (review['rating'] ?? 0));
+    double average = totalRating / reviews.length;
+
+    return double.parse(average.toStringAsFixed(1));
+  }
+
+  // Giải mã UTF8
+  String decodeUtf8(String value) {
+    try {
+      return utf8.decode(value.runes.toList());
+    } catch (e) {
+      return value;
+    }
+  }
+
+  // Định dạng tiền tệ
+  String formatCurrency(double originalCurrency) {
+    var formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
+    return formatter.format(originalCurrency);
+  }
+
+  // Tính toán tỷ lệ giảm giá
+  String discountPercentage(double originalPrice, double newPrice) {
+    double discount = ((originalPrice - newPrice) / originalPrice) * 100;
+    return discount.round().toString();
+  }
+
+  // Nút Thêm vào Yêu thích
+  void _addToFavoriteButton() async {
+    if (isLoggedIn) {
+      setState(() {
+        isPressed = !isPressed;  // Đổi trạng thái yêu thích
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken');
+
+      if (token != null) {
+        if (isPressed) {
+          // Nếu yêu thích, gọi API để thêm vào yêu thích
+          await addToFavorite(widget.product['id'], token);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sản phẩm đã được thêm vào yêu thích'),
+              duration: Duration(seconds: 1),
+            ),
+          );
+        } else {
+          // Nếu không yêu thích, gọi API để xóa khỏi yêu thích
+          await removeFromFavorite(widget.product['id'], token);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sản phẩm đã được xóa khỏi yêu thích'),
+              duration: Duration(seconds: 1),
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vui lòng đăng nhập để thực hiện hành động này'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+              (route) => false,
+        );
+      }
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+            (route) => false,
+      );
+    }
+  }
+
+
 
 
 
