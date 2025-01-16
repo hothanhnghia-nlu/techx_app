@@ -66,6 +66,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
                   MaterialPageRoute(
                     builder: (_) => ProductCatPage(
                       providerId: provider['id'], // Truyền ID của hãng
+                      providerName: provider['name'], // Truyền tên của hãng
                     ),
                   ),
                 );
