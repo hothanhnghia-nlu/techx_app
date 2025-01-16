@@ -12,6 +12,7 @@ class AddressProvider with ChangeNotifier {
   }
 
   Address? get addressDefault {
+    print("addressDefault"+_addressDefault.toString());
     return _addressDefault;
   }
 
@@ -23,7 +24,7 @@ class AddressProvider with ChangeNotifier {
 
   Future<void> updateAddress(Address address) async {
     final addressController = AddressController();
-    addressController.updateAddress(address);
+    await addressController.updateAddress(address);
     notifyListeners();
   }
 
